@@ -25,9 +25,9 @@ public class Example {
 //		cars.add(new Car(100000, "Corvette C7"));
 //		cars.add(new Car(1000000, "Bugatti"));
 //		cars.add(new Car(800000, "Lamborghini"));
-		int cap = 300;
-		int start = 10;
-		int step = 10;
+		int cap = 1000;
+		int start = 100;
+		int step = 100;
 		while(start<=cap) {
 			cars.clear();
 			generate_Cars(start, cars);
