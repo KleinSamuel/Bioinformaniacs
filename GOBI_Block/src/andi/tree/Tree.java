@@ -74,8 +74,8 @@ public class Tree {
 	private String toString(String all, String div, Node parent) {
 		String last = all;
 		for(Node n:parent.get_children().keySet()) {
-			if(n.is_leave()) {
-					last+=div+"|--("+n.get_id()+")"+this.leaves.get(n).to_String();
+			if(n.is_leaf()) {
+					last+=div+"|--("+n.get_id()+")"+this.leaves.get(n).toString();
 			}
 			else {
 				

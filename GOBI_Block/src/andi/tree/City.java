@@ -24,7 +24,7 @@ public class City implements Node_Data {
 	}
 
 	@Override
-	public String to_String() {
+	public String toString() {
 		return name+"(X:"+pos_x+"|Y:"+pos_y+")";
 	}
 

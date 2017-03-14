@@ -45,14 +45,14 @@ public class Node implements Node_Data {
 
 	public int count_leaves() {
 		int c = 0;
-		if(this.is_leave())
+		if(this.is_leaf())
 			return 1;
 		for (Node n : childs.keySet())
 				c += n.count_leaves();
 		return c;
 	}
 
-	public boolean is_leave() {
+	public boolean is_leaf() {
 		return this.childs.isEmpty();
 	}
 
@@ -70,7 +70,7 @@ public class Node implements Node_Data {
 	}
 
 	@Override
-	public String to_String() {
+	public String toString() {
 		// TODO Auto-generated method stub
 		return null;
 	}

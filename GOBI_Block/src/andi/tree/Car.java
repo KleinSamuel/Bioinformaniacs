@@ -11,7 +11,7 @@ public class Car implements Node_Data{
 	
 
 	@Override
-	public String to_String() {
+	public String toString() {
 		return name+" <"+preis+"€>";
 	}
 
