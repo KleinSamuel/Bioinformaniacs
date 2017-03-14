@@ -1,13 +1,15 @@
 package andi.tree;
 
+import java.util.Collection;
 import java.util.TreeMap;
 
 public class Node implements Node_Data {
 	private int id;
 	private TreeMap<Node, Double> childs;
 	private Node parent;
-	private double value;
+	private double total_dist;
 	private Node_Data data;
+	private TreeMap<Node, Node_Data> leaves;
 
 	public Node(int id, Node p) {
 		this.id = id;
@@ -18,7 +20,6 @@ public class Node implements Node_Data {
 	public Node(int id) {
 		this.id = id;
 		childs = new TreeMap<>();
-		value = 0;
 	}
 
 	public int compareTo(Node_Data o) {
@@ -36,19 +37,27 @@ public class Node implements Node_Data {
 	}
 
 	public void add_child(Node c, double dist) {
-		childs.put(c, dist);
+		c.set_parent(this);
+		if (c.is_leaf())
+			childs.put(c, dist);
+		else
+			childs.put(c, dist - c.get_total_dist());
 	}
 
 	public void set_parent(Node p) {
 		this.parent = p;
 	}
 
+	public double get_total_dist() {
+		return this.total_dist;
+	}
+
 	public int count_leaves() {
 		int c = 0;
-		if(this.is_leaf())
+		if (this.is_leaf())
 			return 1;
 		for (Node n : childs.keySet())
-				c += n.count_leaves();
+			c += n.count_leaves();
 		return c;
 	}
 
@@ -56,8 +65,25 @@ public class Node implements Node_Data {
 		return this.childs.isEmpty();
 	}
 
-	public void set_value(double v) {
-		this.value = v;
+	public void set_total_dist(double v) {
+		this.total_dist = v;
+	}
+
+	public TreeMap<Node, Node_Data> get_leaves() {
+		if (leaves == null) {
+			leaves = new TreeMap<>();
+			for (Node c : childs.keySet())
+				if (c.is_leaf())
+					leaves.put(c, c.get_data());
+				else
+					for (Node cc : c.get_leaves().keySet())
+						leaves.put(cc, cc.get_data());
+		}
+		return leaves;
+	}
+
+	public Node_Data get_data() {
+		return data;
 	}
 
 	@Override
@@ -71,8 +97,18 @@ public class Node implements Node_Data {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		String out = "";
+		if(!this.is_root())
+		out += "(" + id + ")";
+		if (this.is_leaf()) 
+			out += " Data: " + this.data.toString();
+		else 
+			out+=this.shared_info(null);
+		return out;
+	}
+
+	public void set_Data(Node_Data nd) {
+		this.data = nd;
 	}
 
 	@Override
@@ -82,9 +118,16 @@ public class Node implements Node_Data {
 	}
 
 	@Override
-	public String shared_info() {
-		// TODO Auto-generated method stub
-		return null;
+	public String shared_info(Collection<Node_Data> nds) {
+		String out = "";
+		if (!this.is_root())
+			out += "Dist_to_Parent: " + parent.get_children().get(this)+"; ";
+		if (this.is_leaf())
+			return out;
+		out += "Leaves: " + this.count_leaves()+"; ";
+		out += "Dist_to_Leaves: " + total_dist+"; ";
+		out += "Shared info: " + this.get_leaves().firstEntry().getValue().shared_info(this.get_leaves().values());
+		return out;
 	}
 
 	public TreeMap<Node, Double> get_children() {

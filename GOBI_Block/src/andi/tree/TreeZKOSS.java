@@ -80,7 +80,7 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 	private String toString(String all, String div, Node parent) {
 		String last = all;
 		for(Node n:parent.get_children().keySet()) {
-			if(n.is_leave()) {
+			if(n.is_leaf()) {
 					last+=div+"|--("+n.get_id()+")"+this.leaves.get(n).toString();
 			}
 			else {
@@ -120,7 +120,7 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
-				l.setData(nd);
+				l.set_Data(nd);
 				leaf_node(l, nd);
 				ns.add(l);
 			}
@@ -225,7 +225,7 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 
 	@Override
 	public boolean isLeaf(Node node) {
-		return node.is_leave();
+		return node.is_leaf();
 	}
 
 }

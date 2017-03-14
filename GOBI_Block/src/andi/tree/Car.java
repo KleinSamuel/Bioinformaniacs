@@ -1,5 +1,7 @@
 package andi.tree;
 
+import java.util.Collection;
+
 public class Car implements Node_Data{
 	private int preis;
 	private String name;
@@ -27,11 +29,6 @@ public class Car implements Node_Data{
 	public String get_name() {
 		return name;
 	}
-	@Override
-	public String shared_info() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 	@Override
@@ -39,6 +36,21 @@ public class Car implements Node_Data{
 		if(o instanceof Car)
 			return name.compareTo(((Car) o).get_name());
 		return -1;
+	}
+
+
+	@Override
+	public String shared_info(Collection<Node_Data> nds) {
+		int max =Integer.MIN_VALUE;
+		int min = Integer.MAX_VALUE;
+		for(Node_Data nd:nds) {
+			Car c = (Car) nd;
+			if(c.get_preis()>max)
+				max=c.get_preis();
+			if(c.get_preis()<min)
+				min = c.get_preis();
+		}
+		return "Alle kosten "+min+"-"+max+"€";
 	}
 	
 	

@@ -10,7 +10,8 @@ public static void main(String[] args) {
 	cars.add(new Car(80000, "Porsche"));
 	cars.add(new Car(35000, "VW GOLF GTI"));
 	cars.add(new Car(100000, "Corvette C7"));
-	cars.add(new Car(1000000, "Lamborghini"));
+	cars.add(new Car(1000000, "Bugatti"));
+	cars.add(new Car(800000, "Lamborghini"));
 	Tree car_t = new Tree(cars);
 	System.out.println("Car-Tree\n"+car_t.toString()+"\n");
 	

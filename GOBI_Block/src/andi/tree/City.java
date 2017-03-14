@@ -1,5 +1,7 @@
 package andi.tree;
 
+import java.util.Collection;
+
 public class City implements Node_Data {
 
 	private String name;
@@ -46,9 +48,18 @@ public class City implements Node_Data {
 	}
 
 	@Override
-	public String shared_info() {
-		// TODO Auto-generated method stub
-		return null;
+	public String shared_info(Collection<Node_Data> nds) {
+		double max_dist = 0;
+		for(Node_Data nd1:nds)
+			for(Node_Data nd2:nds) {
+				if(nd1==nd2)
+					continue;
+				double dist = nd1.compute_distance(nd2);
+				if(dist>max_dist)
+					max_dist = dist;
+			}
+		return "Max Distanz zwischen den Städten = "+max_dist;
 	}
+
 
 }
