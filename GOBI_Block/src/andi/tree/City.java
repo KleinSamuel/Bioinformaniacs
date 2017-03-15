@@ -61,5 +61,10 @@ public class City implements Node_Data {
 		return "Max Distanz zwischen den Städten = "+max_dist;
 	}
 
+	@Override
+	public String get_Name() {
+		return name;
+	}
+
 
 }

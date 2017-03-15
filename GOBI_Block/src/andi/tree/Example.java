@@ -13,11 +13,12 @@ public class Example {
 		 cities.add(new City("Hamburg", 40, 20));
 		 cities.add(new City("Hanover", 50, 10));
 		 cities.add(new City("Berlin", 80, 40));
-		 cities.add(new City("Garching ad Alz", 90, 100));
+		 cities.add(new City("GarchingAlz", 90, 100));
 		 cities.add(new City("Ingolstadt", 80, 85));
 		 cities.add(new City("Rosenheim", 80, 120));
 		 Tree city_t = new Tree(cities);
 		 System.out.println("City_Tree\n"+city_t.toString());
+		 System.out.println(city_t.to_newick());
 		ArrayList<Node_Data> cars = new ArrayList<>();
 //		cars.add(new Car(40000, "VW GOLF R"));
 //		cars.add(new Car(80000, "Porsche"));
@@ -25,9 +26,9 @@ public class Example {
 //		cars.add(new Car(100000, "Corvette C7"));
 //		cars.add(new Car(1000000, "Bugatti"));
 //		cars.add(new Car(800000, "Lamborghini"));
-		int cap = 1000;
-		int start = 100;
-		int step = 100;
+		int cap = 100;
+		int start = 10;
+		int step = 10;
 		while(start<=cap) {
 			cars.clear();
 			generate_Cars(start, cars);
@@ -37,6 +38,7 @@ public class Example {
 			long dur = (int) ((end-s));
 			System.out.println("Execution for "+start+" Nodes took "+((int)(dur/60000))+":"+(((int)(dur/1000))%60<10 ? "0"+((int)(dur/1000))%60 : ((int)(dur/1000))%60)+":"+((dur%1000<100) ? (dur%1000<10 ? "00" : "0") : "")+dur%1000+"min");
 			start+=step;
+			System.out.println(car_t.to_newick());
 			
 		}
 		

@@ -52,6 +52,12 @@ public class Car implements Node_Data{
 		}
 		return "Alle kosten "+min+"-"+max+"€";
 	}
+
+
+	@Override
+	public String get_Name() {
+		return name;
+	}
 	
 	
 }

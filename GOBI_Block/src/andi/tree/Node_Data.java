@@ -10,6 +10,8 @@ public interface Node_Data extends Comparable<Node_Data>{
 	public String shared_info(Collection<Node_Data> nds);
 	
 	public boolean equals(Object o);
+	
+	public String get_Name();
 
 	
 }

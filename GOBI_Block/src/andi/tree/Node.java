@@ -116,6 +116,8 @@ public class Node implements Node_Data {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	
+	
 
 	@Override
 	public String shared_info(Collection<Node_Data> nds) {
@@ -133,5 +135,21 @@ public class Node implements Node_Data {
 	public TreeMap<Node, Double> get_children() {
 		return childs;
 	}
+
+	@Override
+	public String get_Name() {
+		if(this.is_leaf())
+			return data.get_Name();
+		return "";
+	}
+	
+	public Node get_Parent() {
+		return parent;
+	}
+	
+	public double dist_to_parent() {
+		return this.get_Parent().get_children().get(this);
+	}
+	
 
 }

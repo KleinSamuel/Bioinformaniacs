@@ -196,5 +196,28 @@ public class Tree {
 		// TODO Auto-generated method stub
 
 	}
+	
+	public String to_newick() {
+		return to_newick(root);
+	}
+	
+	public String to_newick(Node next) {
+		String newick = "(";
+		int count = 0;
+		for(Node n:next.get_children().keySet()) {
+			count++;
+			if(count!=1)
+			newick+=",";
+			if(!n.is_leaf())
+				newick+=to_newick(n);
+			else
+			newick+=n.get_Name()+":"+n.dist_to_parent();
+		}
+		if(next.is_root())
+		newick+=")O;";
+		else
+			newick+=")"+next.get_Name()+":"+next.dist_to_parent();
+		return newick;
+	}
 
 }
