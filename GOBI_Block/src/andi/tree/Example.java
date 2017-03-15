@@ -8,24 +8,24 @@ import java.util.Random;
 public class Example {
 	public static void main(String[] args) {
 		 LinkedList<Node_Data> cities = new LinkedList<>();
-		 cities.add(new City("München", 80, 100));
-		 cities.add(new City("Garching", 80, 95));
-		 cities.add(new City("Hamburg", 40, 20));
-		 cities.add(new City("Hanover", 50, 10));
-		 cities.add(new City("Berlin", 80, 40));
-		 cities.add(new City("GarchingAlz", 90, 100));
-		 cities.add(new City("Ingolstadt", 80, 85));
-		 cities.add(new City("Rosenheim", 80, 120));
-		 Tree city_t = new Tree(cities);
-		 System.out.println("City_Tree\n"+city_t.toString());
-		 System.out.println(city_t.to_newick());
+//		 cities.add(new City("München", 80, 100));
+//		 cities.add(new City("Garching", 80, 95));
+//		 cities.add(new City("Hamburg", 40, 20));
+//		 cities.add(new City("Hanover", 50, 10));
+//		 cities.add(new City("Berlin", 80, 40));
+//		 cities.add(new City("GarchingAlz", 90, 100));
+//		 cities.add(new City("Ingolstadt", 80, 85));
+//		 cities.add(new City("Rosenheim", 80, 120));
+//		 Tree city_t = new Tree(cities);
+//		 System.out.println("City_Tree\n"+city_t.toString());
+//		 System.out.println(city_t.to_newick());
 		ArrayList<Node_Data> cars = new ArrayList<>();
 //		cars.add(new Car(40000, "VW GOLF R"));
-//		cars.add(new Car(80000, "Porsche"));
-//		cars.add(new Car(35000, "VW GOLF GTI"));
-//		cars.add(new Car(100000, "Corvette C7"));
-//		cars.add(new Car(1000000, "Bugatti"));
-//		cars.add(new Car(800000, "Lamborghini"));
+//		cars.add(new Car(40000, "Porsche"));
+//		cars.add(new Car(40000, "VW GOLF GTI"));
+//		cars.add(new Car(40000, "Corvette C7"));
+//		cars.add(new Car(40000, "Bugatti"));
+//		cars.add(new Car(40000, "Lamborghini"));
 		int cap = 100;
 		int start = 10;
 		int step = 10;
@@ -36,10 +36,14 @@ public class Example {
 			Tree car_t = new Tree(cars);
 			long end = System.currentTimeMillis();
 			long dur = (int) ((end-s));
-			System.out.println("Execution for "+start+" Nodes took "+((int)(dur/60000))+":"+(((int)(dur/1000))%60<10 ? "0"+((int)(dur/1000))%60 : ((int)(dur/1000))%60)+":"+((dur%1000<100) ? (dur%1000<10 ? "00" : "0") : "")+dur%1000+"min");
-			start+=step;
+//			System.out.println("Execution for "+start+" Nodes took "+((int)(dur/60000))+":"+(((int)(dur/1000))%60<10 ? "0"+((int)(dur/1000))%60 : ((int)(dur/1000))%60)+":"+((dur%1000<100) ? (dur%1000<10 ? "00" : "0") : "")+dur%1000+"min");
+//			start+=step;
+			if(car_t.get_root().get_children().size()>2) {
+			System.out.println(car_t.toString());
 			System.out.println(car_t.to_newick());
-			
+			break;
+//			
+			}
 		}
 		
 

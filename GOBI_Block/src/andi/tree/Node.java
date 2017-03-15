@@ -150,6 +150,14 @@ public class Node implements Node_Data {
 	public double dist_to_parent() {
 		return this.get_Parent().get_children().get(this);
 	}
+	public void reset() {
+		if(this.is_root()) {
+			childs.clear();
+			total_dist=0;
+			data=null;
+			leaves=null;
+		}
+	}
 	
 
 }

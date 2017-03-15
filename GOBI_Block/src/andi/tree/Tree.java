@@ -219,5 +219,7 @@ public class Tree {
 			newick+=")"+next.get_Name()+":"+next.dist_to_parent();
 		return newick;
 	}
-
+	public Node get_root() {
+		return root;
+	}
 }

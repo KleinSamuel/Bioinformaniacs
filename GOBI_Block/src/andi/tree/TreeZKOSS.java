@@ -38,6 +38,7 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 	}
 
 	private void init() {
+		root.reset();
 		leaves = new TreeMap<>();
 		inner = new TreeSet<>();
 		nodes = new TreeMap<>();
@@ -137,28 +138,17 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 	}
 
 	private void upgma(ArrayList<Node> ns, double[][] old_mat, ArrayList<Node> old_data) {
+		
 		double[][] dists = new double[ns.size()][ns.size()];
 		ArrayList<Node> new_nodes = new ArrayList<>();
-		double min = Double.MAX_VALUE;
-		Node n_min_1 = ns.get(0);
-		Node n_min_2 = ns.get(1);
 		new_nodes.addAll(ns);
-		if (old_data == null) {
+		if (old_data == null)
 			dists = old_mat;
-			for (int x = 0; x < ns.size(); x++)
-				for (int y = x + 1; y < ns.size(); y++) {
-					double dist = dists[y][x];
-					if (dist < min) {
-						min = dist;
-						n_min_1 = ns.get(x);
-						n_min_2 = ns.get(y);
-					}
-				}
-		} else
-			for (int x = 0; x < ns.size(); x++)
+		else {
+			for (int x = 0; x < ns.size(); x++) {
 				for (int y = x; y < ns.size(); y++) {
 					double dist = 0;
-					if (x != y) {
+					if (x != y)
 						if (y != ns.size() - 1)
 							dist = old_mat[old_data.indexOf(ns.get(x))][old_data.indexOf(ns.get(y))];
 						else {
@@ -170,31 +160,40 @@ public class TreeZKOSS extends AbstractTreeModel<Node> implements TreeSelectable
 							}
 							dist /= count;
 						}
-						if (dist < min) {
-							min = dist;
-							n_min_1 = ns.get(x);
-							n_min_2 = ns.get(y);
-						}
-					}
+					
 					dists[y][x] = dist;
 					dists[x][y] = dist;
 				}
-		if (ns.size() > 2) {
+			}
+		}
+		if(ns.size()>2) {
+			double min = dists[0][1];
+			Node n_min_1 = ns.get(0);
+			Node n_min_2 = ns.get(1);
+			for(int x = 0; x<ns.size();x++) {
+				for(int y = x+1; y<ns.size();y++) {
+					double dist = dists[y][x];
+					if(dist<min) {
+						min=dist;
+						n_min_1 = ns.get(x);
+						n_min_2 = ns.get(y);
+					}
+				}
+			}
 			Node c = new Node(nodes.size());
-			double dist = min / 2;
-			c.set_total_dist(dist);
-			c.add_child(n_min_1, dist);
-			c.add_child(n_min_2, dist);
+			c.add_child(n_min_1, (min/2));
+			c.add_child(n_min_2, (min/2));
 			new_nodes.remove(new_nodes.indexOf(n_min_1));
 			new_nodes.remove(new_nodes.indexOf(n_min_2));
 			new_nodes.add(c);
 			inner_node(c);
 			upgma(new_nodes, dists, ns);
-		} else {
-			root.set_total_dist(dists[1][0] / 2);
-			root.add_child(ns.get(0), (dists[1][0] / 2));
-			root.add_child(ns.get(1), (dists[1][0] / 2));
+			
+		}else {
+			root.add_child(ns.get(0), (dists[1][0]/2));
+			root.add_child(ns.get(1), (dists[1][0]/2));
 		}
+
 	}
 
 	private void build_wpgma() {
