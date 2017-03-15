@@ -67,20 +67,19 @@ public class Tree {
 		build();
 
 	}
-	public String toString () {
-		return toString("root", "\n  ", root);
+
+	public String toString() {
+		return toString("root: " + root.toString(), "\n   ", root);
 	}
-	
+
 	private String toString(String all, String div, Node parent) {
 		String last = all;
-		for(Node n:parent.get_children().keySet()) {
-			if(n.is_leave()) {
-					last+=div+"|--("+n.get_id()+")"+this.leaves.get(n).to_String();
-			}
-			else {
-				
-				last=toString(last+div+"|--("+n.get_id()+")", div+"    ", n);
-			}
+		int count = 0;
+		for (Node n : parent.get_children().keySet()) {
+			count++;
+			last += div + "|" + div + "|--" + n.toString();
+			if (!n.is_leaf())
+				last = toString(last, count == parent.get_children().size() ? div + "    " : div + "|   ", n);
 		}
 		return last;
 	}
@@ -114,6 +113,7 @@ public class Tree {
 		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
+				l.set_Data(nd);
 				leaf_node(l, nd);
 				ns.add(l);
 			}
@@ -132,17 +132,28 @@ public class Tree {
 	}
 
 	private void upgma(ArrayList<Node> ns, double[][] old_mat, ArrayList<Node> old_data) {
-		
 		double[][] dists = new double[ns.size()][ns.size()];
 		ArrayList<Node> new_nodes = new ArrayList<>();
+		double min = Double.MAX_VALUE;
+		Node n_min_1 = ns.get(0);
+		Node n_min_2 = ns.get(1);
 		new_nodes.addAll(ns);
-		if (old_data == null)
+		if (old_data == null) {
 			dists = old_mat;
-		else {
-			for (int x = 0; x < ns.size(); x++) {
+			for (int x = 0; x < ns.size(); x++)
+				for (int y = x + 1; y < ns.size(); y++) {
+					double dist = dists[y][x];
+					if (dist < min) {
+						min = dist;
+						n_min_1 = ns.get(x);
+						n_min_2 = ns.get(y);
+					}
+				}
+		} else
+			for (int x = 0; x < ns.size(); x++)
 				for (int y = x; y < ns.size(); y++) {
 					double dist = 0;
-					if (x != y)
+					if (x != y) {
 						if (y != ns.size() - 1)
 							dist = old_mat[old_data.indexOf(ns.get(x))][old_data.indexOf(ns.get(y))];
 						else {
@@ -154,45 +165,59 @@ public class Tree {
 							}
 							dist /= count;
 						}
-					
+						if (dist < min) {
+							min = dist;
+							n_min_1 = ns.get(x);
+							n_min_2 = ns.get(y);
+						}
+					}
 					dists[y][x] = dist;
 					dists[x][y] = dist;
 				}
-			}
-		}
-		if(ns.size()>2) {
-			double min = dists[0][1];
-			Node n_min_1 = ns.get(0);
-			Node n_min_2 = ns.get(1);
-			for(int x = 0; x<ns.size();x++) {
-				for(int y = x+1; y<ns.size();y++) {
-					double dist = dists[y][x];
-					if(dist<min) {
-						min=dist;
-						n_min_1 = ns.get(x);
-						n_min_2 = ns.get(y);
-					}
-				}
-			}
+		if (ns.size() > 2) {
 			Node c = new Node(nodes.size());
-			c.add_child(n_min_1, (min/2));
-			c.add_child(n_min_2, (min/2));
+			double dist = min / 2;
+			c.set_total_dist(dist);
+			c.add_child(n_min_1, dist);
+			c.add_child(n_min_2, dist);
 			new_nodes.remove(new_nodes.indexOf(n_min_1));
 			new_nodes.remove(new_nodes.indexOf(n_min_2));
 			new_nodes.add(c);
 			inner_node(c);
 			upgma(new_nodes, dists, ns);
-			
-		}else {
-			root.add_child(ns.get(0), (dists[1][0]/2));
-			root.add_child(ns.get(1), (dists[1][0]/2));
+		} else {
+			root.set_total_dist(dists[1][0] / 2);
+			root.add_child(ns.get(0), (dists[1][0] / 2));
+			root.add_child(ns.get(1), (dists[1][0] / 2));
 		}
-
 	}
 
 	private void build_wpgma() {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public String to_newick() {
+		return to_newick(root);
+	}
+	
+	public String to_newick(Node next) {
+		String newick = "(";
+		int count = 0;
+		for(Node n:next.get_children().keySet()) {
+			count++;
+			if(count!=1)
+			newick+=",";
+			if(!n.is_leaf())
+				newick+=to_newick(n);
+			else
+			newick+=n.get_Name()+":"+n.dist_to_parent();
+		}
+		if(next.is_root())
+		newick+=")O;";
+		else
+			newick+=")"+next.get_Name()+":"+next.dist_to_parent();
+		return newick;
 	}
 
 }
