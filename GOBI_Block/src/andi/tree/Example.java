@@ -7,6 +7,7 @@ import java.util.Random;
 
 public class Example {
 	public static void main(String[] args) {
+
 		 LinkedList<Node_Data> cities = new LinkedList<>();
 //		 cities.add(new City("München", 80, 100));
 //		 cities.add(new City("Garching", 80, 95));
@@ -45,9 +46,6 @@ public class Example {
 //			
 			}
 		}
-		
-
-
 	}
 
 	public static String generate_String(int length) {
@@ -69,5 +67,4 @@ public class Example {
 			out.add(new Car(generate_Price(1000000), generate_String(15)));
 	}
 	
-
 }
