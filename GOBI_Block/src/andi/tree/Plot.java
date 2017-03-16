@@ -11,13 +11,13 @@ public class Plot {
 
 	private String R_path = "/home/proj/biosoft/software/R/R-3.2.2/bin/Rscript";
 	private Tree t;
-	private static HashMap<Tree,TreeMap<Node,String>> paths = new HashMap<>();
+	private static HashMap<Tree,TreeMap<Node,File>> paths = new HashMap<>();
 
 	public Plot(Tree t) {
 		this.t = t;
 	}
 
-	public String plot(Node n) throws Exception {
+	public File plot(Node n) throws Exception {
 		File plot = File.createTempFile("R_phylo_", ".png");
 //		plot.deleteOnExit();
 		File r_script = File.createTempFile("R_script_", ".R");
@@ -53,7 +53,7 @@ public class Plot {
 		bw.close();
 		Process plotting = Runtime.getRuntime().exec(R_path+" "+r_script.getAbsolutePath());
 		plotting.waitFor();
-		return plot.getAbsolutePath();
+		return plot;
 	}
 
 	private TreeSet<Double> remove_first_last(TreeSet<Double> ts) {
@@ -71,7 +71,7 @@ public class Plot {
 		return out.substring(0, out.length() - 1);
 	}
 	
-	public static String get_plot(Tree tree, Node n) {
+	public static File get_plot(Tree tree, Node n) {
 		if(!paths.containsKey(tree))
 			paths.put(tree, new TreeMap<>());
 		if(!paths.get(tree).containsKey(n)) {
@@ -84,7 +84,7 @@ public class Plot {
 		}
 			return paths.get(tree).get(n);
 	}
-	public static String get_plot(Tree tree, int id) {
+	public static File get_plot(Tree tree, int id) {
 		if(!paths.containsKey(tree))
 			paths.put(tree, new TreeMap<>());
 		if(!paths.get(tree).containsKey(tree.get_Node(id))) {

@@ -17,7 +17,6 @@ public class Tree {
 	private TreeSet<Node> inner;
 	private HashSet<Node_Data> nds;
 	private Cluster_method cm = Cluster_method.UPGMA;
-	private double root_offset = 1;
 
 	public Tree() {
 		init();
