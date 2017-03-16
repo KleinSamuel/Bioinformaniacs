@@ -20,7 +20,7 @@ public class Plot {
 	}
 
 	public File plot(Node n, String temp_dir) throws Exception {
-		temp_dir = "";
+		this.temp_dir = temp_dir;
 		return plot(n);
 	}
 
@@ -98,7 +98,7 @@ public class Plot {
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(tree).containsKey(n)) {
+		if (!paths.get(node_names).get(tree).containsKey(n)) {
 			Plot p = new Plot(tree);
 			try {
 				paths.get(node_names).get(tree).put(n, p.plot(n));
@@ -114,7 +114,7 @@ public class Plot {
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(tree).containsKey(n)) {
+		if (!paths.get(node_names).get(tree).containsKey(n)) {
 			Plot p = new Plot(tree);
 			try {
 				paths.get(node_names).get(tree).put(n, p.plot(n, temp_dir));
@@ -130,7 +130,7 @@ public class Plot {
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(tree).containsKey(tree.get_Node(id))) {
+		if (!paths.get(node_names).get(tree).containsKey(tree.get_Node(id))) {
 			Plot p = new Plot(tree);
 			try {
 				paths.get(node_names).get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id)));
@@ -146,7 +146,7 @@ public class Plot {
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(tree).containsKey(tree.get_Node(id))) {
+		if (!paths.get(node_names).get(tree).containsKey(tree.get_Node(id))) {
 			Plot p = new Plot(tree);
 			try {
 				paths.get(node_names).get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id), temp_dir));

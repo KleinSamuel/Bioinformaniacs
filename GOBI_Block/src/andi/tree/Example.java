@@ -46,8 +46,7 @@ public class Example {
 			System.out.println(car_t);
 			try {
 				System.out.println(Plot.get_plot(car_t, 0));
-				car_t.change_cluster_method(Cluster_method.WPGMA);
-				car_t.rebuild();
+				Plot.set_node_names(true);
 				System.out.println(Plot.get_plot(car_t, 0));
 			} catch (Exception e) {
 				e.printStackTrace();
