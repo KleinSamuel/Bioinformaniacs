@@ -12,17 +12,32 @@ public class Plot {
 	private String R_path = "/home/proj/biosoft/software/R/R-3.2.2/bin/Rscript";
 	private Tree t;
 	private static HashMap<Tree, TreeMap<Node, File>> paths = new HashMap<>();
+	private String temp_dir = "";
 
 	public Plot(Tree t) {
 		this.t = t;
 	}
 
+	public File plot(Node n, String temp_dir) throws Exception {
+		temp_dir = "";
+		return plot(n);
+	}
+
 	public File plot(Node n) throws Exception {
-		File plot = File.createTempFile("R_phylo_", ".png");
+		File plot; 
+		File r_script;
+		File r_newick;
+		if (temp_dir.equals("")) {
+			plot = File.createTempFile("R_phylo_", ".png");
+			r_script = File.createTempFile("R_script_", ".R");
+			r_newick = File.createTempFile("R_newick", ".txt");
+		}else {
+			plot = File.createTempFile("R_phylo_", ".png",new File(temp_dir));
+			r_script = File.createTempFile("R_script_", ".R",new File(temp_dir));
+			r_newick = File.createTempFile("R_newick", ".txt",new File(temp_dir));
+		}
 		// plot.deleteOnExit();
-		File r_script = File.createTempFile("R_script_", ".R");
 		r_script.deleteOnExit();
-		File r_newick = File.createTempFile("R_newick", ".txt");
 		r_newick.deleteOnExit();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n));
@@ -86,6 +101,20 @@ public class Plot {
 		}
 		return paths.get(tree).get(n);
 	}
+	
+	public static File get_plot(Tree tree, Node n, String temp_dir) {
+		if (!paths.containsKey(tree))
+			paths.put(tree, new TreeMap<>());
+		if (!paths.get(tree).containsKey(n)) {
+			Plot p = new Plot(tree);
+			try {
+				paths.get(tree).put(n, p.plot(n,temp_dir));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return paths.get(tree).get(n);
+	}
 
 	public static File get_plot(Tree tree, int id) {
 		if (!paths.containsKey(tree))
@@ -94,6 +123,20 @@ public class Plot {
 			Plot p = new Plot(tree);
 			try {
 				paths.get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id)));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return paths.get(tree).get(tree.get_Node(id));
+	}
+	
+	public static File get_plot(Tree tree, int id, String temp_dir) {
+		if (!paths.containsKey(tree))
+			paths.put(tree, new TreeMap<>());
+		if (!paths.get(tree).containsKey(tree.get_Node(id))) {
+			Plot p = new Plot(tree);
+			try {
+				paths.get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id),temp_dir));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
