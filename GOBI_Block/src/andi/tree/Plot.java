@@ -41,9 +41,9 @@ public class Plot {
 			r_script = File.createTempFile("R_script_", ".R", new File(temp_dir));
 			r_newick = File.createTempFile("R_newick", ".txt", new File(temp_dir));
 		}
-//		plot.deleteOnExit();
+		plot.deleteOnExit();
 		r_script.deleteOnExit();
-//		r_newick.deleteOnExit();
+		r_newick.deleteOnExit();
 		System.out.println(r_newick);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n,node_names));
