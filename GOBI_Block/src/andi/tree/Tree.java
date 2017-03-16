@@ -414,5 +414,30 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 			return false;
 		return true;
 	}
+//	@Override
+//	public Node getChild(Node node, int index) {
+//		if(index > node.get_children().size()){
+//			return null;
+//		}else{
+//			int cnt = 0;
+//			for(Node n : node.get_children().keySet()){
+//				if(cnt == index){
+//					return n;
+//				}
+//				cnt++;
+//			}
+//		}
+//		return null;
+//	}
+//
+//	@Override
+//	public int getChildCount(Node node) {
+//		return node.get_children().size();
+//	}
+//
+//	@Override
+//	public boolean isLeaf(Node node) {
+//		return node.is_leaf();
+//	}
 
 }
