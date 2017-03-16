@@ -3,25 +3,27 @@ package andi.tree;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Plot {
 
 	private String R_path = "/home/proj/biosoft/software/R/R-3.2.2/bin/Rscript";
 	private Tree t;
+	private static HashMap<Tree,TreeMap<Node,String>> paths = new HashMap<>();
 
 	public Plot(Tree t) {
 		this.t = t;
-		// t.normalize_distances();
 	}
 
 	public String plot(Node n) throws Exception {
 		File plot = File.createTempFile("R_phylo_", ".png");
-//		plot.deleteOnExit();
+		plot.deleteOnExit();
 		File r_script = File.createTempFile("R_script_", ".R");
-//		r_script.deleteOnExit();
+		r_script.deleteOnExit();
 		File r_newick=File.createTempFile("R_newick", ".txt");
-//		r_newick.deleteOnExit();
+		r_newick.deleteOnExit();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n,n));
 		
@@ -39,8 +41,6 @@ public class Plot {
 		bw.newLine();
 		bw.write("title(main=\""+t.data_tile()+"\")");
 		bw.newLine();
-//		bw.write("axis(1,tck=1,lwd.ticks=0.1,pos=0.8,at=c("+t.distances_to_String(remove_first_last(t.get_distances_rev(n)))+"),labels=c("+double_to_space(((TreeSet<Double>)remove_first_last(t.get_distances(n)).descendingSet()))+"));");
-//		bw.newLine();
 		bw.write("axis(1,pos=0.8,at=c("+t.distances_to_String(t.get_distances_rev(n))+"),labels=c("+t.distances_to_String((TreeSet<Double>)t.get_distances(n).descendingSet())+"));");
 		bw.newLine();
 		for(double d:remove_first_last(t.get_distances_rev(n))) {
@@ -70,5 +70,32 @@ public class Plot {
 		for (Double d : ts)
 			out += "\" \",";
 		return out.substring(0, out.length() - 1);
+	}
+	
+	public static String get_plot(Tree tree, Node n) {
+		if(!paths.containsKey(tree))
+			paths.put(tree, new TreeMap<>());
+		if(!paths.get(tree).containsKey(n)) {
+			Plot p=new Plot(tree);
+			try {
+				paths.get(tree).put(n, p.plot(n));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+			return paths.get(tree).get(n);
+	}
+	public static String get_plot(Tree tree, int id) {
+		if(!paths.containsKey(tree))
+			paths.put(tree, new TreeMap<>());
+		if(!paths.get(tree).containsKey(tree.get_Node(id))) {
+			Plot p=new Plot(tree);
+			try {
+				paths.get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id)));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+			return paths.get(tree).get(tree.get_Node(id));
 	}
 }

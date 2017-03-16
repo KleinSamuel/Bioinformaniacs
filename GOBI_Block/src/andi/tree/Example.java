@@ -41,11 +41,10 @@ public class Example {
 //			if(car_t.get_root().get_children().size()>2) {
 //			System.out.println(car_t.toString());
 			System.out.println(car_t.to_newick());
-			Plot p = new Plot(car_t);
 			System.out.println(car_t.to_newick());
 			System.out.println(car_t);
 			try {
-				System.out.println(p.plot(car_t.get_root()));
+				System.out.println(Plot.get_plot(car_t, 0));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
