@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Random;
 
+import andi.tree.Tree.Cluster_method;
+
 public class Example {
 	public static void main(String[] args) {
 
@@ -21,17 +23,17 @@ public class Example {
 //		 System.out.println("City_Tree\n"+city_t.toString());
 //		 System.out.println(city_t.to_newick());
 		ArrayList<Node_Data> cars = new ArrayList<>();
-		cars.add(new Car(35, "VW GOLF R"));
-		cars.add(new Car(60, "Porsche"));
-		cars.add(new Car(50, "VW GOLF GTI"));
-		cars.add(new Car(70, "Corvette C7"));
-		cars.add(new Car(100, "Lamborghini"));
+//		cars.add(new Car(35, "VW GOLF R"));
+//		cars.add(new Car(60, "Porsche"));
+//		cars.add(new Car(50, "VW GOLF GTI"));
+//		cars.add(new Car(70, "Corvette C7"));
+//		cars.add(new Car(100, "Lamborghini"));
 //		int cap = 100;
 //		int start = 10;
 //		int step = 10;
 //		while(start<=cap) {
 //			cars.clear();
-//			generate_Cars(start, cars);
+			generate_Cars(50, cars);
 //			long s = System.currentTimeMillis();
 			Tree car_t = new Tree(cars);
 //			long end = System.currentTimeMillis();
@@ -44,6 +46,9 @@ public class Example {
 			System.out.println(car_t.to_newick());
 			System.out.println(car_t);
 			try {
+				System.out.println(Plot.get_plot(car_t, 0));
+				car_t.change_cluster_method(Cluster_method.WPGMA);
+				car_t.rebuild();
 				System.out.println(Plot.get_plot(car_t, 0));
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -70,7 +75,7 @@ public class Example {
 	
 	public static void generate_Cars(int count, Collection<Node_Data> out) {
 		for(int i = 0; i<count;i++)
-			out.add(new Car(generate_Price(100), generate_String(15)));
+			out.add(new Car(generate_Price(100), generate_String(10)));
 	}
 	
 }
