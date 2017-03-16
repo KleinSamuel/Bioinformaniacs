@@ -19,7 +19,7 @@ public class Plot {
 
 	public String plot(Node n) throws Exception {
 		File plot = File.createTempFile("R_phylo_", ".png");
-		plot.deleteOnExit();
+//		plot.deleteOnExit();
 		File r_script = File.createTempFile("R_script_", ".R");
 		r_script.deleteOnExit();
 		File r_newick=File.createTempFile("R_newick", ".txt");
@@ -47,13 +47,12 @@ public class Plot {
 		bw.write("abline(v="+d+",lty=3,lwd=0.3);");
 		bw.newLine();
 		}
-		bw.write("mtext(\"Distance\",side=1,line=5,at="+(int)((n.get_total_dist()/2)+t.get_root_offset())+");");
+		bw.write("mtext(\"Distance\",side=1,line=5,at="+(int)((n.get_total_dist()/2)+t.get_root_offset(n))+");");
 		bw.newLine();
 		bw.write("dev.off();");
 		bw.close();
-		System.out.println(r_script.getAbsolutePath());
-		System.out.println(r_newick.getAbsolutePath());
-		Runtime.getRuntime().exec(R_path+" "+r_script.getAbsolutePath());
+		Process plotting = Runtime.getRuntime().exec(R_path+" "+r_script.getAbsolutePath());
+		plotting.waitFor();
 		return plot.getAbsolutePath();
 	}
 
