@@ -17,7 +17,7 @@ public class Tree {
 	private TreeSet<Node> inner;
 	private HashSet<Node_Data> nds;
 	private Cluster_method cm = Cluster_method.UPGMA;
-	private double root_offset=1;
+	private double root_offset = 1;
 
 	public Tree() {
 		init();
@@ -33,6 +33,7 @@ public class Tree {
 
 	private void init() {
 		root = new Node(0);
+		root.reset();
 		leaves = new TreeMap<>();
 		inner = new TreeSet<>();
 		nodes = new TreeMap<>();
@@ -109,7 +110,7 @@ public class Tree {
 	private void build_upgma() {
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
-			leaves = new TreeMap<>();
+		leaves = new TreeMap<>();
 		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
@@ -195,8 +196,7 @@ public class Tree {
 	private void build_wpgma() {
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
-		if (leaves == null)
-			leaves = new TreeMap<>();
+		leaves = new TreeMap<>();
 		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
@@ -244,10 +244,8 @@ public class Tree {
 						if (y != ns.size() - 1)
 							dist = old_mat[old_data.indexOf(ns.get(x))][old_data.indexOf(ns.get(y))];
 						else {
-							for (Node c : ns.get(ns.size() - 1).get_children().keySet()) {
-								double n_count = c.count_leaves();
-								dist += (n_count * old_mat[old_data.indexOf(c)][old_data.indexOf(ns.get(x))]);
-							}
+							for (Node c : ns.get(ns.size() - 1).get_children().keySet()) 
+								dist += (old_mat[old_data.indexOf(c)][old_data.indexOf(ns.get(x))]);
 							dist /= 2;
 						}
 						if (dist < min) {
@@ -276,96 +274,102 @@ public class Tree {
 			root.add_child(ns.get(1), (dists[1][0] / 2));
 		}
 	}
-	
+
 	public String to_newick() {
 		return to_newick(root);
 	}
-	
+
 	public String to_newick(Node next) {
 		String newick = "(";
 		int count = 0;
-		for(Node n:next.get_children().keySet()) {
+		for (Node n : next.get_children().keySet()) {
 			count++;
-			if(count!=1)
-			newick+=",";
-			if(!n.is_leaf())
-				newick+=to_newick(n);
+			if (count != 1)
+				newick += ",";
+			if (!n.is_leaf())
+				newick += to_newick(n);
 			else
-			newick+=n.get_Name()+":"+n.dist_to_parent();
+				newick += n.get_Name() + ":" + n.dist_to_parent();
 		}
-		if(next.is_root())
-		newick+=")root;";
+		if (next.is_root())
+			newick += ")root;";
 		else
-			newick+=")"+next.get_Name()+":"+next.dist_to_parent();
+			newick += ")" + next.get_Name() + ":" + next.dist_to_parent();
 		return newick;
 	}
-	
+
 	public String to_R_newick(Node next, Node current_root) {
 		String newick = "(";
 		int count = 0;
-		for(Node n:next.get_children().keySet()) {
+		for (Node n : next.get_children().keySet()) {
 			count++;
-			if(count!=1)
-			newick+=",";
-			if(!n.is_leaf())
-				newick+=to_R_newick(n,current_root);
+			if (count != 1)
+				newick += ",";
+			if (!n.is_leaf())
+				newick += to_R_newick(n, current_root);
 			else
-			newick+="__"+n.get_Name().replaceAll(" ", "_")+":"+n.dist_to_parent();
+				newick += "__" + n.get_Name().replaceAll(" ", "_") + ":" + n.dist_to_parent();
 		}
-		if(next==current_root)
-		newick+=")root:"+this.get_root_offset(current_root)+";";
+		if (next == current_root)
+			newick += ")root:" + this.get_root_offset(current_root) + ";";
 		else
-			newick+=")"+next.get_Name().replaceAll(" ", "_")+":"+next.dist_to_parent();
+			newick += ")" + next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent();
 		return newick;
 	}
+
 	public Node get_root() {
 		return root;
 	}
-	public TreeSet<Double> get_distances_rev(Node n){
+
+	public TreeSet<Double> get_distances_rev(Node n) {
 		double self = n.get_total_dist();
 		TreeSet<Double> dists = n.get_distances();
 		TreeSet<Double> new_dists = new TreeSet<>();
-		for(double d:dists) {
-			double new_d =d;
-				new_d=self-new_d;
-			new_dists.add(new_d+this.get_root_offset(n));
+		for (double d : dists) {
+			double new_d = d;
+			new_d = self - new_d;
+			new_dists.add(new_d + this.get_root_offset(n));
 		}
 		return new_dists;
 	}
-	public TreeSet<Double> get_distances(Node n){
+
+	public TreeSet<Double> get_distances(Node n) {
 		TreeSet<Double> dists = n.get_distances();
 		TreeSet<Double> new_dists = new TreeSet<>();
-		for(double d:dists) {
+		for (double d : dists) {
 			new_dists.add(d);
 		}
 		return new_dists;
 	}
+
 	public String distances_to_String(TreeSet<Double> dists) {
 		String out = "";
-		for(double d:dists)
-			out+=(d)+",";
-		return out.substring(0, out.length()-1);
+		for (double d : dists)
+			out += (d) + ",";
+		return out.substring(0, out.length() - 1);
 	}
-	
+
 	public void normalize_distances() {
 		double total = 100;
 		double max = root.get_total_dist();
-		double factor = total/max;
-		for(Node n:nodes.values()) {
-			n.set_total_dist(n.get_total_dist()*factor);
+		double factor = total / max;
+		for (Node n : nodes.values()) {
+			n.set_total_dist(n.get_total_dist() * factor);
 		}
-		for(Node n:nodes.values())
-			for(Node c:n.get_children().keySet()) {
+		for (Node n : nodes.values())
+			for (Node c : n.get_children().keySet()) {
 				n.add_child(c, n.get_total_dist());
 			}
 	}
+
 	public String data_tile() {
 		return leaves.values().iterator().next().data_title();
 	}
-	
+
 	public double get_root_offset(Node current_root) {
-		return current_root.get_total_dist()*0.1;
+		return current_root.get_total_dist() * 0.1;
 	}
+
 	public Node get_Node(int id) {
 		return nodes.get(id);
 	}
@@ -409,5 +413,5 @@ public class Tree {
 			return false;
 		return true;
 	}
-	
+
 }
