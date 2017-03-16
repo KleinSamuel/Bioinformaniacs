@@ -11,7 +11,7 @@ public class Plot {
 
 	private String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
 	private Tree t;
-	private static HashMap<Boolean,HashMap<Tree, TreeMap<Node, File>>> paths = new HashMap<>();
+	private static HashMap<Boolean, HashMap<Tree, TreeMap<Node, File>>> paths = new HashMap<>();
 	private String temp_dir = "";
 	private static boolean node_names = false;
 
@@ -46,7 +46,7 @@ public class Plot {
 		r_newick.deleteOnExit();
 		System.out.println(r_newick);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
-		bw.write(t.to_R_newick(n, n,node_names));
+		bw.write(t.to_R_newick(n, n, node_names));
 
 		bw.close();
 		bw = new BufferedWriter(new FileWriter(r_script));
@@ -58,8 +58,14 @@ public class Plot {
 		bw.newLine();
 		bw.write("par(mar=c(7.02,0.82,1.5,0.42));");
 		bw.newLine();
-		bw.write("plot(tree, root.edge=T, use.edge.length=T, show.node.label="+(node_names ? "T" :"F")+");");
+		bw.write("plot(tree, root.edge=T, use.edge.length=T, show.node.label=F);");
 		bw.newLine();
+		if (node_names) {
+			bw.write("nodelabels()");
+			bw.newLine();
+			bw.write("tiplabels()");
+			bw.newLine();
+		}
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
 		bw.write("axis(1,pos=0.8,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
@@ -95,7 +101,7 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree, Node n) {
-		if(!paths.containsKey(node_names))
+		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
@@ -111,7 +117,7 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree, Node n, String temp_dir) {
-		if(!paths.containsKey(node_names))
+		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
@@ -127,7 +133,7 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree, int id) {
-		if(!paths.containsKey(node_names))
+		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
@@ -143,7 +149,7 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree, int id, String temp_dir) {
-		if(!paths.containsKey(node_names))
+		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
 			paths.get(node_names).put(tree, new TreeMap<>());
