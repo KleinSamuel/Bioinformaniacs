@@ -110,15 +110,12 @@ public class Tree {
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
 		leaves = new TreeMap<>();
-		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
 				l.set_Data(nd);
 				leaf_node(l, nd);
 				ns.add(l);
 			}
-		} else
-			ns.addAll(leaves.keySet());
 		dists = new double[ns.size()][ns.size()];
 		for (int x = 0; x < ns.size(); x++) {
 			for (int y = x; y < ns.size(); y++) {
@@ -196,15 +193,12 @@ public class Tree {
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
 		leaves = new TreeMap<>();
-		if (leaves.size() != nds.size()) {
 			for (Node_Data nd : nds) {
 				Node l = new Node(nodes.size());
 				l.set_Data(nd);
 				leaf_node(l, nd);
 				ns.add(l);
 			}
-		} else
-			ns.addAll(leaves.keySet());
 		dists = new double[ns.size()][ns.size()];
 		for (int x = 0; x < ns.size(); x++) {
 			for (int y = x; y < ns.size(); y++) {
@@ -215,6 +209,10 @@ public class Tree {
 			}
 		}
 		wpgma(ns, dists, null);
+	}
+	
+	public String get_cluster_method() {
+		return cm.toString();
 	}
 
 	private void wpgma(ArrayList<Node> ns, double[][] old_mat, ArrayList<Node> old_data) {
@@ -266,7 +264,7 @@ public class Tree {
 			new_nodes.remove(new_nodes.indexOf(n_min_2));
 			new_nodes.add(c);
 			inner_node(c);
-			upgma(new_nodes, dists, ns);
+			wpgma(new_nodes, dists, ns);
 		} else {
 			root.set_total_dist(dists[1][0] / 2);
 			root.add_child(ns.get(0), (dists[1][0] / 2));
