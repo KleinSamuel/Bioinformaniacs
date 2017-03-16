@@ -6,12 +6,13 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class Tree {
+public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableModel*/{
 	public enum Cluster_method {
 		WPGMA, UPGMA, NJ;
 	};
 
 	private TreeMap<Integer, Node> nodes;
+	private static Node super_root= new Node(-1);
 	private Node root;
 	private TreeMap<Node, Node_Data> leaves;
 	private TreeSet<Node> inner;
@@ -19,11 +20,13 @@ public class Tree {
 	private Cluster_method cm = Cluster_method.UPGMA;
 
 	public Tree() {
+//		super(super_root);
 		init();
 		nds = new HashSet<>();
 	}
 
 	public Tree(Collection<Node_Data> nds) {
+//		super(super_root);
 		init();
 		this.nds = new HashSet<>();
 		this.nds.addAll(nds);
@@ -32,7 +35,8 @@ public class Tree {
 
 	private void init() {
 		root = new Node(0);
-		root.reset();
+		super_root.reset();
+		super_root.add_child(root, 0);
 		leaves = new TreeMap<>();
 		inner = new TreeSet<>();
 		nodes = new TreeMap<>();
@@ -295,7 +299,7 @@ public class Tree {
 		return newick;
 	}
 
-	public String to_R_newick(Node next, Node current_root) {
+	public String to_R_newick(Node next, Node current_root, boolean node_ids) {
 		String newick = "(";
 		int count = 0;
 		for (Node n : next.get_children().keySet()) {
@@ -303,14 +307,14 @@ public class Tree {
 			if (count != 1)
 				newick += ",";
 			if (!n.is_leaf())
-				newick += to_R_newick(n, current_root);
+				newick += to_R_newick(n, current_root, node_ids);
 			else
 				newick += "__" + n.get_Name().replaceAll(" ", "_") + ":" + n.dist_to_parent();
 		}
 		if (next == current_root)
 			newick += ")root:" + this.get_root_offset(current_root) + ";";
 		else
-			newick += ")" + next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent();
+			newick += node_ids ? ")" + next.get_id() + ":" + next.dist_to_parent() : next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent();
 		return newick;
 	}
 

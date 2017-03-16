@@ -34,7 +34,7 @@ public class Node implements Node_Data {
 	}
 
 	public boolean is_root() {
-		return parent == null;
+		return this.id<1;
 	}
 
 	public void add_child(Node c, double dist) {
@@ -99,12 +99,9 @@ public class Node implements Node_Data {
 	@Override
 	public String toString() {
 		String out = "";
-		if(!this.is_root())
 		out += "(" + id + ")";
 		if (this.is_leaf()) 
 			out += " Data: " + this.data.toString();
-		else 
-			out+=this.shared_info(null);
 		return out;
 	}
 
@@ -174,6 +171,30 @@ public class Node implements Node_Data {
 		return null;
 	}
 	
-	
+//	@Override
+//	public Node getChild(Node node, int index) {
+//		if(index > node.get_children().size()){
+//			return null;
+//		}else{
+//			int cnt = 0;
+//			for(Node n : node.get_children().keySet()){
+//				if(cnt == index){
+//					return n;
+//				}
+//				cnt++;
+//			}
+//		}
+//		return null;
+//	}
+//
+//	@Override
+//	public int getChildCount(Node node) {
+//		return node.get_children().size();
+//	}
+//
+//	@Override
+//	public boolean isLeaf(Node node) {
+//		return node.is_leaf();
+//	}
 
 }
