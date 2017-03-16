@@ -314,7 +314,7 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		if (next == current_root)
 			newick += ")root:" + this.get_root_offset(current_root) + ";";
 		else
-			newick += node_ids ? ")" + next.get_id() + ":" + next.dist_to_parent() : next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent();
+			newick += node_ids ? (")" + next.get_id() + ":" + next.dist_to_parent()) : (")"+next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent());
 		return newick;
 	}
 

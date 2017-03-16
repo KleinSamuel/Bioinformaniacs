@@ -43,7 +43,8 @@ public class Plot {
 		}
 //		plot.deleteOnExit();
 		r_script.deleteOnExit();
-		r_newick.deleteOnExit();
+//		r_newick.deleteOnExit();
+		System.out.println(r_newick);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n,node_names));
 
