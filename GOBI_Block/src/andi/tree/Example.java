@@ -21,31 +21,38 @@ public class Example {
 //		 System.out.println("City_Tree\n"+city_t.toString());
 //		 System.out.println(city_t.to_newick());
 		ArrayList<Node_Data> cars = new ArrayList<>();
-//		cars.add(new Car(40000, "VW GOLF R"));
-//		cars.add(new Car(40000, "Porsche"));
-//		cars.add(new Car(40000, "VW GOLF GTI"));
-//		cars.add(new Car(40000, "Corvette C7"));
-//		cars.add(new Car(40000, "Bugatti"));
-//		cars.add(new Car(40000, "Lamborghini"));
-		int cap = 100;
-		int start = 10;
-		int step = 10;
-		while(start<=cap) {
-			cars.clear();
-			generate_Cars(start, cars);
-			long s = System.currentTimeMillis();
+		cars.add(new Car(35, "VW GOLF R"));
+		cars.add(new Car(60, "Porsche"));
+		cars.add(new Car(50, "VW GOLF GTI"));
+		cars.add(new Car(70, "Corvette C7"));
+		cars.add(new Car(100, "Lamborghini"));
+//		int cap = 100;
+//		int start = 10;
+//		int step = 10;
+//		while(start<=cap) {
+//			cars.clear();
+//			generate_Cars(start, cars);
+//			long s = System.currentTimeMillis();
 			Tree car_t = new Tree(cars);
-			long end = System.currentTimeMillis();
-			long dur = (int) ((end-s));
+//			long end = System.currentTimeMillis();
+//			long dur = (int) ((end-s));
 //			System.out.println("Execution for "+start+" Nodes took "+((int)(dur/60000))+":"+(((int)(dur/1000))%60<10 ? "0"+((int)(dur/1000))%60 : ((int)(dur/1000))%60)+":"+((dur%1000<100) ? (dur%1000<10 ? "00" : "0") : "")+dur%1000+"min");
 //			start+=step;
-			if(car_t.get_root().get_children().size()>2) {
-			System.out.println(car_t.toString());
+//			if(car_t.get_root().get_children().size()>2) {
+//			System.out.println(car_t.toString());
 			System.out.println(car_t.to_newick());
-			break;
-//			
+			Plot p = new Plot(car_t);
+			System.out.println(car_t.to_newick());
+			System.out.println(car_t);
+			try {
+				System.out.println(p.plot(car_t.get_root()));
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		}
+//			break;
+//			
+//			}
+//		}
 	}
 
 	public static String generate_String(int length) {
@@ -64,7 +71,7 @@ public class Example {
 	
 	public static void generate_Cars(int count, Collection<Node_Data> out) {
 		for(int i = 0; i<count;i++)
-			out.add(new Car(generate_Price(1000000), generate_String(15)));
+			out.add(new Car(generate_Price(100), generate_String(15)));
 	}
 	
 }

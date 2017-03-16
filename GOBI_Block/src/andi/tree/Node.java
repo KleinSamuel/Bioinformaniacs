@@ -2,6 +2,7 @@ package andi.tree;
 
 import java.util.Collection;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class Node implements Node_Data {
 	private int id;
@@ -158,6 +159,21 @@ public class Node implements Node_Data {
 			leaves=null;
 		}
 	}
+	
+	public TreeSet<Double> get_distances(){
+		TreeSet<Double> dists = new TreeSet<>();
+		dists.add(this.total_dist);
+		for(Node c:childs.keySet())
+			dists.addAll(c.get_distances());
+		return dists;
+	}
+
+	@Override
+	public String data_title() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	
 
 }

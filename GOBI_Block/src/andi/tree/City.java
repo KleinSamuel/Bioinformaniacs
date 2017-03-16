@@ -66,5 +66,10 @@ public class City implements Node_Data {
 		return name;
 	}
 
+	@Override
+	public String data_title() {
+		return "Distance of Cities";
+	}
+
 
 }

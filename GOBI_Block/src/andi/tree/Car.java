@@ -58,6 +58,12 @@ public class Car implements Node_Data{
 	public String get_Name() {
 		return name;
 	}
+
+
+	@Override
+	public String data_title() {
+		return "Price difference of Cars";
+	}
 	
 	
 }

@@ -12,6 +12,8 @@ public interface Node_Data extends Comparable<Node_Data>{
 	public boolean equals(Object o);
 	
 	public String get_Name();
+	
+	public String data_title();
 
 	
 }
