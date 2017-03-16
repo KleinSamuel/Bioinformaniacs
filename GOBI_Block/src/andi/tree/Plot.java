@@ -35,7 +35,7 @@ public class Plot {
 		if (temp_dir.equals("")) {
 			plot = File.createTempFile("R_phylo_", ".png");
 			r_script = File.createTempFile("R_script_", ".R");
-			r_newick = File.createTempFile("R_newick", ".txt");
+			r_newick = File.createTempFile("R_newick_", ".txt");
 		} else {
 			plot = File.createTempFile("R_phylo_", ".png", new File(temp_dir));
 			r_script = File.createTempFile("R_script_", ".R", new File(temp_dir));
