@@ -36,6 +36,15 @@ public class Tree /*
 		this.nds.addAll(nds);
 		build();
 	}
+	
+	public Tree(Collection<Node_Data> nds, Cluster_method cm) {
+		// super(super_root);
+		init();
+		this.change_cluster_method(cm);
+		this.nds = new HashSet<>();
+		this.nds.addAll(nds);
+		build();
+	}
 
 	private void init() {
 		root = new Node(0);
