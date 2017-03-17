@@ -36,7 +36,7 @@ public class Tree /*
 		this.nds.addAll(nds);
 		build();
 	}
-	
+//	#Boa Constructor
 	public Tree(Collection<Node_Data> nds, Cluster_method cm) {
 		// super(super_root);
 		init();
