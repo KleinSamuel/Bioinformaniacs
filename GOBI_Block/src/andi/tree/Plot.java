@@ -68,14 +68,14 @@ public class Plot {
 		}
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
-		bw.write("axis(1,pos=0.8,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
+		bw.write("axis(1,pos=0.5,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
 				+ t.distances_to_String((TreeSet<Double>) t.get_distances(n).descendingSet()) + "));");
 		bw.newLine();
 		for (double d : remove_first_last(t.get_distances_rev(n))) {
 			bw.write("abline(v=" + d + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
-		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line=5,at="
+		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line=2,at="
 				+ (int) ((n.get_total_dist() / 2) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");
