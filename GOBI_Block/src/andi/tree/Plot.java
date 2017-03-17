@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Plot {
 
@@ -87,20 +86,7 @@ public class Plot {
 		return plot;
 	}
 
-	private TreeSet<Double> remove_first_last(TreeSet<Double> ts) {
-		TreeSet<Double> out = new TreeSet<>();
-		out.addAll(ts);
-		out.remove(ts.first());
-		out.remove(ts.last());
-		return out;
-	}
 
-	private String double_to_space(TreeSet<Double> ts) {
-		String out = "";
-		for (Double d : ts)
-			out += "\" \",";
-		return out.substring(0, out.length() - 1);
-	}
 
 	public static File get_plot(Tree tree, Node n) {
 		if (!paths.containsKey(node_names))
