@@ -1,7 +1,7 @@
-package kikky.heatmap;
+package kikky.analysis;
 
 public class Test {
 	public static void main(String[] args) {
-
+		
 	}
 }
