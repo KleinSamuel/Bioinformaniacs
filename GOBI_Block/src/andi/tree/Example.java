@@ -1,5 +1,6 @@
 package andi.tree;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -28,33 +29,32 @@ public class Example {
 //		cars.add(new Car(50, "VW GOLF GTI"));
 //		cars.add(new Car(70, "Corvette C7"));
 //		cars.add(new Car(100, "Lamborghini"));
-//		int cap = 100;
-//		int start = 10;
-//		int step = 10;
-//		while(start<=cap) {
-//			cars.clear();
-			generate_Cars(50, cars);
+		int cap = 100;
+		int start = 100;
+		int step = 5;
+		Tree car_t;
+		while(start<=cap) {
+			cars.clear();
 //			long s = System.currentTimeMillis();
-			Tree car_t = new Tree(cars);
+			generate_Cars(start, cars);
+			car_t  = new Tree(cars);
+			try {
+				Runtime.getRuntime().exec("display "+Plot.get_plot(car_t, car_t.get_root()));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+
 //			long end = System.currentTimeMillis();
 //			long dur = (int) ((end-s));
 //			System.out.println("Execution for "+start+" Nodes took "+((int)(dur/60000))+":"+(((int)(dur/1000))%60<10 ? "0"+((int)(dur/1000))%60 : ((int)(dur/1000))%60)+":"+((dur%1000<100) ? (dur%1000<10 ? "00" : "0") : "")+dur%1000+"min");
-//			start+=step;
+			start+=step;
 //			if(car_t.get_root().get_children().size()>2) {
 //			System.out.println(car_t.toString());
-			System.out.println(car_t.to_newick());
-			System.out.println(car_t);
-			try {
-				System.out.println(Plot.get_plot(car_t, 0));
-				car_t.change_cluster_method(Cluster_method.WPGMA);
-				car_t.rebuild();
-				System.out.println(Plot.get_plot(car_t, 0));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+//			System.out.println(car_t.to_newick());
+//			System.out.println(car_t);
 //			break;
 //			
-//			}
+			}
 //		}
 	}
 

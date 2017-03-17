@@ -44,7 +44,6 @@ public class Plot {
 		plot.deleteOnExit();
 		r_script.deleteOnExit();
 		r_newick.deleteOnExit();
-		System.out.println(r_newick);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n, node_names));
 
@@ -68,15 +67,15 @@ public class Plot {
 		}
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
-		bw.write("axis(1,pos=0.5,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
+		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
 				+ t.distances_to_String((TreeSet<Double>) t.get_distances(n).descendingSet()) + "));");
 		bw.newLine();
 		for (double d : remove_first_last(t.get_distances_rev(n))) {
 			bw.write("abline(v=" + d + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
-		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line=2,at="
-				+ (int) ((n.get_total_dist() / 2) + t.get_root_offset(n)) + ");");
+		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line="+(n.count_leaves()<5? 5.5*(((double)n.count_leaves())/(0.001+(double)n.count_leaves())) : 0.5*(5.0+((double)n.count_leaves())/((double)n.count_leaves())))+",at="
+				+ ((n.get_total_dist() / 2.0) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");
 		bw.close();
