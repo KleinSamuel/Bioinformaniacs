@@ -2,17 +2,21 @@ package andi.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableModel*/{
+public class Tree /*
+					 * extends AbstractTreeModel<Node> implements
+					 * TreeSelectableModel
+					 */ {
 	public enum Cluster_method {
 		WPGMA, UPGMA, NJ;
 	};
 
 	private TreeMap<Integer, Node> nodes;
-	private static Node super_root= new Node(-1);
+	private static Node super_root = new Node(-1);
 	private Node root;
 	private TreeMap<Node, Node_Data> leaves;
 	private TreeSet<Node> inner;
@@ -20,13 +24,13 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 	private Cluster_method cm = Cluster_method.UPGMA;
 
 	public Tree() {
-//		super(super_root);
+		// super(super_root);
 		init();
 		nds = new HashSet<>();
 	}
 
 	public Tree(Collection<Node_Data> nds) {
-//		super(super_root);
+		// super(super_root);
 		init();
 		this.nds = new HashSet<>();
 		this.nds.addAll(nds);
@@ -114,12 +118,12 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
 		leaves = new TreeMap<>();
-			for (Node_Data nd : nds) {
-				Node l = new Node(nodes.size());
-				l.set_Data(nd);
-				leaf_node(l, nd);
-				ns.add(l);
-			}
+		for (Node_Data nd : nds) {
+			Node l = new Node(nodes.size());
+			l.set_Data(nd);
+			leaf_node(l, nd);
+			ns.add(l);
+		}
 		dists = new double[ns.size()][ns.size()];
 		for (int x = 0; x < ns.size(); x++) {
 			for (int y = x; y < ns.size(); y++) {
@@ -197,12 +201,12 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
 		leaves = new TreeMap<>();
-			for (Node_Data nd : nds) {
-				Node l = new Node(nodes.size());
-				l.set_Data(nd);
-				leaf_node(l, nd);
-				ns.add(l);
-			}
+		for (Node_Data nd : nds) {
+			Node l = new Node(nodes.size());
+			l.set_Data(nd);
+			leaf_node(l, nd);
+			ns.add(l);
+		}
 		dists = new double[ns.size()][ns.size()];
 		for (int x = 0; x < ns.size(); x++) {
 			for (int y = x; y < ns.size(); y++) {
@@ -214,7 +218,7 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		}
 		wpgma(ns, dists, null);
 	}
-	
+
 	public String get_cluster_method() {
 		return cm.toString();
 	}
@@ -245,7 +249,7 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 						if (y != ns.size() - 1)
 							dist = old_mat[old_data.indexOf(ns.get(x))][old_data.indexOf(ns.get(y))];
 						else {
-							for (Node c : ns.get(ns.size() - 1).get_children().keySet()) 
+							for (Node c : ns.get(ns.size() - 1).get_children().keySet())
 								dist += (old_mat[old_data.indexOf(c)][old_data.indexOf(ns.get(x))]);
 							dist /= 2;
 						}
@@ -314,7 +318,8 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		if (next == current_root)
 			newick += ")root:" + this.get_root_offset(current_root) + ";";
 		else
-			newick += node_ids ? (")" + next.get_id() + ":" + next.dist_to_parent()) : (")"+next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent());
+			newick += node_ids ? (")" + next.get_id() + ":" + next.dist_to_parent())
+					: (")" + next.get_Name().replaceAll(" ", "_") + ":" + next.dist_to_parent());
 		return newick;
 	}
 
@@ -322,10 +327,10 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		return root;
 	}
 
-	public TreeSet<Double> get_distances_rev(Node n) {
+	public ArrayList<Double> get_distances_rev(Node n) {
 		double self = n.get_total_dist();
 		TreeSet<Double> dists = n.get_distances();
-		TreeSet<Double> new_dists = new TreeSet<>();
+		ArrayList<Double> new_dists = new ArrayList<>();
 		for (double d : dists) {
 			double new_d = d;
 			new_d = self - new_d;
@@ -334,9 +339,9 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		return new_dists;
 	}
 
-	public TreeSet<Double> get_distances(Node n) {
+	public ArrayList<Double> get_distances(Node n) {
 		TreeSet<Double> dists = n.get_distances();
-		TreeSet<Double> new_dists = new TreeSet<>();
+		ArrayList<Double> new_dists = new ArrayList<>();
 		for (double d : dists) {
 			new_dists.add(d);
 		}
@@ -348,6 +353,19 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 		for (double d : dists)
 			out += (d) + ",";
 		return out.substring(0, out.length() - 1);
+	}
+
+	public String distances_to_String(ArrayList<Double> dists, boolean rev) {
+		Collections.sort(dists);
+		String out = "";
+		if (rev)
+			for (double d : dists)
+				out += (d) + ",";
+		else
+			for (int i = dists.size() - 1; i >= 0; i--)
+				out += dists.get(i) + ",";
+		return out.substring(0, out.length() - 1);
+
 	}
 
 	public void normalize_distances() {
@@ -414,30 +432,30 @@ public class Tree /*extends AbstractTreeModel<Node> implements TreeSelectableMod
 			return false;
 		return true;
 	}
-//	@Override
-//	public Node getChild(Node node, int index) {
-//		if(index > node.get_children().size()){
-//			return null;
-//		}else{
-//			int cnt = 0;
-//			for(Node n : node.get_children().keySet()){
-//				if(cnt == index){
-//					return n;
-//				}
-//				cnt++;
-//			}
-//		}
-//		return null;
-//	}
-//
-//	@Override
-//	public int getChildCount(Node node) {
-//		return node.get_children().size();
-//	}
-//
-//	@Override
-//	public boolean isLeaf(Node node) {
-//		return node.is_leaf();
-//	}
+	// @Override
+	// public Node getChild(Node node, int index) {
+	// if(index > node.get_children().size()){
+	// return null;
+	// }else{
+	// int cnt = 0;
+	// for(Node n : node.get_children().keySet()){
+	// if(cnt == index){
+	// return n;
+	// }
+	// cnt++;
+	// }
+	// }
+	// return null;
+	// }
+	//
+	// @Override
+	// public int getChildCount(Node node) {
+	// return node.get_children().size();
+	// }
+	//
+	// @Override
+	// public boolean isLeaf(Node node) {
+	// return node.is_leaf();
+	// }
 
 }

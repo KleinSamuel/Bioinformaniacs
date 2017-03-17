@@ -3,6 +3,7 @@ package andi.tree;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -41,8 +42,9 @@ public class Plot {
 			r_script = File.createTempFile("R_script_", ".R", new File(temp_dir));
 			r_newick = File.createTempFile("R_newick", ".txt", new File(temp_dir));
 		}
-		plot.deleteOnExit();
-		r_script.deleteOnExit();
+//		plot.deleteOnExit();
+//		r_script.deleteOnExit();
+		System.out.println(r_script);
 		r_newick.deleteOnExit();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n, node_names));
@@ -67,14 +69,16 @@ public class Plot {
 		}
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
-		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
-				+ t.distances_to_String((TreeSet<Double>) t.get_distances(n).descendingSet()) + "));");
+		ArrayList<Double> dists_rev = t.get_distances_rev(n);
+		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(dists_rev,false) + "),labels=c("
+				+ t.distances_to_String(t.get_distances(n),true) + "));");
 		bw.newLine();
-		for (double d : remove_first_last(t.get_distances_rev(n))) {
-			bw.write("abline(v=" + d + ",lty=3,lwd=0.3);");
+		for (int i = 1; i<dists_rev.size()-2;i++) {
+			bw.write("abline(v=" + dists_rev.get(i) + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
-		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line="+(n.count_leaves()<5? 5.5*(((double)n.count_leaves())/(0.001+(double)n.count_leaves())) : 0.5*(5.0+((double)n.count_leaves())/((double)n.count_leaves())))+",at="
+		double leaves = n.count_leaves();
+		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line="+(leaves<5? 5.5*(leaves/(0.001+leaves)) : 0.5*(5.0+(leaves)/(leaves)))+",at="
 				+ ((n.get_total_dist() / 2.0) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");
