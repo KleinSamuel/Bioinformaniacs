@@ -3,9 +3,9 @@ package andi.tree;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Plot {
 
@@ -44,7 +44,6 @@ public class Plot {
 		plot.deleteOnExit();
 		r_script.deleteOnExit();
 		r_newick.deleteOnExit();
-		System.out.println(r_newick);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n, node_names));
 
@@ -68,15 +67,17 @@ public class Plot {
 		}
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
-		bw.write("axis(1,pos=0.5,at=c(" + t.distances_to_String(t.get_distances_rev(n)) + "),labels=c("
-				+ t.distances_to_String((TreeSet<Double>) t.get_distances(n).descendingSet()) + "));");
+		ArrayList<Double> dists_rev = t.get_distances_rev(n);
+		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(dists_rev,false) + "),labels=c("
+				+ t.distances_to_String(t.get_distances(n),true) + "));");
 		bw.newLine();
-		for (double d : remove_first_last(t.get_distances_rev(n))) {
-			bw.write("abline(v=" + d + ",lty=3,lwd=0.3);");
+		for (int i = 1; i<dists_rev.size()-2;i++) {
+			bw.write("abline(v=" + dists_rev.get(i) + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
-		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line=2,at="
-				+ (int) ((n.get_total_dist() / 2) + t.get_root_offset(n)) + ");");
+		double leaves = n.count_leaves();
+		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line="+(leaves<5? 5.5*(leaves/(0.001+leaves)) : 0.5*(5.0+(leaves)/(leaves)))+",at="
+				+ ((n.get_total_dist() / 2.0) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");
 		bw.close();
@@ -85,20 +86,7 @@ public class Plot {
 		return plot;
 	}
 
-	private TreeSet<Double> remove_first_last(TreeSet<Double> ts) {
-		TreeSet<Double> out = new TreeSet<>();
-		out.addAll(ts);
-		out.remove(ts.first());
-		out.remove(ts.last());
-		return out;
-	}
 
-	private String double_to_space(TreeSet<Double> ts) {
-		String out = "";
-		for (Double d : ts)
-			out += "\" \",";
-		return out.substring(0, out.length() - 1);
-	}
 
 	public static File get_plot(Tree tree, Node n) {
 		if (!paths.containsKey(node_names))
