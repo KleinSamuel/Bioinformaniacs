@@ -9,9 +9,9 @@ public class Test {
 		x.add(new Small_Sample("b",4));
 		x.add(new Small_Sample("c",6));
 		ArrayList<Sample_Data> y = new ArrayList<Sample_Data>();
-		y.add(new Small_Sample("a",3));
+		y.add(new Small_Sample("a",0));
 		y.add(new Small_Sample("b",5));
-		y.add(new Small_Sample("c",7));
+		y.add(new Small_Sample("c",10));
 		HeatMap hm = new HeatMap("Test", x, y);
 		hm.plot();
 	}

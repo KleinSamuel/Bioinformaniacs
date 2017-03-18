@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+
 import kikky.heatmap.Sample_Data;
 
 public class FPKM_Single implements Sample_Data {
@@ -54,7 +56,15 @@ public class FPKM_Single implements Sample_Data {
 	public double get_value(Sample_Data sd) {
 		FPKM_Single fs = (FPKM_Single) sd;
 		HashMap<String, String> mates = get_mates(fs);
-		return Calculator.pearson_correlation(this.gene_data, fs.gene_data, mates);
+		PearsonsCorrelation pc = new PearsonsCorrelation();
+		double[] x = new double[mates.size()];
+		double[] y = new double[mates.size()];
+		int index = 0;
+		for (String gene_id_x : mates.keySet()) {
+			x[index] = this.gene_data.get(gene_id_x);
+			y[index] = fs.gene_data.get(mates.get(gene_id_x));
+		}
+		return pc.correlation(x, y);
 	}
 
 	private HashMap<String, String> get_mates(FPKM_Single fs) {
@@ -64,7 +74,7 @@ public class FPKM_Single implements Sample_Data {
 				if (fs.gene_data.containsKey(gene_id))
 					mates.put(gene_id, gene_id);
 		} else {
-			//TODO: get ortholog partner if exists
+			// TODO: get ortholog partner if exists
 		}
 		return mates;
 	}

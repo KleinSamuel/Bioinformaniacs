@@ -1,9 +1,9 @@
 package kikky.analysis;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashMap;
 
 public class Calculator {
@@ -62,20 +62,5 @@ public class Calculator {
 		return fpkm_data;
 	}
 
-	public static double pearson_correlation(HashMap<String, Double> x_data, HashMap<String, Double> y_data,
-			HashMap<String, String> mates) {
-		double x = 0, y = 0, xy = 0, x2 = 0, y2 = 0;
-		for (String gene_x_id : mates.keySet()) {
-			double cur_x = x_data.get(gene_x_id);
-			double cur_y = y_data.get(mates.get(gene_x_id));
-			x += cur_x;
-			y += cur_y;
-			xy += (cur_x * cur_y);
-			x2 += (cur_x * cur_x);
-			y2 += (cur_y * cur_y);
-		}
-		double upper = (mates.size() * xy) - (x * y);
-		double lower = Math.sqrt(((mates.size() * x2) - (x * x)) * ((mates.size() * y2) - (y * y)));
-		return upper / lower;
-	}
+	
 }

@@ -50,7 +50,7 @@ public class DE_Single implements Sample_Data {
 	public double get_value(Sample_Data sd) {
 		DE_Single fs = (DE_Single) sd;
 		// TODO: Real calculation
-		return Calculator.pearson_correlation(this.gene_data, fs.gene_data, null);
+		return 0;
 	}
 
 	@Override
