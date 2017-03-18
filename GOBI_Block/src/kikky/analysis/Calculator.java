@@ -22,7 +22,7 @@ public class Calculator {
 		try {
 			// Reading the count file + adding counts together
 			BufferedReader br1 = new BufferedReader(new FileReader(count_file));
-			String line;
+			String line = br1.readLine();
 			while ((line = br1.readLine()) != null) {
 				String[] split = line.split("\t");
 				gene_rawcount.put(split[0], Double.parseDouble(split[1]));
@@ -41,7 +41,7 @@ public class Calculator {
 			double allcounts = 0;
 			// Reading the gene_id to length file, for further calculations
 			BufferedReader br1 = new BufferedReader(new FileReader(gene_file));
-			String line;
+			String line = br1.readLine();
 			while ((line = br1.readLine()) != null) {
 				String[] split = line.split("\t");
 				gene_data.put(split[0], Double.parseDouble(split[1]));
@@ -53,8 +53,11 @@ public class Calculator {
 			// Turning count values to fpkm values
 			allcounts /= 1000000;
 			for (String gene_id : fpkm_data.keySet()) {
-				double fpkm_value = fpkm_data.get(gene_id) / (allcounts * (((double) gene_data.get(gene_id)) / 1000));
-				fpkm_data.put(gene_id, fpkm_value);
+				if (gene_data.get(gene_id) != null) {
+					double fpkm_value = fpkm_data.get(gene_id)
+							/ (allcounts * (((double) gene_data.get(gene_id)) / 1000));
+					fpkm_data.put(gene_id, fpkm_value);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -62,5 +65,4 @@ public class Calculator {
 		return fpkm_data;
 	}
 
-	
 }
