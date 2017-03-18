@@ -1,0 +1,17 @@
+# config file for utility manager(tab-separated)
+# contains paths to gtfs, standardchromosomes...
+tax_mapping	/home/proj/biosoft/ALTSPLIC_EVOLUTION/tax.mapping
+gtfs	/home/proj/biosoft/ALTSPLIC_EVOLUTION/GTFS/
+standard_chromosomes	/home/proj/biosoft/ALTSPLIC_EVOLUTION/
+go_mappings	/home/proj/biosoft/ALTSPLIC_EVOLUTION/GO/
+gene_similarities	/home/proj/biosoft/ALTSPLIC_EVOLUTION/ORTHOLOGS/
+tissue_matrix	/home/proj/biosoft/ALTSPLIC_EVOLUTION/tissue.matrix
+go_graph	/home/proj/biosoft/praktikum/genprakt/assignment/a5/go.obo
+tissue_mappings	/home/proj/biosoft/ALTSPLIC_EVOLUTION/
+output_directory	/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/data/
+# output_directory	D:/Dennis/Uni/GoBi/Block/
+main_bam_directory	/home/proj/biosoft/ALTSPLIC_EVOLUTION/
+tissue_list	/home/proj/biosoft/ALTSPLIC_EVOLUTION/tissue.list
+EB_script	/home/proj/biosoft/praktikum/genprakt/assignment/a4/scripts/de_rseq.R
+R_path	/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript
+enrichment_output	/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/data/EB/
