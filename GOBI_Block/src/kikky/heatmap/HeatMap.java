@@ -23,12 +23,12 @@ public class HeatMap {
 		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
 		String label = "";
 		for (Sample_Data sd2 : row) {
-			label += ",\"" + sd2.get_Name()+"\"";
+			label += ",\"" + sd2.get_Name() + "\"";
 		}
 		labels.add("c(" + label.substring(1) + ")");
 		label = "";
 		for (Sample_Data sd2 : col) {
-			label += ",\"" + sd2.get_Name()+"\"";
+			label += ",\"" + sd2.get_Name() + "\"";
 		}
 		labels.add("c(" + label.substring(1) + ")");
 	}
@@ -41,14 +41,13 @@ public class HeatMap {
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
 			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1) + ",z = m, type = \"heatmap\");\n");
-			// bw.write("json <- plotly_json(p, FALSE);");
-			// bw.write("write(p, \"/home/a/adamowicz/GoBi/json.txt\");");
+			 bw.write("json <- plotly_json(p, FALSE);");
+			 bw.write("write(json, \"/home/a/adamowicz/GoBi/json.txt\");");
 			bw.close();
 			// System.out.println(R_path + " " + r_script.getAbsolutePath());
-			// Process plotting = Runtime.getRuntime().exec(R_path + " " +
-			// r_script.getAbsolutePath());
-			// plotting.waitFor();
-		} catch (IOException e) {
+			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
+			plotting.waitFor();
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
