@@ -13,10 +13,10 @@ public class FPKM_Single implements Sample_Data {
 	private int organism_ID;
 	private String organism_name;
 	private String tissue;
-	private int exp_number;
+	private String exp_number;
 	private HashMap<String, Double> gene_data = new HashMap<>();
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, int exp_number) {
+	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number) {
 		this.organism_ID = organism_id;
 		this.organism_name = organism_name;
 		this.tissue = tissue;
@@ -24,18 +24,18 @@ public class FPKM_Single implements Sample_Data {
 
 	}
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, int exp_number,
+	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number,
 			HashMap<String, Double> gene_rawcount, String gene_file) {
 		this(organism_id, organism_name, tissue, exp_number);
 		Calculator.FPKM_generator(gene_rawcount, gene_file);
 	}
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, int exp_number, String gene_rawcount,
+	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number, String gene_rawcount,
 			String gene_file) {
 		this(organism_id, organism_name, tissue, exp_number);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(gene_rawcount));
-			String line;
+			String line = br.readLine();
 			while ((line = br.readLine()) != null) {
 				String[] split = line.split("\t");
 				gene_data.put(split[0], Double.parseDouble(split[1]));
@@ -50,6 +50,10 @@ public class FPKM_Single implements Sample_Data {
 	@Override
 	public String get_Name() {
 		return organism_name + "|" + tissue + "|" + exp_number;
+	}
+
+	public int get_organism_ID() {
+		return organism_ID;
 	}
 
 	@Override
@@ -80,8 +84,8 @@ public class FPKM_Single implements Sample_Data {
 	}
 
 	@Override
-	public int compareTo(Sample_Data o) {
-		return this.hashCode() - o.hashCode();
+	public int compareTo(Sample_Data obj) {
+		return this.hashCode() - obj.hashCode();
 	}
 
 	@Override
@@ -103,7 +107,7 @@ public class FPKM_Single implements Sample_Data {
 		int result = 1;
 		result = prime * result + organism_ID;
 		result = prime * result + ((tissue == null) ? 0 : tissue.hashCode());
-		result = prime * result + exp_number;
+		result = prime * result + exp_number.hashCode();
 		result = prime * result + ((gene_data == null) ? 0 : gene_data.hashCode());
 		return result;
 	}

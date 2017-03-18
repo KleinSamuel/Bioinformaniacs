@@ -17,7 +17,7 @@ import dennis.tissues.TissuePair;
 
 public class UtilityManager {
 
-	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d‰‰‰hn/config.txt";
+	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d√§√§√§hn/config.txt";
 	private static HashMap<String, String> configs;
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
@@ -124,7 +124,7 @@ public class UtilityManager {
 		}
 	}
 
-	/*
+	/**
 	 * return species iterator (id sorted)
 	 */
 	public static Iterator<Species> speciesIterator() {
