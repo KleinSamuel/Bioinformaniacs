@@ -1,21 +1,19 @@
 package dennis.utility_manager;
 
-import java.util.Iterator;
-
 public class Runner {
 
 	// count bam files
 
+	// TODO
+	// counts noch mal laufen lassen mit standardChrs
+	// rechte 10116/SRR594445/hisat.bam
+
 	public static void main(String[] args) {
-		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
+		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, true);
 		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
 		// speciesIt.hasNext();) {
 		// EBUtils.runEBForAllTissuePairsAndMappers(speciesIt.next());
 		// }
-
-		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
-			s.next().writeGeneLenghts();
-		}
 
 		// int i = 1, toDo = Integer.parseInt(args[0]);
 		//

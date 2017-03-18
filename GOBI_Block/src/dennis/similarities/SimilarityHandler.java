@@ -11,7 +11,7 @@ import dennis.utility_manager.UtilityManager;
 
 public class SimilarityHandler {
 
-	// species
+	// species1.species2
 	private HashMap<String, GeneSimilarities> sims;
 	private String simPath;
 
@@ -47,6 +47,8 @@ public class SimilarityHandler {
 	}
 
 	public void addSimilarityFile(Species s1, Species s2) {
+		if (sims.containsKey(s1.getId() + "." + s2.getId()))
+			return;
 		File f = new File(simPath + s1.getId() + "." + s2.getId() + ".genesimilarities");
 		if (!f.exists()) {
 			f = new File(simPath + s2.getId() + "." + s1.getId() + ".genesimilarities");
@@ -55,7 +57,10 @@ public class SimilarityHandler {
 	}
 
 	public void addSimilaritiesFile(File similarityFile, Species sp1, Species sp2) {
-
+		System.out.println("adding similarity " + sp1.getId() + ":" + sp2.getId() + " [needed memory atm: "
+				+ ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d
+						/ 1024d * 1000d)) / 1000d
+				+ "GB]");
 		if (sp1.equals(sp2)) {
 			addParalogFile(similarityFile, sp1);
 			return;
