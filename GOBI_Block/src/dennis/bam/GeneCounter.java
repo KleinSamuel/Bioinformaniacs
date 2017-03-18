@@ -73,23 +73,24 @@ public class GeneCounter {
 	}
 
 	public void writeOutput(String outputDir) {
-		TreeMap<Gene, Double[]> sortedCounts = new TreeMap<>(counts);
-		Gene g;
-		for (Iterator<Gene> it = BamFileReader.ga.iterator(); it.hasNext();) {
-			g = it.next();
-			if (!counts.containsKey(g)) {
-				sortedCounts.put(g, new Double[] { 0d, 0d, 0d, 0d });
-			}
-		}
 		try {
 			File f = new File(outputDir);
 			f.mkdirs();
 			f = new File(outputDir + "/gene.counts");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write("geneId\tnonAmbigousAnyPcr\tnonAmbigousPcr0\tambigousWeightedAnyPcr\tambigousWeightedPcr0\n");
-			for (Entry<Gene, Double[]> e : sortedCounts.entrySet()) {
-				bw.write(e.getKey().getId() + "\t" + e.getValue()[0].intValue() + "\t" + e.getValue()[1].intValue()
-						+ "\t" + e.getValue()[2] + "\t" + e.getValue()[3] + "\n");
+			Gene g;
+			for (Iterator<Gene> it = BamFileReader.ga.iterator(); it.hasNext();) {
+				g = it.next();
+				Double[] arr = counts.get(g.getId());
+				if (!counts.containsKey(g)) {
+					arr = new Double[] { 0d, 0d, 0d, 0d };
+					bw.write(g.getId() + "\t" + arr[0].intValue() + "\t" + arr[1].intValue() + "\t" + arr[2] + "\t"
+							+ arr[3] + "\n");
+				} else {
+					bw.write(g.getId() + "\t" + arr[0].intValue() + "\t" + arr[1].intValue() + "\t" + arr[2] + "\t"
+							+ arr[3] + "\n");
+				}
 			}
 			bw.close();
 			f = new File(outputDir + "/total.counts");

@@ -1,5 +1,11 @@
 package dennis.utility_manager;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import dennis.counter.CounterUtils;
+import dennis.tissues.Tissue;
+
 public class Runner {
 
 	// count bam files
@@ -9,7 +15,23 @@ public class Runner {
 	// rechte 10116/SRR594445/hisat.bam
 
 	public static void main(String[] args) {
-		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, true);
+		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
+
+		Species human = UtilityManager.getSpecies(9606);
+
+		for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(human); tissueIt.hasNext();) {
+			Tissue t = tissueIt.next();
+			for (Experiment e : t.getExperiments()) {
+				LinkedList<String> mapperAvg = new LinkedList<>();
+				for (String m : UtilityManager.mapperList()) {
+					mapperAvg.add(UtilityManager.getConfig("output_directory") + human.getId() + "/" + t.getName() + "/"
+							+ e.getName() + "/" + m + "/gene.counts");
+				}
+				CounterUtils.createAverageCountFile(mapperAvg, UtilityManager.getConfig("output_directory")
+						+ human.getId() + "/" + t.getName() + "/" + e.getName() + "/mapperAverage.counts");
+			}
+		}
+
 		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
 		// speciesIt.hasNext();) {
 		// EBUtils.runEBForAllTissuePairsAndMappers(speciesIt.next());
