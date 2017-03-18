@@ -36,7 +36,8 @@ public class Tree /*
 		this.nds.addAll(nds);
 		build();
 	}
-//	#Boa Constructor
+
+	// #Boa Constructor
 	public Tree(Collection<Node_Data> nds, Cluster_method cm) {
 		// super(super_root);
 		init();
@@ -119,7 +120,80 @@ public class Tree /*
 	}
 
 	private void build_nj() {
-		// TODO Auto-generated method stub
+		ArrayList<Node> ns = new ArrayList<>();
+		double[][] dists;
+		leaves = new TreeMap<>();
+		for (Node_Data nd : nds) {
+			Node l = new Node(nodes.size());
+			l.set_Data(nd);
+			leaf_node(l, nd);
+			ns.add(l);
+		}
+		dists = new double[ns.size()][ns.size()];
+		for (int x = 0; x < ns.size(); x++) {
+			for (int y = x; y < ns.size(); y++) {
+				double dist = 0;
+				if (x != y)
+					dist = Math.abs(leaves.get(ns.get(x)).compute_distance(leaves.get(ns.get(y))));
+				dists[x][y] = dists[y][x] = dist;
+			}
+		}
+		nj(ns, dists);
+	}
+
+	private double sum_row(double[][] data, int row) {
+		double out = 0;
+		for (double d : data[row])
+			out += d;
+		return out;
+
+	}
+
+	private void nj(ArrayList<Node> ns, double[][] dists) {
+		 double[][] new_dists = new double[ns.size()][ns.size()];
+		ArrayList<Node> new_nodes = new ArrayList<>();
+		ArrayList<Double> netto_dist = new ArrayList<>();
+		new_nodes.addAll(ns);
+		double min_val = Double.MAX_VALUE;
+		Node min_n1 = ns.get(0);
+		Node min_n2 = ns.get(1);
+		for (int row = 0; row < ns.size(); row++)
+			netto_dist.add(sum_row(dists, row) / (ns.size() - 2));
+		if (ns.size() > 2) {
+			for (int row = 1; row < ns.size(); row++)
+				for (int col = row + 1; col < ns.size(); col++) {
+					double dist = dists[row][col] - (netto_dist.get(row) + netto_dist.get(col));
+					// temp_mat[row][col]=dist;
+					if (dist < min_val) {
+						min_val = dist;
+						min_n1 = ns.get(row);
+						min_n2 = ns.get(col);
+					}
+				}
+		}
+		Node c = new Node(nodes.size());
+		double dist_n1 = dists[ns.indexOf(min_n1)][ns.indexOf(min_n2)] + netto_dist.get(ns.indexOf(min_n1))
+				- netto_dist.get(ns.indexOf(min_n2));
+		double dist_n2 = dists[ns.indexOf(min_n1)][ns.indexOf(min_n2)] - dist_n1;
+		c.add_child(min_n1, dist_n1);
+		c.add_child(min_n2, dist_n2);
+		if (ns.size() > 2) {
+			new_nodes.remove(ns.indexOf(min_n1));
+			new_nodes.remove(ns.indexOf(min_n2));
+			new_nodes.add(c);
+			inner_node(c);
+			for (int row = 1; row < new_nodes.size(); row++) {
+				for (int col = row + 1; col < new_nodes.size(); col++) {
+					if(row<new_nodes.size()-1)
+						new_dists[row][col] = row<new_nodes.size()-1 ? dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(new_nodes.get(col))] :dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(min_n1)]+dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(min_n2)]-dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(new_nodes.get(col))]; 
+				}
+			}
+			nj(new_nodes,new_dists);
+
+		} else {
+			root.add_child(ns.get(0), dist_n1);
+			root.add_child(ns.get(1), dist_n2);
+		}
 
 	}
 

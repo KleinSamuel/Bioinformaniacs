@@ -29,20 +29,20 @@ public class Example {
 //		cars.add(new Car(50, "VW GOLF GTI"));
 //		cars.add(new Car(70, "Corvette C7"));
 //		cars.add(new Car(100, "Lamborghini"));
-		int cap = 100;
-		int start = 100;
-		int step = 5;
+		int cap = 10;
+		int start = 10;
+		int step = 10;
 		Tree car_t;
 		while(start<=cap) {
 			cars.clear();
 //			long s = System.currentTimeMillis();
 			generate_Cars(start, cars);
-			car_t  = new Tree(cars);
-//			try {
-//				Runtime.getRuntime().exec("display "+Plot.get_plot(car_t, car_t.get_root()));
-//			} catch (IOException e1) {
-//				e1.printStackTrace();
-//			}
+			car_t  = new Tree(cars,Cluster_method.NJ);
+			try {
+				Runtime.getRuntime().exec("display "+Plot.get_plot(car_t, car_t.get_root()));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 
 //			long end = System.currentTimeMillis();
 //			long dur = (int) ((end-s));
