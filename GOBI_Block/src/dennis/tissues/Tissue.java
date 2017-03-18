@@ -34,6 +34,15 @@ public class Tissue implements Comparable<Tissue> {
 		number = experiments.size();
 	}
 
+	public Experiment getExperiment(String name) {
+		for (Experiment e : experiments) {
+			if (e.getName().equals(name)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
 	@Override
 	public int hashCode() {
 		return name.hashCode();

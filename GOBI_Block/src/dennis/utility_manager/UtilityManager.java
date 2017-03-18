@@ -21,7 +21,7 @@ public class UtilityManager {
 	private static HashMap<String, String> configs;
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
-	private SimilarityHandler similarities;
+	private static SimilarityHandler similarities;
 	private GOHandler goUtils;
 	private CounterUtils counterUtils;
 	private TissueHandler tissueHandler;
