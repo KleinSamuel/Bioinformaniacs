@@ -64,6 +64,10 @@ public class UtilityManager {
 
 	}
 
+	public static SimilarityHandler getSimilarityHandler() {
+		return similarities;
+	}
+
 	public static Species getSpecies(int id) {
 		return speciesById.get(id);
 	}

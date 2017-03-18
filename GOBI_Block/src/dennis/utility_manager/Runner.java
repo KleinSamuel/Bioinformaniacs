@@ -1,10 +1,5 @@
 package dennis.utility_manager;
 
-import java.util.Iterator;
-
-import dennis.bam.BamFileReader;
-import dennis.tissues.TissueHandler;
-
 public class Runner {
 
 	// count bam files
@@ -14,16 +9,11 @@ public class Runner {
 	// rechte 10116/SRR594445/hisat.bam
 
 	public static void main(String[] args) {
-		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
+		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, true);
 		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
 		// speciesIt.hasNext();) {
 		// EBUtils.runEBForAllTissuePairsAndMappers(speciesIt.next());
 		// }
-
-		Experiment e = TissueHandler.getTissue(UtilityManager.getSpecies(10116), "testis").getExperiment("SRR594445");
-
-		BamFileReader bam = new BamFileReader(UtilityManager.getSpecies(10116), "testis", e, "hisat");
-		bam.readBAMFile();
 
 		// int i = 1, toDo = Integer.parseInt(args[0]);
 		//
