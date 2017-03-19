@@ -26,7 +26,7 @@ public class UtilityManager {
 	private CounterUtils counterUtils;
 	private TissueHandler tissueHandler;
 
-	/*
+	/**
 	 * input: inputMappingFile (if null: default is taken) returns an object
 	 * containing: - the GO graph (getGO()) - a container holding
 	 * SpeciesObjects(getSpecies(String species)):
@@ -64,6 +64,10 @@ public class UtilityManager {
 
 	}
 
+	/**
+	 * 
+	 * @return SimilarityHandler
+	 */
 	public static SimilarityHandler getSimilarityHandler() {
 		return similarities;
 	}
@@ -94,6 +98,13 @@ public class UtilityManager {
 		}
 	}
 
+	/**
+	 * home/proj/biocluster/praktikum/genprakt/bioinformaniacs/dääähn/config.txt
+	 * 
+	 * @param key
+	 *            aus der config
+	 * @return selbsterklärend
+	 */
 	public static String getConfig(String key) {
 		if (configs == null) {
 			readUtilityMapping();
@@ -129,14 +140,14 @@ public class UtilityManager {
 	}
 
 	/**
-	 * return species iterator (id sorted)
+	 * @return return species iterator (id sorted)
 	 */
 	public static Iterator<Species> speciesIterator() {
 		return new TreeSet<Species>(speciesById.values()).iterator();
 	}
 
-	/*
-	 * mapperIterator
+	/**
+	 * @return mapperIterator
 	 */
 	public static Iterator<String> mapperIterator() {
 		TreeSet<String> mapper = new TreeSet<>();
@@ -147,6 +158,11 @@ public class UtilityManager {
 		return mapper.iterator();
 	}
 
+	/**
+	 * falls ihr keinen bock habt auch dafür nen iterator zu nehmen ;)
+	 * 
+	 * @return list of mappers
+	 */
 	public static LinkedList<String> mapperList() {
 		LinkedList<String> mapper = new LinkedList<>();
 		mapper.add("contextmap");
@@ -156,8 +172,8 @@ public class UtilityManager {
 		return mapper;
 	}
 
-	/*
-	 * DEmethod iterator
+	/**
+	 * @return DEmethod iterator
 	 */
 	public static Iterator<String> DEmethodIterator() {
 		LinkedList<String> methods = new LinkedList<>();
@@ -167,27 +183,32 @@ public class UtilityManager {
 		return methods.iterator();
 	}
 
-	/*
-	 * returns tissueName iterator (alphabetical order)
+	/**
+	 * @return tissueName iterator (alphabetical order)
 	 */
 	public static Iterator<String> tissueNameIterator() {
 		return TissueHandler.tissueNameIterator();
 	}
 
-	/*
-	 * returns tissue iterator for the given species (alphabetical order)
+	/**
+	 * @return tissue iterator for the given species (alphabetical order)
 	 */
 	public static Iterator<Tissue> tissueIterator(Species s) {
 		return TissueHandler.tissueIterator(s);
 	}
 
-	/*
-	 * returns iterator over all possible tissuePairs for a species
+	/**
+	 * @return iterator over all possible tissuePairs for a species
 	 */
 	public static Iterator<TissuePair> tissuePairIterator(Species s) {
 		return TissueHandler.tissuePairIterator(s).iterator();
 	}
 
+	/**
+	 * 
+	 * @param geneId
+	 * @return the speciesId thr geneId belongs to
+	 */
 	public static int getSpeciesIDFromGeneID(String geneId) {
 		if (geneId.startsWith("ENSMUSG"))
 			return 10090;

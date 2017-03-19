@@ -48,12 +48,14 @@ public class EBUtils {
 	}
 
 	/**
-	 * bitte nur files eines organismus... sonst crashed der mist und sinn
-	 * machts auch keinen returned paths zu den outputFiles: expr ->
-	 * expressionFile; feat -> featureFile; pheno -> phenotype info
+	 * better call runEnrichment!
 	 * 
-	 * fileName: the name of the file without endings... file endings will be
-	 * added by the programm
+	 * @return map of the paths zu den outputFiles: expr -> expressionFile; feat
+	 *         -> featureFile; pheno -> phenotype info
+	 * 
+	 * @param fileName
+	 *            the name of the file without endings... file endings will be
+	 *            added by the programm
 	 */
 	public static HashMap<String, String> createInputDataForEBAndRunEB(Collection<String> countFilesCond1,
 			Collection<String> countFilesCond2, String outputDir, String fileName, boolean pcrIndexZero) {
@@ -115,6 +117,9 @@ public class EBUtils {
 	}
 
 	/**
+	 * 
+	 * bitte nur files eines organismus... sonst crashed der mist und sinn
+	 * machts auch keinen
 	 * 
 	 * @param countFilesCond1:
 	 *            count files von condition 1
@@ -188,8 +193,11 @@ public class EBUtils {
 		}
 	}
 
-	// call: Rscript de_rseq.R <exprs.file> <pdat.file> <fdat.file> <de.method>
-	// <out.file>
+	/**
+	 * call: Rscript de_rseq.R
+	 * <exprs.file> <pdat.file> <fdat.file> <de.method> <out.file> better call
+	 * runEnrichment
+	 */
 	public static void runEB(HashMap<String, String> inputFilePaths, String outputDir, String fileName) {
 		try {
 			for (Iterator<String> method = UtilityManager.DEmethodIterator(); method.hasNext();) {

@@ -18,6 +18,11 @@ public class GOHandler {
 	// GOgraph
 	private static Graph goGraph = null;
 
+	/**
+	 * 
+	 * @param sp
+	 * @return GOmapping containing all mappings for the given species
+	 */
 	public static GOmapping getGOmapping(Species sp) {
 		if (mappings == null) {
 			mappings = new HashMap<>();
@@ -30,10 +35,21 @@ public class GOHandler {
 		return map;
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @param goTerm
+	 * @return all genes directly mapped to goTerm(directly = most specific)
+	 */
 	public static TreeSet<String> getMappedGenes(Species s, String goTerm) {
 		return getGOmapping(s).getGenesMappedToGoTerm(goTerm);
 	}
 
+	/**
+	 * 
+	 * @param goTerm
+	 * @return all genes mapped to the given goTerm(from all species)
+	 */
 	public static TreeSet<String> getMappedGenes(String goTerm) {
 		TreeSet<String> ret = new TreeSet<>();
 		for (Iterator<Species> speciesIt = UtilityManager.speciesIterator(); speciesIt.hasNext();) {
@@ -42,6 +58,12 @@ public class GOHandler {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param s
+	 * @param goTerms
+	 * @return all genes directly mapped to the given goTerms
+	 */
 	public static TreeSet<String> getMappedGenes(Species s, Collection<String> goTerms) {
 		TreeSet<String> ret = new TreeSet<>();
 		for (String term : goTerms) {
@@ -50,6 +72,11 @@ public class GOHandler {
 		return ret;
 	}
 
+	/**
+	 * 
+	 * @param goTerms
+	 * @return all genes directly mapped to the goTerms from all species
+	 */
 	public static TreeSet<String> getMappedGenes(Collection<String> goTerms) {
 		TreeSet<String> ret = new TreeSet<>();
 		for (String term : goTerms) {
@@ -58,6 +85,11 @@ public class GOHandler {
 		return ret;
 	}
 
+	/**
+	 * will read the graph if not there yet
+	 * 
+	 * @return GOgraph
+	 */
 	public static Graph getGOgraph() {
 		if (goGraph == null) {
 			readGOgraph();

@@ -17,7 +17,7 @@ public class EnrichmentAnalysisUtils {
 	public static Comparator<GeneObject> comp;
 	public static String valueOfInterest = "raw";
 
-	/*
+	/**
 	 * returns all genes under threshold; threshold can be null -> default <=
 	 * 0.05 if(DEmethod == null) -> returns all gene under threshold in all
 	 * DEMethods -> possible values DESeq, edgeR, limma valueOfInterest =
@@ -86,8 +86,10 @@ public class EnrichmentAnalysisUtils {
 		return genes;
 	}
 
-	/*
+	/**
 	 * sortedSet should better be sorted ascending by valueOfInterest
+	 * 
+	 * @return subset of sortedSet containing all genes under the threshold
 	 */
 	public static TreeSet<GeneObject> getSubset(TreeSet<GeneObject> sortedSet, double threshold) {
 		TreeSet<GeneObject> ret = new TreeSet<>(getComparator());

@@ -21,10 +21,18 @@ public class Tissue implements Comparable<Tissue> {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return list of experiments
+	 */
 	public LinkedList<Experiment> getExperiments() {
 		return experiments;
 	}
 
+	/**
+	 * 
+	 * @return number of experiments in the species for this tissue
+	 */
 	public int getNumber() {
 		return number;
 	}
@@ -34,6 +42,11 @@ public class Tissue implements Comparable<Tissue> {
 		number = experiments.size();
 	}
 
+	/**
+	 * 
+	 * @param name
+	 * @return experiment with given name; null if name not in experiments
+	 */
 	public Experiment getExperiment(String name) {
 		for (Experiment e : experiments) {
 			if (e.getName().equals(name)) {
