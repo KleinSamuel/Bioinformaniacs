@@ -12,7 +12,9 @@ import dennis.utility_manager.UtilityManager;
 
 public class SimilarityHandler {
 
-	// species1.species2
+	/**
+	 * key = species1.species2
+	 */
 	private HashMap<String, GeneSimilarities> sims;
 	private String simPath;
 
@@ -21,6 +23,13 @@ public class SimilarityHandler {
 		sims = new HashMap<>();
 	}
 
+	/**
+	 * 
+	 * @param query_species
+	 * @param target_species
+	 * @return GeneSimilarities containing all similarities between the two
+	 *         species
+	 */
 	public GeneSimilarities getSimilarities(Species query_species, Species target_species) {
 		if (sims == null) {
 			sims = new HashMap<>();
@@ -33,16 +42,16 @@ public class SimilarityHandler {
 	}
 
 	/**
-	 * returns all similarities of all species for the given gene id; species
-	 * can be null -> is calculated
+	 * @return all similarities of all species for the given gene id; species
+	 *         can be null -> is calculated by gene_id
 	 */
-	public HashMap<String, SimilarityObject> getAllSimilarities(Species sp, String geneId) {
+	public HashMap<String, SimilarityObject> getAllSimilarities(Species query_species, String geneId) {
 		HashMap<String, SimilarityObject> ret = new HashMap<>();
-		if (sp == null) {
-			sp = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(geneId));
+		if (query_species == null) {
+			query_species = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(geneId));
 		}
 		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
-			HashMap<String, SimilarityObject> sim = getSimilarities(sp, s.next()).getSimilarities(geneId);
+			HashMap<String, SimilarityObject> sim = getSimilarities(query_species, s.next()).getSimilarities(geneId);
 			if (sim != null) {
 				ret.putAll(sim);
 			}
@@ -52,8 +61,15 @@ public class SimilarityHandler {
 
 	/**
 	 * 
+<<<<<<< HEAD
 	 * @param query_species: can be null -> calculated by query_geneId
 	 * @param target_species: can be null -> calculated by first target_geneId
+=======
+	 * @param query_species
+	 *            can be null -> calculated by query_geneId
+	 * @param target_species
+	 *            can be null -> calculated by first target_geneId
+>>>>>>> branch 'master' of https://github.com/KleinSamuel/Bioinformaniacs.git
 	 * @param query_geneId
 	 * @param target_geneIds
 	 * @return SimilarityObject between query_gene and target_gene with highest
@@ -124,8 +140,8 @@ public class SimilarityHandler {
 
 	public void parseLine(String line, GeneSimilarities gs1, GeneSimilarities gs2) {
 		String[] split = line.split("\t");
-		SimilarityObject so1 = new SimilarityObject(Double.parseDouble(split[2])),
-				so2 = new SimilarityObject(Double.parseDouble(split[2]));
+		SimilarityObject so1 = new SimilarityObject(Double.parseDouble(split[2]), split[0], split[1]),
+				so2 = new SimilarityObject(Double.parseDouble(split[2]), split[1], split[0]);
 		gs1.addSimilarity(split[0], split[1], so1);
 		gs2.addSimilarity(split[1], split[0], so2);
 		split = split[3].split(",");
@@ -155,7 +171,7 @@ public class SimilarityHandler {
 
 	public void parseParalogLine(String line, GeneSimilarities g) {
 		String[] split = line.split("\t");
-		SimilarityObject so = new SimilarityObject(Double.parseDouble(split[2]));
+		SimilarityObject so = new SimilarityObject(Double.parseDouble(split[2]), split[0], split[1]);
 		g.addSimilarity(split[0], split[1], so);
 		g.addSimilarity(split[1], split[0], so);
 		split = split[3].split(",");

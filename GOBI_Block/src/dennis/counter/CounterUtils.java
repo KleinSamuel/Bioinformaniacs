@@ -11,7 +11,57 @@ import java.util.LinkedList;
 
 public class CounterUtils {
 
-	// doubles werden abgerundet
+	/**
+	 * 
+	 * @param countFile
+	 *            selbsterklärend
+	 * @param ambigous
+	 *            false, wenn die counts eindeutig sein sollen(multimapped reads
+	 *            ignorieren) true, wenn weighted counts miteinbezogen werden
+	 *            sollen; weighted = 1 / #gene_matches
+	 * @param pcrEqualZero
+	 *            true, wenn pcrIndex der reads 0 sein soll
+	 * @return Map<GeneId, specifiedCount>
+	 */
+	public static HashMap<String, Double> readCountFile(String countFile, boolean ambigous, boolean pcrEqualZero) {
+		HashMap<String, Double> counts = new HashMap<>();
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(new File(countFile)));
+			// skip header
+			br.readLine();
+			String line = null;
+			String[] split = null;
+			while ((line = br.readLine()) != null) {
+				split = line.split("\t");
+				double count = -1;
+				if (pcrEqualZero) {
+					count = Double.parseDouble(split[2]);
+					if (ambigous) {
+						count += Double.parseDouble(split[4]);
+					}
+				} else {
+					count = Double.parseDouble(split[1]);
+					if (ambigous) {
+						count += Double.parseDouble(split[3]);
+					}
+				}
+				counts.put(split[0], count);
+			}
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		return counts;
+	}
+
+	/**
+	 * 
+	 * @param countFiles
+	 *            path to all countFiles that should be averaged
+	 * @param outputFile
+	 *            specifies the path where the outputfile should be written
+	 */
 	public static void createAverageCountFile(Collection<String> countFiles, String outputFile) {
 		HashMap<String, Double[]> counts = new HashMap<>();
 		LinkedList<String> inputReihenfolge = new LinkedList<>();

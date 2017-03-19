@@ -8,9 +8,14 @@ import java.util.TreeSet;
 
 public class GOmapping {
 
-	// GeneId, GOIds
+	/**
+	 * GeneId, GOIds
+	 */
 	private HashMap<String, TreeSet<String>> GOperGene;
-	// GOId, GeneIds
+
+	/**
+	 * GOId, GeneIds
+	 */
 	private HashMap<String, TreeSet<String>> genesPerGO;
 
 	public GOmapping(String mappingFile) {
@@ -19,10 +24,20 @@ public class GOmapping {
 		readGOmapping(mappingFile);
 	}
 
+	/**
+	 * 
+	 * @param geneId
+	 * @return all directly mapped GOs(directly = most specific)
+	 */
 	public TreeSet<String> getGOsMappedToGene(String geneId) {
 		return GOperGene.get(geneId);
 	}
 
+	/**
+	 * 
+	 * @param goId
+	 * @return all genes directly mapped to GO
+	 */
 	public TreeSet<String> getGenesMappedToGoTerm(String goId) {
 		return genesPerGO.get(goId);
 	}

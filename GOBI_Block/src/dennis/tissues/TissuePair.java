@@ -10,10 +10,18 @@ public class TissuePair implements Comparable<TissuePair> {
 		this.value = value;
 	}
 
+	/**
+	 * 
+	 * @return tissue1
+	 */
 	public Tissue getKey() {
 		return key;
 	}
 
+	/**
+	 * 
+	 * @return tissue2
+	 */
 	public Tissue getValue() {
 		return value;
 	}

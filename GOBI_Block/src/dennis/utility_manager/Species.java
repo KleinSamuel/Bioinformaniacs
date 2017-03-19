@@ -37,6 +37,11 @@ public class Species implements Comparable<Species> {
 		return name;
 	}
 
+	/**
+	 * 
+	 * @return name of gtf file full file:
+	 *         UtilityManager.getConfig("gtfs")+getGtf
+	 */
 	public String getGtf() {
 		return gtf;
 	}

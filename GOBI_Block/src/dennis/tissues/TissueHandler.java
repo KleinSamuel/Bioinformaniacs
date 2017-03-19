@@ -14,8 +14,10 @@ import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
-// reads tissue mappings; loads into each species: paths to experiments per tissue
-// looks if data exists for a given species and tissue pair
+/**
+ * reads tissue mappings; loads into each species: paths to experiments per
+ * tissue looks if data exists for a given species and tissue pair
+ */
 public class TissueHandler {
 
 	private static HashSet<String> tissueList = null;
@@ -79,8 +81,8 @@ public class TissueHandler {
 		}
 	}
 
-	/*
-	 * returns a iterator over all tissueNames in alphabetical order
+	/**
+	 * @return a iterator over all tissueNames in alphabetical order
 	 */
 	public static Iterator<String> tissueNameIterator() {
 		if (tissueList == null) {
@@ -91,8 +93,8 @@ public class TissueHandler {
 		return ret.iterator();
 	}
 
-	/*
-	 * returns a iterator over all tissues in species s in alphabetical order
+	/**
+	 * @return a iterator over all tissues in species s in alphabetical order
 	 */
 	public static Iterator<Tissue> tissueIterator(Species s) {
 		TreeMap<String, Tissue> ret = new TreeMap<>();
@@ -100,9 +102,9 @@ public class TissueHandler {
 		return ret.values().iterator();
 	}
 
-	/*
-	 * returns map of tissues from species sp key: tissueName(testes was renamed
-	 * with testis) value: tissue
+	/**
+	 * @return map of tissues from species sp key: tissueName(testes was renamed
+	 *         with testis) value: tissue
 	 */
 	public static HashMap<String, Tissue> getTissues(Species sp) {
 		if (tissues == null) {
@@ -115,15 +117,15 @@ public class TissueHandler {
 		return tissues.get(sp);
 	}
 
-	/*
-	 * returns Tissue of species sp could be null!! e.g.: 9593 lung
+	/**
+	 * @return Tissue of species sp could be null!! e.g.: 9593 lung
 	 */
 	public static Tissue getTissue(Species sp, String tissue) {
 		return getTissues(sp).get(tissue);
 	}
 
-	/*
-	 * returns all possible tissuePairs for a species
+	/**
+	 * @return all possible tissuePairs for a species
 	 */
 	public static LinkedList<TissuePair> tissuePairIterator(Species s) {
 		LinkedList<TissuePair> tissuePairs = new LinkedList<>();

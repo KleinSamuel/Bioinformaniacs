@@ -4,13 +4,18 @@ import java.util.HashMap;
 
 public class SimilarityObject {
 
-	// prot1, prot2, identityScore
+	private String query_geneId, target_geneId;
+	/**
+	 * prot1, prot2, identityScore
+	 */
 	private HashMap<String, HashMap<String, Double>> prots;
 	private double maxIdentityScore;
 
-	public SimilarityObject(double maxScore) {
+	public SimilarityObject(double maxScore, String query, String target) {
 		prots = new HashMap<>();
 		this.maxIdentityScore = maxScore;
+		query_geneId = query;
+		target_geneId = target;
 	}
 
 	public void addProteinSimilarity(String prot1, String prot2, double simScore) {
@@ -24,6 +29,18 @@ public class SimilarityObject {
 
 	public double getMaximumIdentityScore() {
 		return maxIdentityScore;
+	}
+
+	public String getQuery_geneId() {
+		return query_geneId;
+	}
+
+	public String getTarget_geneId() {
+		return target_geneId;
+	}
+
+	public HashMap<String, HashMap<String, Double>> getProts() {
+		return prots;
 	}
 
 }
