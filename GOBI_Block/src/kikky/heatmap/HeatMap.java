@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class HeatMap {
 	private String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
@@ -12,7 +13,10 @@ public class HeatMap {
 	private String file_path;
 	private String matrix;
 
-	public HeatMap(String title, ArrayList<Sample_Data> col, ArrayList<Sample_Data> row) {
+	private long start;
+
+	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
+		start = System.currentTimeMillis();
 		matrix = "m <- matrix(c(";
 		String temp = "";
 		for (Sample_Data sd1 : col) {
@@ -41,8 +45,8 @@ public class HeatMap {
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
 			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1) + ",z = m, type = \"heatmap\");\n");
-			 bw.write("json <- plotly_json(p, FALSE);");
-			 bw.write("write(json, \"/home/a/adamowicz/GoBi/json.txt\");");
+			bw.write("json <- plotly_json(p, FALSE);");
+			bw.write("write(json, \"/home/a/adamowicz/GoBi/json.txt\");");
 			bw.close();
 			// System.out.println(R_path + " " + r_script.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
@@ -51,5 +55,13 @@ public class HeatMap {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public String systemInfoString() {
+		String out = "[";
+		out += (System.currentTimeMillis() - start) / 1000 + "." + (System.currentTimeMillis() - start) % 1000 + "s";
+		out += "|" + ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d
+				/ 1024d * 1000d)) / 1000d + "GB]";
+		return out;
 	}
 }

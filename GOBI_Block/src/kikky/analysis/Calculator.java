@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 
+import dennis.counter.CounterUtils;
+
 public class Calculator {
 
 	/**
@@ -18,25 +20,13 @@ public class Calculator {
 	 *            introns)
 	 */
 	public static HashMap<String, Double> FPKM_generator(String count_file, String gene_file) {
-		HashMap<String, Double> gene_rawcount = new HashMap<>();
-		try {
-			// Reading the count file + adding counts together
-			BufferedReader br1 = new BufferedReader(new FileReader(count_file));
-			String line = br1.readLine();
-			while ((line = br1.readLine()) != null) {
-				String[] split = line.split("\t");
-				gene_rawcount.put(split[0], Double.parseDouble(split[1]));
-			}
-			br1.close();
-			// Turning count values to fpkm values
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		HashMap<String, Double> gene_rawcount = CounterUtils.readCountFile(count_file, false, false);
 		return FPKM_generator(gene_rawcount, gene_file);
 	}
 
-	public static HashMap<String, Double> FPKM_generator(HashMap<String, Double> fpkm_data, String gene_file) {
+	public static HashMap<String, Double> FPKM_generator(HashMap<String, Double> gene_rawcount, String gene_file) {
 		HashMap<String, Double> gene_data = new HashMap<>();
+		HashMap<String, Double> fpkm_data = new HashMap<>();
 		try {
 			double allcounts = 0;
 			// Reading the gene_id to length file, for further calculations
@@ -48,13 +38,13 @@ public class Calculator {
 			}
 			br1.close();
 			// Calculating all values
-			for (double val : fpkm_data.values())
+			for (double val : gene_rawcount.values())
 				allcounts += val;
 			// Turning count values to fpkm values
 			allcounts /= 1000000;
-			for (String gene_id : fpkm_data.keySet()) {
-				if (gene_data.get(gene_id) != null) {
-					double fpkm_value = fpkm_data.get(gene_id)
+			for (String gene_id : gene_rawcount.keySet()) {
+				if (gene_data.get(gene_id) != null && gene_rawcount.get(gene_id) != 0.0) {
+					double fpkm_value = gene_rawcount.get(gene_id)
 							/ (allcounts * (((double) gene_data.get(gene_id)) / 1000));
 					fpkm_data.put(gene_id, fpkm_value);
 				}

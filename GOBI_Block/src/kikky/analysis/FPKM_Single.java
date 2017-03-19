@@ -1,8 +1,5 @@
 package kikky.analysis;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.HashMap;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
@@ -10,6 +7,7 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import dennis.similarities.SimilarityHandler;
 import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
+import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
 public class FPKM_Single implements Sample_Data {
@@ -28,23 +26,12 @@ public class FPKM_Single implements Sample_Data {
 	public FPKM_Single(Species species, String tissue, String exp_number, HashMap<String, Double> gene_rawcount,
 			String gene_file) {
 		this(species, tissue, exp_number);
-		Calculator.FPKM_generator(gene_rawcount, gene_file);
+		gene_data = Calculator.FPKM_generator(gene_rawcount, gene_file);
 	}
 
 	public FPKM_Single(Species species, String tissue, String exp_number, String gene_rawcount, String gene_file) {
 		this(species, tissue, exp_number);
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(gene_rawcount));
-			String line = br.readLine();
-			while ((line = br.readLine()) != null) {
-				String[] split = line.split("\t");
-				gene_data.put(split[0], Double.parseDouble(split[1]));
-			}
-			br.close();
-			Calculator.FPKM_generator(gene_rawcount, gene_file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		gene_data = Calculator.FPKM_generator(gene_rawcount, gene_file);
 	}
 
 	@Override
@@ -72,26 +59,30 @@ public class FPKM_Single implements Sample_Data {
 		double[] x = new double[mates.size()];
 		double[] y = new double[mates.size()];
 		int index = 0;
-		for (String gene_id_x : mates.keySet()) {
-			x[index] = this.gene_data.get(gene_id_x);
-			y[index] = fs.gene_data.get(mates.get(gene_id_x));
+		if (mates.size() > 0) {
+			for (String gene_id_x : mates.keySet()) {
+				x[index] = this.gene_data.get(gene_id_x);
+				y[index] = fs.gene_data.get(mates.get(gene_id_x));
+				index++;
+			}
+			return pc.correlation(x, y);
 		}
-		return pc.correlation(x, y);
+		return 0;
 	}
 
 	private HashMap<String, String> get_mates(FPKM_Single fs) {
 		HashMap<String, String> mates = new HashMap<>();
 		if (this.species.getId() == fs.species.getId()) {
-			for (String gene_id : gene_data.keySet())
+			for (String gene_id : this.gene_data.keySet())
 				if (fs.gene_data.containsKey(gene_id))
 					mates.put(gene_id, gene_id);
 		} else {
-			SimilarityHandler sh = new SimilarityHandler();
+			SimilarityHandler sh = UtilityManager.getSimilarityHandler();
 			for (String gene_id : gene_data.keySet()) {
 				SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id,
 						fs.gene_data.keySet());
-				if(so != null)
-					mates.put(gene_id, "");
+				if (so != null)
+					mates.put(gene_id, so.getTarget_geneId());
 			}
 		}
 		return mates;
@@ -104,7 +95,7 @@ public class FPKM_Single implements Sample_Data {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) 
 			return false;
 		if (getClass() != obj.getClass())
 			return false;

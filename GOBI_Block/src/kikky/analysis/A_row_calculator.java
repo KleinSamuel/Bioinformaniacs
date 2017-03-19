@@ -1,5 +1,7 @@
 package kikky.analysis;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,19 +12,17 @@ import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
-public class Analysis {
+public class A_row_calculator {
 	private static long start;
 
 	public static void main(String[] args) {
 		start = System.currentTimeMillis();
+		System.out.println(systemInfoString() + "Starting to generate all partners");
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
-		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager(null, false, false, true);
 		String data_path = UtilityManager.getConfig("output_directory");
-		System.out.println(systemInfoString() + "Starting to save gene count infos");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
-			System.out.println(systemInfoString() + "Starting to save gene count for " + organism.getName());
 			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
 				Tissue tissue = it_tis.next();
 				for (Experiment exp : tissue.getExperiments()) {
@@ -35,15 +35,21 @@ public class Analysis {
 				}
 			}
 		}
-		System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 		fpkm_samples.sort(new TissueComparator<>());
-		Process plotting;
+		System.out.println(systemInfoString() + "Starting to calculate values to all partners");
+		Sample_Data fs_cur = fpkm_samples.get(Integer.parseInt(args[0]) - 7000);
+		String temp = "";
+		int index = 0;
+		for (Sample_Data sd2 : fpkm_samples) {
+			System.out.println(systemInfoString() + fs_cur.get_Name() + " vs " + sd2.get_Name() + "[" + index++ + "|"
+					+ fpkm_samples.size() + "]");
+			temp += "\t" + fs_cur.get_value(sd2);
+		}
 		try {
-			System.out.println("qsub -b Y -t 7000-" + (7000+(fpkm_samples.size() - 1))
-					+ " -N FPKM -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"");
-			plotting = Runtime.getRuntime().exec("qsub -b Y -t 7000-" + (7000+(fpkm_samples.size() - 1))
-					+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"");
-//			plotting.waitFor();
+			BufferedWriter bw = new BufferedWriter(
+					new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/" + args[0] + "FPKM.txt"));
+			bw.write(temp.substring(1));
+			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
