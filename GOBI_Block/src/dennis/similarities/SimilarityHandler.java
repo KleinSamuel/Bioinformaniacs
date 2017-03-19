@@ -3,6 +3,7 @@ package dennis.similarities;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -20,23 +21,26 @@ public class SimilarityHandler {
 		sims = new HashMap<>();
 	}
 
-	public GeneSimilarities getSimilarities(Species s1, Species s2) {
+	public GeneSimilarities getSimilarities(Species query_species, Species target_species) {
 		if (sims == null) {
 			sims = new HashMap<>();
 		}
-		GeneSimilarities gs = sims.get(s1.getId() + "." + s2.getId());
+		GeneSimilarities gs = sims.get(query_species.getId() + "." + target_species.getId());
 		if (gs == null) {
-			addSimilarityFile(s1, s2);
+			addSimilarityFile(query_species, target_species);
 		}
-		return sims.get(s1.getId() + "." + s2.getId());
+		return sims.get(query_species.getId() + "." + target_species.getId());
 	}
 
-	/*
-	 * returns all similarities of all species for the given gene id species can
-	 * be null -> is calculated
+	/**
+	 * returns all similarities of all species for the given gene id; species
+	 * can be null -> is calculated
 	 */
 	public HashMap<String, SimilarityObject> getAllSimilarities(Species sp, String geneId) {
 		HashMap<String, SimilarityObject> ret = new HashMap<>();
+		if (sp == null) {
+			sp = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(geneId));
+		}
 		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
 			HashMap<String, SimilarityObject> sim = getSimilarities(sp, s.next()).getSimilarities(geneId);
 			if (sim != null) {
@@ -44,6 +48,44 @@ public class SimilarityHandler {
 			}
 		}
 		return ret;
+	}
+
+	/**
+	 * 
+	 * @param query_species:
+	 *            can be null -> calculated by query_geneId
+	 * @param target_species:
+	 *            can be null -> calculated by first target_geneId
+	 * @param query_geneId
+	 * @param target_geneIds
+	 * @return SimilarityObject between query_gene and target_gene with highest
+	 *         similarity score; null if no target_gene is similar to query_gene
+	 */
+	public SimilarityObject checkForHighestSimilarity(Species query_species, Species target_species,
+			String query_geneId, Collection<String> target_geneIds) {
+		if (query_species == null)
+			query_species = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(query_geneId));
+		if (target_species == null)
+			target_species = UtilityManager
+					.getSpecies(UtilityManager.getSpeciesIDFromGeneID(target_geneIds.iterator().next()));
+
+		GeneSimilarities gs = getSimilarities(query_species, target_species);
+		SimilarityObject highestSim = null;
+
+		for (String target : target_geneIds) {
+			SimilarityObject next = gs.getSimilarity(query_geneId, target);
+			if (next != null) {
+				if (highestSim == null) {
+					highestSim = next;
+				} else {
+					if (highestSim.getMaximumIdentityScore() < next.getMaximumIdentityScore()) {
+						highestSim = next;
+					}
+				}
+			}
+		}
+
+		return highestSim;
 	}
 
 	public void addSimilarityFile(Species s1, Species s2) {

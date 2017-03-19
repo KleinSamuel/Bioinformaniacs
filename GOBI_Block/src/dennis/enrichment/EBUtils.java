@@ -47,7 +47,7 @@ public class EBUtils {
 		}
 	}
 
-	/*
+	/**
 	 * bitte nur files eines organismus... sonst crashed der mist und sinn
 	 * machts auch keinen returned paths zu den outputFiles: expr ->
 	 * expressionFile; feat -> featureFile; pheno -> phenotype info
@@ -114,6 +114,19 @@ public class EBUtils {
 
 	}
 
+	/**
+	 * 
+	 * @param countFilesCond1:
+	 *            count files von condition 1
+	 * @param countFilesCond2:
+	 *            count files von condition 2
+	 * @param outputDir:
+	 *            UtilityManager.getConfig("output_directory") + ...
+	 * @param fileName:
+	 *            fileName ohne Endung... Name wird für feature, expression und
+	 *            phenotype verwendet... endungen werden angehängt
+	 * @param pcrIndexZero
+	 */
 	public static void runEnrichment(Collection<String> countFilesCond1, Collection<String> countFilesCond2,
 			String outputDir, String fileName, boolean pcrIndexZero) {
 		runEB(createInputDataForEBAndRunEB(countFilesCond1, countFilesCond2, outputDir, fileName, pcrIndexZero),

@@ -147,6 +147,15 @@ public class UtilityManager {
 		return mapper.iterator();
 	}
 
+	public static LinkedList<String> mapperList() {
+		LinkedList<String> mapper = new LinkedList<>();
+		mapper.add("contextmap");
+		mapper.add("tophat2");
+		mapper.add("star");
+		mapper.add("hisat");
+		return mapper;
+	}
+
 	/*
 	 * DEmethod iterator
 	 */
