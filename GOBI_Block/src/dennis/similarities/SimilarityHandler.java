@@ -52,10 +52,8 @@ public class SimilarityHandler {
 
 	/**
 	 * 
-	 * @param query_species:
-	 *            can be null -> calculated by query_geneId
-	 * @param target_species:
-	 *            can be null -> calculated by first target_geneId
+	 * @param query_species: can be null -> calculated by query_geneId
+	 * @param target_species: can be null -> calculated by first target_geneId
 	 * @param query_geneId
 	 * @param target_geneIds
 	 * @return SimilarityObject between query_gene and target_gene with highest

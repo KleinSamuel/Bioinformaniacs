@@ -7,32 +7,32 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
+import dennis.similarities.SimilarityHandler;
+import dennis.similarities.SimilarityObject;
+import dennis.utility_manager.Species;
 import kikky.heatmap.Sample_Data;
 
 public class FPKM_Single implements Sample_Data {
-	private int organism_ID;
-	private String organism_name;
+	private Species species;
 	private String tissue;
 	private String exp_number;
 	private HashMap<String, Double> gene_data = new HashMap<>();
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number) {
-		this.organism_ID = organism_id;
-		this.organism_name = organism_name;
+	public FPKM_Single(Species species, String tissue, String exp_number) {
+		this.species = species;
 		this.tissue = tissue;
 		this.exp_number = exp_number;
 
 	}
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number,
-			HashMap<String, Double> gene_rawcount, String gene_file) {
-		this(organism_id, organism_name, tissue, exp_number);
+	public FPKM_Single(Species species, String tissue, String exp_number, HashMap<String, Double> gene_rawcount,
+			String gene_file) {
+		this(species, tissue, exp_number);
 		Calculator.FPKM_generator(gene_rawcount, gene_file);
 	}
 
-	public FPKM_Single(int organism_id, String organism_name, String tissue, String exp_number, String gene_rawcount,
-			String gene_file) {
-		this(organism_id, organism_name, tissue, exp_number);
+	public FPKM_Single(Species species, String tissue, String exp_number, String gene_rawcount, String gene_file) {
+		this(species, tissue, exp_number);
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(gene_rawcount));
 			String line = br.readLine();
@@ -49,17 +49,17 @@ public class FPKM_Single implements Sample_Data {
 
 	@Override
 	public String get_Name() {
-		return organism_name + "|" + tissue + "|" + exp_number;
+		return species.getName() + "|" + tissue + "|" + exp_number;
 	}
 
 	public int get_organism_ID() {
-		return organism_ID;
+		return species.getId();
 	}
 
 	public String get_tissue() {
 		return tissue;
 	}
-	
+
 	public String get_experiment() {
 		return exp_number;
 	}
@@ -81,12 +81,18 @@ public class FPKM_Single implements Sample_Data {
 
 	private HashMap<String, String> get_mates(FPKM_Single fs) {
 		HashMap<String, String> mates = new HashMap<>();
-		if (this.organism_ID == fs.organism_ID) {
+		if (this.species.getId() == fs.species.getId()) {
 			for (String gene_id : gene_data.keySet())
 				if (fs.gene_data.containsKey(gene_id))
 					mates.put(gene_id, gene_id);
 		} else {
-			// TODO: get ortholog partner if exists
+			SimilarityHandler sh = new SimilarityHandler();
+			for (String gene_id : gene_data.keySet()) {
+				SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id,
+						fs.gene_data.keySet());
+				if(so != null)
+					mates.put(gene_id, "");
+			}
 		}
 		return mates;
 	}
@@ -103,8 +109,8 @@ public class FPKM_Single implements Sample_Data {
 		if (getClass() != obj.getClass())
 			return false;
 		FPKM_Single other = (FPKM_Single) obj;
-		if (this.organism_ID == other.organism_ID && this.organism_name.equals(other.organism_name)
-				&& this.tissue.equals(other.tissue) && this.exp_number == other.exp_number)
+		if (this.species.equals(other.species) && this.tissue.equals(other.tissue)
+				&& this.exp_number == other.exp_number)
 			return true;
 		return false;
 	}
@@ -113,7 +119,7 @@ public class FPKM_Single implements Sample_Data {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + organism_ID;
+		result = prime * result + species.getId();
 		result = prime * result + ((tissue == null) ? 0 : tissue.hashCode());
 		result = prime * result + exp_number.hashCode();
 		result = prime * result + ((gene_data == null) ? 0 : gene_data.hashCode());

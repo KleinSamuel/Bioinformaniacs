@@ -15,27 +15,28 @@ public class Analysis {
 		start = System.currentTimeMillis();
 		ArrayList<FPKM_Single> fpkm_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
-		new UtilityManager(null, false, false, false);
+		new UtilityManager(null, false, false, true);
 		String data_path = UtilityManager.getConfig("output_directory");
 		System.out.println(systemInfoString() + "Starting to save gene count infos");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
+			System.out.println(systemInfoString() + "Starting to save gene count for "+organism.getName());
 			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
 				Tissue tissue = it_tis.next();
 				for (Experiment exp : tissue.getExperiments()) {
 					String map = "star";
 					String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + exp.getName() + "/"
 							+ map + "/gene.counts";
-					FPKM_Single fs = new FPKM_Single(organism.getId(), organism.getName(), tissue.getName(),
-							exp.getName(), path, data_path + "geneLengths/" + organism.getId() + ".geneLengths");
+					FPKM_Single fs = new FPKM_Single(organism, tissue.getName(), exp.getName(), path,
+							data_path + "geneLengths/" + organism.getId() + ".geneLengths");
 					fpkm_samples.add(fs);
 				}
 			}
 		}
 		System.out.println(systemInfoString() + "Starting to generate infos");
 		fpkm_samples.sort(new TissueComparator<>());
-		for(FPKM_Single fs : fpkm_samples){
-			//TODO: calculate data for heatmap
+		for (FPKM_Single fs : fpkm_samples) {
+			// TODO: calculate data for heatmap
 		}
 		System.out.println(systemInfoString() + "Terminated");
 	}
