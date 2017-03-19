@@ -56,6 +56,14 @@ public class FPKM_Single implements Sample_Data {
 		return organism_ID;
 	}
 
+	public String get_tissue() {
+		return tissue;
+	}
+	
+	public String get_experiment() {
+		return exp_number;
+	}
+
 	@Override
 	public double get_value(Sample_Data sd) {
 		FPKM_Single fs = (FPKM_Single) sd;
