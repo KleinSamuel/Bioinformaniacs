@@ -161,7 +161,6 @@ public class EBUtils {
 
 			for (String s : features) {
 				StringBuilder sb = new StringBuilder();
-				sb.append(s + "\t");
 				for (int i : counts.get(s)) {
 					sb.append(i + "\t");
 				}
