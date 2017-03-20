@@ -1,5 +1,6 @@
 package dennis.utility_manager;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -27,8 +28,11 @@ public class Runner {
 				for (String m : UtilityManager.mapperList()) {
 					LinkedList<String> tissueAvg = new LinkedList<>();
 					for (Experiment e : t.getExperiments()) {
-						tissueAvg.add(UtilityManager.getConfig("output_directory") + sp.getId() + "/" + t.getName()
-								+ "/" + e.getName() + "/" + m + "/gene.counts");
+						String fileName = UtilityManager.getConfig("output_directory") + sp.getId() + "/" + t.getName()
+								+ "/" + e.getName() + "/" + m + "/gene.counts";
+						if (new File(fileName).exists()) {
+							tissueAvg.add(fileName);
+						}
 					}
 					CounterUtils.createAverageCountFile(tissueAvg, UtilityManager.getConfig("output_directory")
 							+ sp.getId() + "/" + t.getName() + "/" + m + "_tissue_average.counts");

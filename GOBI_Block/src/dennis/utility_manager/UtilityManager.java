@@ -16,7 +16,7 @@ import dennis.tissues.TissuePair;
 
 public class UtilityManager {
 
-	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/dï¿½ï¿½ï¿½hn/config.txt";
+	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/dääähn/config.txt";
 	private static String utilityMapping = DefaultInputMapping;
 	private static HashMap<String, String> configs;
 	private static HashMap<String, Species> speciesByName;
@@ -25,7 +25,6 @@ public class UtilityManager {
 	// private GOHandler goUtils;
 	// private CounterUtils counterUtils;
 	// private TissueHandler tissueHandler;
-
 
 	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
@@ -56,11 +55,10 @@ public class UtilityManager {
 	 * @param preloadGOmappings
 	 *            lï¿½dt alle GOmappings im GOHandler
 	 * @param preloadSimilarities
-<<<<<<< HEAD
-	 *            lï¿½dt alle similarities in den similaritHandler
-=======
-	 *            lädt alle similarities in den similarityHandler
->>>>>>> branch 'master' of https://github.com/KleinSamuel/Bioinformaniacs.git
+	 *            <<<<<<< HEAD lï¿½dt alle similarities in den similaritHandler
+	 *            ======= lädt alle similarities in den similarityHandler
+	 *            >>>>>>> branch 'master' of
+	 *            https://github.com/KleinSamuel/Bioinformaniacs.git
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
@@ -124,7 +122,8 @@ public class UtilityManager {
 	}
 
 	/**
-	 * home/proj/biocluster/praktikum/genprakt/bioinformaniacs/dï¿½ï¿½ï¿½hn/config.txt
+	 * home/proj/biocluster/praktikum/genprakt/bioinformaniacs/dï¿½ï¿½ï¿½hn/
+	 * config.txt
 	 * 
 	 * @param key
 	 *            aus der config
