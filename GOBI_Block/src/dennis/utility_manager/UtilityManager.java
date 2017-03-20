@@ -27,11 +27,6 @@ public class UtilityManager {
 	// private TissueHandler tissueHandler;
 
 	/*
-	 * da kann ich mir gleich nen random generator schreiben, wenn kikky was
-	 * schreibt
-	 */
-
-	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
 	 * containing: - the GO graph (getGO()) - a container holding
 	 * SpeciesObjects(getSpecies(String species)):
