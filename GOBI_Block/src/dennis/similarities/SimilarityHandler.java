@@ -61,15 +61,18 @@ public class SimilarityHandler {
 
 	/**
 	 * 
-<<<<<<< HEAD
-	 * @param query_species: can be null -> calculated by query_geneId
-	 * @param target_species: can be null -> calculated by first target_geneId
-=======
+	 * <<<<<<< HEAD
+	 * 
+	 * @param query_species:
+	 *            can be null -> calculated by query_geneId
+	 * @param target_species:
+	 *            can be null -> calculated by first target_geneId =======
 	 * @param query_species
 	 *            can be null -> calculated by query_geneId
 	 * @param target_species
-	 *            can be null -> calculated by first target_geneId
->>>>>>> branch 'master' of https://github.com/KleinSamuel/Bioinformaniacs.git
+	 *            can be null -> calculated by first target_geneId >>>>>>>
+	 *            branch 'master' of
+	 *            https://github.com/KleinSamuel/Bioinformaniacs.git
 	 * @param query_geneId
 	 * @param target_geneIds
 	 * @return SimilarityObject between query_gene and target_gene with highest
@@ -108,8 +111,10 @@ public class SimilarityHandler {
 		File f = new File(simPath + s1.getId() + "." + s2.getId() + ".genesimilarities");
 		if (!f.exists()) {
 			f = new File(simPath + s2.getId() + "." + s1.getId() + ".genesimilarities");
+			addSimilaritiesFile(f, s2, s1);
+		} else {
+			addSimilaritiesFile(f, s1, s2);
 		}
-		addSimilaritiesFile(f, s1, s2);
 	}
 
 	public void addSimilaritiesFile(File similarityFile, Species sp1, Species sp2) {

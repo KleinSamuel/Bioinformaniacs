@@ -71,6 +71,7 @@ public class EBUtils {
 
 		HashMap<String, Integer[]> counts = new HashMap<>();
 		LinkedList<String> featureList = new LinkedList<>();
+		boolean firstRun = true;
 		Collection<String> countFiles = new LinkedList<>();
 		countFiles.addAll(countFilesCond1);
 		countFiles.addAll(countFilesCond2);
@@ -84,7 +85,9 @@ public class EBUtils {
 
 				while ((line = br.readLine()) != null) {
 					split = line.split("\t");
-					featureList.add(split[0]);
+					if (firstRun) {
+						featureList.add(split[0]);
+					}
 					Integer[] countArr = counts.get(split[0]);
 					if (countArr == null) {
 						countArr = new Integer[countFiles.size()];
@@ -102,6 +105,7 @@ public class EBUtils {
 				e.printStackTrace();
 				System.exit(1);
 			}
+			firstRun = false;
 		}
 
 		writePhenotype(countFilesCond1, countFilesCond2, outputDir, fileName);
@@ -129,8 +133,8 @@ public class EBUtils {
 	 * @param outputDir:
 	 *            UtilityManager.getConfig("output_directory") + ...
 	 * @param fileName:
-	 *            fileName ohne Endung... Name wird für feature, expression und
-	 *            phenotype verwendet... endungen werden angehängt
+	 *            fileName ohne Endung... Name wird fï¿½r feature, expression
+	 *            und phenotype verwendet... endungen werden angehï¿½ngt
 	 * @param pcrIndexZero
 	 */
 	public static void runEnrichment(Collection<String> countFilesCond1, Collection<String> countFilesCond2,
@@ -161,7 +165,6 @@ public class EBUtils {
 
 			for (String s : features) {
 				StringBuilder sb = new StringBuilder();
-				sb.append(s + "\t");
 				for (int i : counts.get(s)) {
 					sb.append(i + "\t");
 				}
@@ -208,7 +211,7 @@ public class EBUtils {
 						.exec(UtilityManager.getConfig("R_path") + " " + UtilityManager.getConfig("EB_script") + " "
 								+ inputFilePaths.get("expr") + " " + inputFilePaths.get("pheno") + " "
 								+ inputFilePaths.get("feat") + " " + m + " " + outputDir + "/" + fileName + "." + m);
-				BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 				String line = null;
 				while ((line = in.readLine()) != null) {
 					System.out.println(line);
