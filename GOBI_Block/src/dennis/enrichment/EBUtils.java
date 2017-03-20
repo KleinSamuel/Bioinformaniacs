@@ -161,7 +161,6 @@ public class EBUtils {
 
 			for (String s : features) {
 				StringBuilder sb = new StringBuilder();
-				sb.append(s + "\t");
 				for (int i : counts.get(s)) {
 					sb.append(i + "\t");
 				}
@@ -208,7 +207,7 @@ public class EBUtils {
 						.exec(UtilityManager.getConfig("R_path") + " " + UtilityManager.getConfig("EB_script") + " "
 								+ inputFilePaths.get("expr") + " " + inputFilePaths.get("pheno") + " "
 								+ inputFilePaths.get("feat") + " " + m + " " + outputDir + "/" + fileName + "." + m);
-				BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				BufferedReader in = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 				String line = null;
 				while ((line = in.readLine()) != null) {
 					System.out.println(line);
