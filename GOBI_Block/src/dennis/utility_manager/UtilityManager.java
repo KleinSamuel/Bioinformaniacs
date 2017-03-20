@@ -22,11 +22,11 @@ public class UtilityManager {
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
 	private static SimilarityHandler similarities;
-	private GOHandler goUtils;
-	private CounterUtils counterUtils;
-	private TissueHandler tissueHandler;
+	// private GOHandler goUtils;
+	// private CounterUtils counterUtils;
+	// private TissueHandler tissueHandler;
 
-	/**
+	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
 	 * containing: - the GO graph (getGO()) - a container holding
 	 * SpeciesObjects(getSpecies(String species)):
@@ -40,14 +40,31 @@ public class UtilityManager {
 	 * mapped to a go term - ...
 	 */
 
+	/**
+	 * erstellt ein mal eine Instanz vom UtilityManager über eurem code; alles
+	 * andere braucht ihr nicht mehr initialisieren !! auf keinen fall mehrere
+	 * UtilityManager erstellen !! dann wird alles neu geladen; GOHandler: hier
+	 * ist alles static; CounterUtils: alles static TissueHandler: auch alles
+	 * static; SImilarityHandler wird hier direkt mit initialisiert
+	 * 
+	 * 
+	 * @param utilityMapping
+	 *            null; es gibt ein default file
+	 * @param preloadGOgraph
+	 *            lädt GO graph im GOHandler
+	 * @param preloadGOmappings
+	 *            lädt alle GOmappings im GOHandler
+	 * @param preloadSimilarities
+	 *            lädt alle similarities in den similaritHandler
+	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
 		readUtilityMapping();
 		readSpeciesMapping();
 		similarities = new SimilarityHandler();
-		goUtils = new GOHandler();
-		counterUtils = new CounterUtils();
-		tissueHandler = new TissueHandler();
+		// goUtils = new GOHandler();
+		// counterUtils = new CounterUtils();
+		// tissueHandler = new TissueHandler();
 		if (preloadGOgraph) {
 			GOHandler.getGOgraph();
 		}

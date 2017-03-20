@@ -13,6 +13,11 @@ public class Runner {
 	// TODO
 	// counts noch mal laufen lassen mit standardChrs
 	// rechte 10116/SRR594445/hisat.bam
+	// GO mappings testen / überlegen ob zur wurzel mitgespeichert wird oder
+	// immer neu berechnet
+	// den anderen einen Beispiel aufruf schreiben
+	// zu gergy gehen wegen curve_sim_score berechnung
+	// idee: curve_sim(curve a, curve b) = cor(a, b)*1/area(a, b)
 
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
