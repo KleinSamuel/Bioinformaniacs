@@ -23,7 +23,8 @@ public class CounterUtils {
 	 *            true, wenn pcrIndex der reads 0 sein soll
 	 * @return Map<GeneId, specifiedCount>
 	 */
-	public static HashMap<String, Double> readCountFile(String countFile, boolean ambigous, boolean pcrEqualZero) {
+	public static HashMap<String, Double> readCountFile(String countFile, boolean ambigous, boolean pcrEqualZero,
+			boolean avoidZeroCounts, boolean roundToInteger) {
 		HashMap<String, Double> counts = new HashMap<>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(countFile)));
@@ -45,7 +46,13 @@ public class CounterUtils {
 						count += Double.parseDouble(split[3]);
 					}
 				}
-				counts.put(split[0], count);
+				if (!avoidZeroCounts || count > 0) {
+					if (roundToInteger) {
+						counts.put(split[0], (double) new Double(count).intValue());
+					} else {
+						counts.put(split[0], count);
+					}
+				}
 			}
 			br.close();
 		} catch (Exception e) {

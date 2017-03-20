@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 import dennis.GO.GOHandler;
-import dennis.counter.CounterUtils;
 import dennis.similarities.SimilarityHandler;
 import dennis.tissues.Tissue;
 import dennis.tissues.TissueHandler;
@@ -17,16 +16,22 @@ import dennis.tissues.TissuePair;
 
 public class UtilityManager {
 
-	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d√§√§√§hn/config.txt";
+	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d‰‰‰hn/config.txt";
+	private static String utilityMapping = DefaultInputMapping;
 	private static HashMap<String, String> configs;
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
 	private static SimilarityHandler similarities;
-	private GOHandler goUtils;
-	private CounterUtils counterUtils;
-	private TissueHandler tissueHandler;
+	// private GOHandler goUtils;
+	// private CounterUtils counterUtils;
+	// private TissueHandler tissueHandler;
 
-	/**
+	/*
+	 * da kann ich mir gleich nen random generator schreiben, wenn kikky was
+	 * schreibt
+	 */
+
+	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
 	 * containing: - the GO graph (getGO()) - a container holding
 	 * SpeciesObjects(getSpecies(String species)):
@@ -40,14 +45,34 @@ public class UtilityManager {
 	 * mapped to a go term - ...
 	 */
 
+	/**
+	 * erstellt ein mal eine Instanz vom UtilityManager ¸ber eurem code; alles
+	 * andere braucht ihr nicht mehr initialisieren !! auf keinen fall mehrere
+	 * UtilityManager erstellen !! dann wird alles neu geladen; GOHandler: hier
+	 * ist alles static; CounterUtils: alles static TissueHandler: auch alles
+	 * static; SImilarityHandler wird hier direkt mit initialisiert
+	 * 
+	 * 
+	 * @param utilityMapping
+	 *            null; es gibt ein default file
+	 * @param preloadGOgraph
+	 *            l‰dt GO graph im GOHandler
+	 * @param preloadGOmappings
+	 *            l‰dt alle GOmappings im GOHandler
+	 * @param preloadSimilarities
+	 *            l‰dt alle similarities in den similaritHandler
+	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
+		if (utilityMapping != null) {
+			this.utilityMapping = utilityMapping;
+		}
 		readUtilityMapping();
 		readSpeciesMapping();
 		similarities = new SimilarityHandler();
-		goUtils = new GOHandler();
-		counterUtils = new CounterUtils();
-		tissueHandler = new TissueHandler();
+		// goUtils = new GOHandler();
+		// counterUtils = new CounterUtils();
+		// tissueHandler = new TissueHandler();
 		if (preloadGOgraph) {
 			GOHandler.getGOgraph();
 		}
@@ -83,7 +108,7 @@ public class UtilityManager {
 	public static void readUtilityMapping() {
 		configs = new HashMap<>();
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(DefaultInputMapping)));
+			BufferedReader br = new BufferedReader(new FileReader(new File(utilityMapping)));
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if (!line.startsWith("#")) {
