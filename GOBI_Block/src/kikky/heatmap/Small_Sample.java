@@ -1,5 +1,7 @@
 package kikky.heatmap;
 
+import kikky.analysis.Point_Info;
+
 public class Small_Sample implements Sample_Data {
 
 	private String name;
@@ -17,7 +19,7 @@ public class Small_Sample implements Sample_Data {
 	}
 
 	@Override
-	public String get_Name() {
+	public String get_name() {
 		return name;
 	}
 
@@ -25,6 +27,12 @@ public class Small_Sample implements Sample_Data {
 	public double get_value(Sample_Data sd) {
 		Small_Sample ss = (Small_Sample) sd;
 		return val - ss.val;
+	}
+
+	@Override
+	public Point_Info get_point_info() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

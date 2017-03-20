@@ -17,7 +17,8 @@ public class Analysis {
 		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
-		new UtilityManager(null, false, false, true);
+		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+				false);
 		String data_path = UtilityManager.getConfig("output_directory");
 		System.out.println(systemInfoString() + "Starting to save gene count infos");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
@@ -39,11 +40,14 @@ public class Analysis {
 		fpkm_samples.sort(new TissueComparator<>());
 		Process plotting;
 		try {
-			System.out.println("qsub -b Y -t 7000-" + (7000+(fpkm_samples.size() - 1))
-					+ " -N FPKM -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"");
-			plotting = Runtime.getRuntime().exec("qsub -b Y -t 7000-" + (7000+(fpkm_samples.size() - 1))
-					+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"");
-//			plotting.waitFor();
+			for (int i = 1; i <= 10; i++) {
+				int id = 7000 + (10 * (i - 1));
+				plotting = Runtime.getRuntime()
+						.exec("qsub -b Y -t " + (id + i) + "-"
+								+ /* (7000 + (fpkm_samples.size() - 1)) */(id + 10)
+								+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\""
+								+ (7000 + i));
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

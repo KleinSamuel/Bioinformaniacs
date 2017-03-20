@@ -20,7 +20,7 @@ public class Calculator {
 	 *            introns)
 	 */
 	public static HashMap<String, Double> FPKM_generator(String count_file, String gene_file) {
-		HashMap<String, Double> gene_rawcount = CounterUtils.readCountFile(count_file, false, false);
+		HashMap<String, Double> gene_rawcount = CounterUtils.readCountFile(count_file, false, false, true, false);
 		return FPKM_generator(gene_rawcount, gene_file);
 	}
 
