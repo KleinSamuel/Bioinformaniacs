@@ -26,6 +26,7 @@ public class UtilityManager {
 	// private CounterUtils counterUtils;
 	// private TissueHandler tissueHandler;
 
+
 	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
 	 * containing: - the GO graph (getGO()) - a container holding
@@ -55,7 +56,7 @@ public class UtilityManager {
 	 * @param preloadGOmappings
 	 *            lädt alle GOmappings im GOHandler
 	 * @param preloadSimilarities
-	 *            lädt alle similarities in den similaritHandler
+	 *            lädt alle similarities in den similarityHandler
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
