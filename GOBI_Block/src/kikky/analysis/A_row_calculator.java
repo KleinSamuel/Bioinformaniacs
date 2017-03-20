@@ -43,6 +43,8 @@ public class A_row_calculator {
 		for (Sample_Data sd2 : fpkm_samples) {
 			System.out.println(systemInfoString() + fs_cur.get_Name() + " vs " + sd2.get_Name() + "[" + index++ + "|"
 					+ fpkm_samples.size() + "]");
+			if (index++ > 10)
+				break;
 			temp += "\t" + fs_cur.get_value(sd2);
 		}
 		try {
