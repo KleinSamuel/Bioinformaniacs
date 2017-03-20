@@ -71,6 +71,7 @@ public class EBUtils {
 
 		HashMap<String, Integer[]> counts = new HashMap<>();
 		LinkedList<String> featureList = new LinkedList<>();
+		boolean firstRun = true;
 		Collection<String> countFiles = new LinkedList<>();
 		countFiles.addAll(countFilesCond1);
 		countFiles.addAll(countFilesCond2);
@@ -84,7 +85,9 @@ public class EBUtils {
 
 				while ((line = br.readLine()) != null) {
 					split = line.split("\t");
-					featureList.add(split[0]);
+					if (firstRun) {
+						featureList.add(split[0]);
+					}
 					Integer[] countArr = counts.get(split[0]);
 					if (countArr == null) {
 						countArr = new Integer[countFiles.size()];
@@ -102,6 +105,7 @@ public class EBUtils {
 				e.printStackTrace();
 				System.exit(1);
 			}
+			firstRun = false;
 		}
 
 		writePhenotype(countFilesCond1, countFilesCond2, outputDir, fileName);
@@ -129,8 +133,8 @@ public class EBUtils {
 	 * @param outputDir:
 	 *            UtilityManager.getConfig("output_directory") + ...
 	 * @param fileName:
-	 *            fileName ohne Endung... Name wird f�r feature, expression und
-	 *            phenotype verwendet... endungen werden angeh�ngt
+	 *            fileName ohne Endung... Name wird f�r feature, expression
+	 *            und phenotype verwendet... endungen werden angeh�ngt
 	 * @param pcrIndexZero
 	 */
 	public static void runEnrichment(Collection<String> countFilesCond1, Collection<String> countFilesCond2,
