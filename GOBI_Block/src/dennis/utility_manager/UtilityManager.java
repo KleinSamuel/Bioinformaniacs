@@ -16,7 +16,8 @@ import dennis.tissues.TissuePair;
 
 public class UtilityManager {
 
-	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d√§√§√§hn/config.txt";
+	public static final String DefaultInputMapping = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/d‰‰‰hn/config.txt";
+	private static String utilityMapping = DefaultInputMapping;
 	private static HashMap<String, String> configs;
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
@@ -63,6 +64,9 @@ public class UtilityManager {
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
+		if (utilityMapping != null) {
+			this.utilityMapping = utilityMapping;
+		}
 		readUtilityMapping();
 		readSpeciesMapping();
 		similarities = new SimilarityHandler();
@@ -104,7 +108,7 @@ public class UtilityManager {
 	public static void readUtilityMapping() {
 		configs = new HashMap<>();
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(new File(DefaultInputMapping)));
+			BufferedReader br = new BufferedReader(new FileReader(new File(utilityMapping)));
 			String line = null;
 			while ((line = br.readLine()) != null) {
 				if (!line.startsWith("#")) {
