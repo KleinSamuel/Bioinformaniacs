@@ -75,6 +75,7 @@ public class FPKM_Single implements Sample_Data {
 			pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
 			return pc.correlation(x, y);
 		}
+		pi = new Point_Info(mates, x, y);
 		return 0;
 	}
 

@@ -20,7 +20,7 @@ public class Point_Analysis {
 		System.out.println(systemInfoString() + "Starting to generate all partners");
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
-				true);
+				false);
 		String data_path = UtilityManager.getConfig("output_directory");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
@@ -38,13 +38,13 @@ public class Point_Analysis {
 		}
 		fpkm_samples.sort(new TissueComparator<>());
 		System.out.println(systemInfoString() + "Starting to calculate values to partner");
-		Sample_Data sd_query = fpkm_samples.get(Integer.parseInt(args[0]) - 7001);
+		Sample_Data sd_query = fpkm_samples.get(Integer.parseInt(args[0])-Integer.parseInt(args[2])-1);
 		Sample_Data sd_target = fpkm_samples.get(Integer.parseInt(args[1]) - 7001);
 		System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
 		String temp = sd_query.get_value(sd_target) + "";
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/"
-					+ (Integer.parseInt(args[0]) - 7000) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));
+					+ (Integer.parseInt(args[0])-Integer.parseInt(args[2])) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));
 			bw.write(temp + "\n");
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());

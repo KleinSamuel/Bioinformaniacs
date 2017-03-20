@@ -1,5 +1,7 @@
 package kikky.analysis;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +10,7 @@ import dennis.tissues.Tissue;
 import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
+import kikky.heatmap.HeatMap;
 import kikky.heatmap.Sample_Data;
 
 public class Analysis {
@@ -36,22 +39,48 @@ public class Analysis {
 				}
 			}
 		}
-		System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
+
 		fpkm_samples.sort(new TissueComparator<>());
-		Process plotting;
-		try {
-			for (int i = 1; i <= 10; i++) {
-				int id = 7000 + (10 * (i - 1));
-				plotting = Runtime.getRuntime()
-						.exec("qsub -b Y -t " + (id + i) + "-"
-								+ /* (7000 + (fpkm_samples.size() - 1)) */(id + 10)
-								+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\""
-								+ (7000 + i));
+		if (args[0].equals("phase one")) {
+			System.out.println(systemInfoString() + "Starting phase one!");
+			System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
+			Process plotting;
+			try {
+				for (int i = 1; i <= 10; i++) {
+					int id = 7000 + (10 * (i - 1));
+					plotting = Runtime.getRuntime()
+							.exec("qsub -b Y -t " + (id + 1) + "-"
+									+ /* (7000 + (fpkm_samples.size() - 1)) */(id + 10)
+									+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
+									+ (7000 + i) + " " + id);
+				}
+				Process start_checker;
+				start_checker = Runtime.getRuntime().exec("bash checkAnalysis.sh");
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println(systemInfoString() + "Terminated");
+		} else if (args[0].equals("phase two")) {
+			System.out.println(systemInfoString() + "Starting phase two!");
+			Number[][] matrix = new Number[10][10];
+			for (int i = 1; i <= matrix.length; i++) {
+				for (int j = 1; j <= matrix[i - 1].length; j++) {
+					try {
+						BufferedReader br = new BufferedReader(new FileReader("files/" + i + "-" + j + "FPKM.txt"));
+						matrix[i - 1][j - 1] = Double.parseDouble(br.readLine());
+						br.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			ArrayList<Sample_Data> al = new ArrayList<>();
+			for (int i = 0; i < 10; i++)
+				al.add(fpkm_samples.get(i));
+			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
+			hm.plot();
+			System.out.println(systemInfoString() + "Terminated");
 		}
-		System.out.println(systemInfoString() + "Terminated");
 	}
 
 	public static String systemInfoString() {
