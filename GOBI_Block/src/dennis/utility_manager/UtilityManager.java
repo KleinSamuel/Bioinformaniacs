@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 import dennis.GO.GOHandler;
-import dennis.counter.CounterUtils;
 import dennis.similarities.SimilarityHandler;
 import dennis.tissues.Tissue;
 import dennis.tissues.TissueHandler;
@@ -25,6 +24,11 @@ public class UtilityManager {
 	// private GOHandler goUtils;
 	// private CounterUtils counterUtils;
 	// private TissueHandler tissueHandler;
+
+	/*
+	 * da kann ich mir gleich nen random generator schreiben, wenn kikky was
+	 * schreibt
+	 */
 
 	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
