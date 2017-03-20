@@ -12,11 +12,13 @@ public class HeatMap {
 	private ArrayList<String> labels = new ArrayList<>();
 	private String file_path;
 	private String matrix;
-
-	private long start;
-
+/**
+ * Konstruktor für die Heatmap. Brechnet die Werte durch getValue(Sample_Data)
+ * @param title titel über der heatmap
+ * @param col labels unten (x)
+ * @param row labels links (y)
+ */
 	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
-		start = System.currentTimeMillis();
 		matrix = "m <- matrix(c(";
 		String temp = "";
 		for (Sample_Data sd1 : col) {
@@ -27,20 +29,19 @@ public class HeatMap {
 		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
 		String label = "";
 		for (Sample_Data sd2 : row) {
-			label += ",\"" + sd2.get_Name() + "\"";
+			label += ",\"" + sd2.get_name() + "\"";
 		}
 		labels.add("c(" + label.substring(1) + ")");
 		label = "";
 		for (Sample_Data sd2 : col) {
-			label += ",\"" + sd2.get_Name() + "\"";
+			label += ",\"" + sd2.get_name() + "\"";
 		}
 		labels.add("c(" + label.substring(1) + ")");
 	}
 
 	public void plot() {
 		try {
-			// File r_script = File.createTempFile("R_script_", ".R");
-			File r_script = new File("/home/a/adamowicz/GoBi/script.txt");
+			File r_script = File.createTempFile("R_script_", ".R");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
@@ -52,16 +53,8 @@ public class HeatMap {
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
 			plotting.waitFor();
 		} catch (IOException | InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public String systemInfoString() {
-		String out = "[";
-		out += (System.currentTimeMillis() - start) / 1000 + "." + (System.currentTimeMillis() - start) % 1000 + "s";
-		out += "|" + ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d
-				/ 1024d * 1000d)) / 1000d + "GB]";
-		return out;
-	}
 }

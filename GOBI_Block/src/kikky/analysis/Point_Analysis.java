@@ -12,14 +12,15 @@ import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
-public class A_row_calculator {
+public class Point_Analysis {
 	private static long start;
 
 	public static void main(String[] args) {
 		start = System.currentTimeMillis();
 		System.out.println(systemInfoString() + "Starting to generate all partners");
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
-		new UtilityManager(null, false, false, true);
+		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+				true);
 		String data_path = UtilityManager.getConfig("output_directory");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
@@ -36,21 +37,17 @@ public class A_row_calculator {
 			}
 		}
 		fpkm_samples.sort(new TissueComparator<>());
-		System.out.println(systemInfoString() + "Starting to calculate values to all partners");
-		Sample_Data fs_cur = fpkm_samples.get(Integer.parseInt(args[0]) - 7000);
-		String temp = "";
-		int index = 0;
-		for (Sample_Data sd2 : fpkm_samples) {
-			System.out.println(systemInfoString() + fs_cur.get_Name() + " vs " + sd2.get_Name() + "[" + index++ + "|"
-					+ fpkm_samples.size() + "]");
-			if (index++ > 10)
-				break;
-			temp += "\t" + fs_cur.get_value(sd2);
-		}
+		System.out.println(systemInfoString() + "Starting to calculate values to partner");
+		Sample_Data sd_query = fpkm_samples.get(Integer.parseInt(args[0]) - 7001);
+		Sample_Data sd_target = fpkm_samples.get(Integer.parseInt(args[1]) - 7001);
+		System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
+		String temp = sd_query.get_value(sd_target) + "";
 		try {
-			BufferedWriter bw = new BufferedWriter(
-					new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/" + args[0] + "FPKM.txt"));
-			bw.write(temp.substring(1));
+			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/"
+					+ (Integer.parseInt(args[0]) - 7000) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));
+			bw.write(temp + "\n");
+			Point_Info pInfo = sd_query.get_point_info();
+			bw.write(pInfo.get_point_info_text());
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();

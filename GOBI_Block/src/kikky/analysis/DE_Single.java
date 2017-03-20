@@ -42,7 +42,7 @@ public class DE_Single implements Sample_Data {
 	}
 
 	@Override
-	public String get_Name() {
+	public String get_name() {
 		return organism_name + "|" + tissue;
 	}
 
@@ -79,6 +79,12 @@ public class DE_Single implements Sample_Data {
 		result = prime * result + ((tissue == null) ? 0 : tissue.hashCode());
 		result = prime * result + ((gene_data == null) ? 0 : gene_data.hashCode());
 		return result;
+	}
+
+	@Override
+	public Point_Info get_point_info() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
