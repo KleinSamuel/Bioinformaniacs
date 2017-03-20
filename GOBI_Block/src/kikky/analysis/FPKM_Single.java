@@ -15,6 +15,7 @@ public class FPKM_Single implements Sample_Data {
 	private String tissue;
 	private String exp_number;
 	private HashMap<String, Double> gene_data = new HashMap<>();
+	private Point_Info pi;
 
 	public FPKM_Single(Species species, String tissue, String exp_number) {
 		this.species = species;
@@ -35,7 +36,7 @@ public class FPKM_Single implements Sample_Data {
 	}
 
 	@Override
-	public String get_Name() {
+	public String get_name() {
 		return species.getName() + "|" + tissue + "|" + exp_number;
 	}
 
@@ -49,6 +50,10 @@ public class FPKM_Single implements Sample_Data {
 
 	public String get_experiment() {
 		return exp_number;
+	}
+
+	public Point_Info get_point_info() {
+		return pi;
 	}
 
 	@Override
@@ -65,6 +70,9 @@ public class FPKM_Single implements Sample_Data {
 				y[index] = fs.gene_data.get(mates.get(gene_id_x));
 				index++;
 			}
+			pi = new Point_Info(mates, x, y);
+			pi.scatter_plot();
+			pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
 			return pc.correlation(x, y);
 		}
 		return 0;
@@ -95,7 +103,7 @@ public class FPKM_Single implements Sample_Data {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null) 
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;

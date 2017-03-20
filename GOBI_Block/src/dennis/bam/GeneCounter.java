@@ -77,11 +77,11 @@ public class GeneCounter {
 			f = new File(outputDir + "/gene.counts");
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
 			bw.write("geneId\tnonAmbigousAnyPcr\tnonAmbigousPcr0\tambigousWeightedAnyPcr\tambigousWeightedPcr0\n");
-			Gene g;
+			Gene g = null;
 			for (Iterator<Gene> it = BamFileReader.ga.iterator(); it.hasNext();) {
 				g = it.next();
-				Double[] arr = counts.get(g.getId());
-				if (!counts.containsKey(g)) {
+				Double[] arr = counts.get(g);
+				if (arr == null) {
 					arr = new Double[] { 0d, 0d, 0d, 0d };
 					bw.write(g.getId() + "\t" + arr[0].intValue() + "\t" + arr[1].intValue() + "\t" + arr[2] + "\t"
 							+ arr[3] + "\n");

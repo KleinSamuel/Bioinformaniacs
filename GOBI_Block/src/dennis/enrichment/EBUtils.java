@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -198,14 +199,21 @@ public class EBUtils {
 	 * <exprs.file> <pdat.file> <fdat.file> <de.method> <out.file> better call
 	 * runEnrichment
 	 */
+	// ret hashmap limma -> outputfile
 	public static void runEB(HashMap<String, String> inputFilePaths, String outputDir, String fileName) {
 		try {
 			for (Iterator<String> method = UtilityManager.DEmethodIterator(); method.hasNext();) {
 				String m = method.next();
-				Runtime.getRuntime()
+				Process p = Runtime.getRuntime()
 						.exec(UtilityManager.getConfig("R_path") + " " + UtilityManager.getConfig("EB_script") + " "
 								+ inputFilePaths.get("expr") + " " + inputFilePaths.get("pheno") + " "
 								+ inputFilePaths.get("feat") + " " + m + " " + outputDir + "/" + fileName + "." + m);
+				BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				String line = null;
+				while ((line = in.readLine()) != null) {
+					System.out.println(line);
+				}
+				in.close();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

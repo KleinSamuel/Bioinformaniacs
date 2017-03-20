@@ -12,23 +12,27 @@ public class Runner {
 
 	// TODO
 	// counts noch mal laufen lassen mit standardChrs
-	// rechte 10116/SRR594445/hisat.bam
+	// GO mappings testen / überlegen ob zur wurzel mitgespeichert wird oder
+	// immer neu berechnet
+	// den anderen einen Beispiel aufruf schreiben
+	// fuzzy stuff
 
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		Species human = UtilityManager.getSpecies(9606);
-
-		for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(human); tissueIt.hasNext();) {
-			Tissue t = tissueIt.next();
-			for (Experiment e : t.getExperiments()) {
-				LinkedList<String> mapperAvg = new LinkedList<>();
+		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
+			Species sp = s.next();
+			for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(sp); tissueIt.hasNext();) {
+				Tissue t = tissueIt.next();
 				for (String m : UtilityManager.mapperList()) {
-					mapperAvg.add(UtilityManager.getConfig("output_directory") + human.getId() + "/" + t.getName() + "/"
-							+ e.getName() + "/" + m + "/gene.counts");
+					LinkedList<String> tissueAvg = new LinkedList<>();
+					for (Experiment e : t.getExperiments()) {
+						tissueAvg.add(UtilityManager.getConfig("output_directory") + sp.getId() + "/" + t.getName()
+								+ "/" + e.getName() + "/" + m + "/gene.counts");
+					}
+					CounterUtils.createAverageCountFile(tissueAvg, UtilityManager.getConfig("output_directory")
+							+ sp.getId() + "/" + t.getName() + "/" + m + "_tissue_average.counts");
 				}
-				CounterUtils.createAverageCountFile(mapperAvg, UtilityManager.getConfig("output_directory")
-						+ human.getId() + "/" + t.getName() + "/" + e.getName() + "/mapperAverage.counts");
 			}
 		}
 
