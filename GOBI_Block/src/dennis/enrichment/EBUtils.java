@@ -128,8 +128,8 @@ public class EBUtils {
 	 * @param outputDir:
 	 *            UtilityManager.getConfig("output_directory") + ...
 	 * @param fileName:
-	 *            fileName ohne Endung... Name wird für feature, expression und
-	 *            phenotype verwendet... endungen werden angehängt
+	 *            fileName ohne Endung... Name wird fï¿½r feature, expression und
+	 *            phenotype verwendet... endungen werden angehï¿½ngt
 	 * @param pcrIndexZero
 	 */
 	public static void runEnrichment(Collection<String> countFilesCond1, Collection<String> countFilesCond2,
