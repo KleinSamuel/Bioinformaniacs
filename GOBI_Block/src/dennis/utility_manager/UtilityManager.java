@@ -26,10 +26,6 @@ public class UtilityManager {
 	// private CounterUtils counterUtils;
 	// private TissueHandler tissueHandler;
 
-	/*
-	 * da kann ich mir gleich nen random generator schreiben, wenn kikky was
-	 * schreibt
-	 */
 
 	/*
 	 * input: inputMappingFile (if null: default is taken) returns an object
@@ -60,7 +56,11 @@ public class UtilityManager {
 	 * @param preloadGOmappings
 	 *            lï¿½dt alle GOmappings im GOHandler
 	 * @param preloadSimilarities
+<<<<<<< HEAD
 	 *            lï¿½dt alle similarities in den similaritHandler
+=======
+	 *            lädt alle similarities in den similarityHandler
+>>>>>>> branch 'master' of https://github.com/KleinSamuel/Bioinformaniacs.git
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
