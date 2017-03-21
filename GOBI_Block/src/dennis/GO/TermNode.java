@@ -43,6 +43,10 @@ public class TermNode {
 		this.definition = definition;
 	}
 
+	public HashMap<TermNode, Edge> getEdges() {
+		return edges;
+	}
+
 	@Override
 	public int hashCode() {
 		return id.hashCode();

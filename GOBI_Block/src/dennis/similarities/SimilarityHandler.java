@@ -3,9 +3,10 @@ package dennis.similarities;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
@@ -61,22 +62,33 @@ public class SimilarityHandler {
 
 	/**
 	 * 
-<<<<<<< HEAD
-	 * @param query_species: can be null -> calculated by query_geneId
-	 * @param target_species: can be null -> calculated by first target_geneId
-=======
+	 * @param query
+	 * @param target
+	 * @return all geneIds in query_species that have an orthologue in the
+	 *         target_species
+	 */
+	public HashSet<String> getAllGenesWithAnOrtholog(Species query, Species target) {
+		return getSimilarities(query, target).getGenesWithPartner();
+	}
+
+	/**
+	 * 
+	 * @param query_species:
+	 *            can be null -> calculated by query_geneId
+	 * @param target_species:
+	 *            can be null -> calculated by first target_geneId
 	 * @param query_species
 	 *            can be null -> calculated by query_geneId
 	 * @param target_species
-	 *            can be null -> calculated by first target_geneId
->>>>>>> branch 'master' of https://github.com/KleinSamuel/Bioinformaniacs.git
+	 *            can be null -> calculated by first target_geneId branch
+	 *            'master' of
 	 * @param query_geneId
 	 * @param target_geneIds
 	 * @return SimilarityObject between query_gene and target_gene with highest
 	 *         similarity score; null if no target_gene is similar to query_gene
 	 */
 	public SimilarityObject checkForHighestSimilarity(Species query_species, Species target_species,
-			String query_geneId, Collection<String> target_geneIds) {
+			String query_geneId, HashSet<String> target_geneIds) {
 		if (query_species == null)
 			query_species = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(query_geneId));
 		if (target_species == null)
@@ -86,20 +98,23 @@ public class SimilarityHandler {
 		GeneSimilarities gs = getSimilarities(query_species, target_species);
 		SimilarityObject highestSim = null;
 
-		for (String target : target_geneIds) {
-			SimilarityObject next = gs.getSimilarity(query_geneId, target);
-			if (next != null) {
-				if (highestSim == null) {
-					highestSim = next;
-				} else {
-					if (highestSim.getMaximumIdentityScore() < next.getMaximumIdentityScore()) {
-						highestSim = next;
+		HashMap<String, SimilarityObject> query_sims = gs.getSimilarities(query_geneId);
+		if (query_sims != null) {
+			for (Entry<String, SimilarityObject> e : query_sims.entrySet()) {
+				if (target_geneIds.contains(e.getKey())) {
+					if (highestSim == null) {
+						highestSim = e.getValue();
+					} else {
+						if (highestSim.getMaximumIdentityScore() < e.getValue().getMaximumIdentityScore()) {
+							highestSim = e.getValue();
+						}
 					}
 				}
 			}
 		}
 
 		return highestSim;
+
 	}
 
 	public void addSimilarityFile(Species s1, Species s2) {
@@ -108,8 +123,10 @@ public class SimilarityHandler {
 		File f = new File(simPath + s1.getId() + "." + s2.getId() + ".genesimilarities");
 		if (!f.exists()) {
 			f = new File(simPath + s2.getId() + "." + s1.getId() + ".genesimilarities");
+			addSimilaritiesFile(f, s2, s1);
+		} else {
+			addSimilaritiesFile(f, s1, s2);
 		}
-		addSimilaritiesFile(f, s1, s2);
 	}
 
 	public void addSimilaritiesFile(File similarityFile, Species sp1, Species sp2) {

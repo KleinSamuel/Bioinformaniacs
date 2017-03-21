@@ -1,10 +1,9 @@
 package dennis.utility_manager;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 
-import dennis.counter.CounterUtils;
-import dennis.tissues.Tissue;
+import dennis.enrichment.EBUtils;
+import dennis.tissues.TissuePair;
 
 public class Runner {
 
@@ -20,21 +19,42 @@ public class Runner {
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
-			Species sp = s.next();
-			for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(sp); tissueIt.hasNext();) {
-				Tissue t = tissueIt.next();
-				for (String m : UtilityManager.mapperList()) {
-					LinkedList<String> tissueAvg = new LinkedList<>();
-					for (Experiment e : t.getExperiments()) {
-						tissueAvg.add(UtilityManager.getConfig("output_directory") + sp.getId() + "/" + t.getName()
-								+ "/" + e.getName() + "/" + m + "/gene.counts");
-					}
-					CounterUtils.createAverageCountFile(tissueAvg, UtilityManager.getConfig("output_directory")
-							+ sp.getId() + "/" + t.getName() + "/" + m + "_tissue_average.counts");
+		int i = 1;
+		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
+			Species s = spIt.next();
+			for (String m : UtilityManager.mapperList()) {
+				if (i == Integer.parseInt(args[0])) {
+					EBUtils.runEBForAllTissuePairs(s, m, false);
+					return;
+				} else {
+					i++;
 				}
 			}
 		}
+
+		// for (Iterator<Species> s = UtilityManager.speciesIterator();
+		// s.hasNext();) {
+		// Species sp = s.next();
+		// for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(sp);
+		// tissueIt.hasNext();) {
+		// Tissue t = tissueIt.next();
+		// for (String m : UtilityManager.mapperList()) {
+		// LinkedList<String> tissueAvg = new LinkedList<>();
+		// for (Experiment e : t.getExperiments()) {
+		// String fileName = UtilityManager.getConfig("output_directory") +
+		// sp.getId() + "/" + t.getName()
+		// + "/" + e.getName() + "/" + m + "/gene.counts";
+		// if (new File(fileName).exists()) {
+		// tissueAvg.add(fileName);
+		// }
+		// }
+		// CounterUtils.createAverageCountFile(tissueAvg,
+		// UtilityManager.getConfig("output_directory")
+		// + sp.getId() + "/" + t.getName() + "/" + m +
+		// "_tissue_average.counts");
+		// }
+		// }
+		// }
 
 		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
 		// speciesIt.hasNext();) {

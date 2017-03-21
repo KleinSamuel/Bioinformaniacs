@@ -1,61 +1,86 @@
 package kikky.analysis;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 
-import dennis.tissues.Tissue;
-import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
 public class Point_Analysis {
-	private static long start;
+	private long start;
 
 	public static void main(String[] args) {
-		start = System.currentTimeMillis();
-		System.out.println(systemInfoString() + "Starting to generate all partners");
-		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
-		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
-				true);
-		String data_path = UtilityManager.getConfig("output_directory");
-		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
-			Species organism = it_org.next();
-			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
-				Tissue tissue = it_tis.next();
-				for (Experiment exp : tissue.getExperiments()) {
-					String map = "star";
-					String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + exp.getName() + "/"
-							+ map + "/gene.counts";
-					FPKM_Single fs = new FPKM_Single(organism, tissue.getName(), exp.getName(), path,
-							data_path + "geneLengths/" + organism.getId() + ".geneLengths");
-					fpkm_samples.add(fs);
-				}
+		if (args.length < 4)
+			new Point_Analysis(args[0], args[1], args[2]);
+		else {
+			for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[3]); i++) {
+				new Point_Analysis(args[0], i + "", args[2]);
 			}
 		}
-		fpkm_samples.sort(new TissueComparator<>());
-		System.out.println(systemInfoString() + "Starting to calculate values to partner");
-		Sample_Data sd_query = fpkm_samples.get(Integer.parseInt(args[0]) - 7001);
-		Sample_Data sd_target = fpkm_samples.get(Integer.parseInt(args[1]) - 7001);
-		System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
-		String temp = sd_query.get_value(sd_target) + "";
+	}
+
+	public Point_Analysis(String a0, String a1, String a2) {
 		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/"
-					+ (Integer.parseInt(args[0]) - 7000) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));
+			start = System.currentTimeMillis();
+			System.out.println(systemInfoString() + "Starting to generate partners");
+			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+					false);
+			String data_path = UtilityManager.getConfig("output_directory");
+			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/fpkm.info"));
+			String line;
+			Sample_Data sd_query = null;
+			Sample_Data sd_target = null;
+			System.out.println(a0 + " " + a1 + " " + a2);
+			while ((line = br.readLine()) != null) {
+				if (line.startsWith((Integer.parseInt(a0) - Integer.parseInt(a2)) + "#")) {
+					String[] split = line.split("\t");
+					int organism_id = Integer.parseInt(split[1]);
+					Species s = new Species(organism_id, split[2], split[3], split[4], null);
+					String tissue = split[5];
+					String exp = split[6];
+					String map = "star";
+					String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
+					sd_query = new FPKM_Single(s, tissue, exp, path);
+				}
+				if (line.startsWith((Integer.parseInt(a1) - 7000) + "#")) {
+					String[] split = line.split("\t");
+					int organism_id = Integer.parseInt(split[1]);
+					Species s = new Species(organism_id, split[2], split[3], split[4], null);
+					String tissue = split[5];
+					String exp = split[6];
+					String map = "star";
+					String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
+					sd_target = new FPKM_Single(s, tissue, exp, path);
+				}
+				if (sd_query != null && sd_target != null)
+					break;
+			}
+			br.close();
+			System.out.println(systemInfoString() + "Starting to calculate values to partner");
+			System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
+			String temp = sd_query.get_value(sd_target) + "";
+			System.out.println(temp);
+
+			BufferedWriter bw = new BufferedWriter(new FileWriter(
+					"/home/a/adamowicz/GoBi/Block/results/files/" + (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-"
+							+ (Integer.parseInt(a1) - 7000) + "FPKM.txt"));
 			bw.write(temp + "\n");
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());
 			bw.close();
+			System.out.println(
+					(Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "FPKM.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println(systemInfoString() + "Terminated");
 	}
 
-	public static String systemInfoString() {
+	public String systemInfoString() {
 		String out = "[";
 		out += (System.currentTimeMillis() - start) / 1000 + "." + (System.currentTimeMillis() - start) % 1000 + "s";
 		out += "|" + ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d

@@ -12,18 +12,45 @@ public class HeatMap {
 	private ArrayList<String> labels = new ArrayList<>();
 	private String file_path;
 	private String matrix;
-/**
- * Konstruktor für die Heatmap. Brechnet die Werte durch getValue(Sample_Data)
- * @param title titel über der heatmap
- * @param col labels unten (x)
- * @param row labels links (y)
- */
+
+	/**
+	 * Konstruktor für die Heatmap. Brechnet die Werte durch
+	 * getValue(Sample_Data)
+	 * 
+	 * @param title
+	 *            titel über der heatmap
+	 * @param col
+	 *            labels unten (x)
+	 * @param row
+	 *            labels links (y)
+	 */
 	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
 		matrix = "m <- matrix(c(";
 		String temp = "";
 		for (Sample_Data sd1 : col) {
 			for (Sample_Data sd2 : row) {
 				temp += "," + sd1.get_value(sd2);
+			}
+		}
+		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
+		String label = "";
+		for (Sample_Data sd2 : row) {
+			label += ",\"" + sd2.get_name() + "\"";
+		}
+		labels.add("c(" + label.substring(1) + ")");
+		label = "";
+		for (Sample_Data sd2 : col) {
+			label += ",\"" + sd2.get_name() + "\"";
+		}
+		labels.add("c(" + label.substring(1) + ")");
+	}
+
+	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row, Number[][] m) {
+		matrix = "m <- matrix(c(";
+		String temp = "";
+		for (int y = 0; y < col.size(); y++) {
+			for (int x = 0; x < row.size(); x++) {
+				temp += "," + m[y][x];
 			}
 		}
 		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";

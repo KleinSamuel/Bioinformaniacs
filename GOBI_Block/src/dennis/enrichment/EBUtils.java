@@ -18,33 +18,40 @@ import dennis.utility_manager.UtilityManager;
 
 public class EBUtils {
 
-	public static void runEBForAllTissuePairsAndMappers(Species s) {
+	public static void runEBForAllTissuePairsAndMappers(Species s, boolean pcrIndex0) {
 		for (Iterator<String> mapper = UtilityManager.mapperIterator(); mapper.hasNext();) {
-			runEBForAllTissuePairs(s, mapper.next());
+			runEBForAllTissuePairs(s, mapper.next(), pcrIndex0);
 		}
 	}
 
-	public static void runEBForAllTissuePairs(Species s, String mapper) {
+	public static void runEBForAllTissuePairs(Species s, String mapper, boolean pcrIndex0) {
 		for (Iterator<TissuePair> tissuePairIterator = UtilityManager.tissuePairIterator(s); tissuePairIterator
 				.hasNext();) {
 			TissuePair tp = tissuePairIterator.next();
 			LinkedList<String> filesT1 = new LinkedList<>(), filesT2 = new LinkedList<>();
 			for (Experiment e : tp.getKey().getExperiments()) {
-				filesT1.add(UtilityManager.getConfig("output_directory") + s.getId() + "/" + tp.getKey().getName() + "/"
-						+ e.getName() + "/" + mapper + "/gene.counts");
+				if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
+					filesT1.add(UtilityManager.getConfig("output_directory") + s.getId() + "/" + tp.getKey().getName()
+							+ "/" + e.getName() + "/" + mapper + "/gene.counts");
+				}
 			}
 			for (Experiment e : tp.getValue().getExperiments()) {
-				filesT2.add(UtilityManager.getConfig("output_directory") + s.getId() + "/" + tp.getValue().getName()
-						+ "/" + e.getName() + "/" + mapper + "/gene.counts");
+				if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
+					filesT2.add(UtilityManager.getConfig("output_directory") + s.getId() + "/" + tp.getValue().getName()
+							+ "/" + e.getName() + "/" + mapper + "/gene.counts");
+				}
 			}
-			runEnrichment(filesT1, filesT2,
-					UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName() + "_"
-							+ tp.getValue().getName() + "/" + mapper + "/",
-					tp.getKey().getName() + "_" + tp.getValue().getName(), false);
-			runEnrichment(filesT1, filesT2,
-					UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName() + "_"
-							+ tp.getValue().getName() + "/" + mapper + "/",
-					tp.getKey().getName() + "_" + tp.getValue().getName(), true);
+			if (!pcrIndex0) {
+				runEnrichment(filesT1, filesT2,
+						UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName() + "_"
+								+ tp.getValue().getName() + "/" + mapper + "/",
+						tp.getKey().getName() + "_" + tp.getValue().getName(), false);
+			} else {
+				runEnrichment(filesT1, filesT2,
+						UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName() + "_"
+								+ tp.getValue().getName() + "/" + mapper + "/",
+						tp.getKey().getName() + "_" + tp.getValue().getName(), true);
+			}
 		}
 	}
 
