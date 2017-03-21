@@ -15,13 +15,14 @@ public class EnrichmentAnalysisUtils {
 
 	public final static double default_threshold = 0.05;
 	public static Comparator<GeneObject> comp;
-	public static String valueOfInterest = "raw";
+	public static String valueOfInterest = "geneId";
 
 	/**
 	 * returns all genes under threshold; threshold can be null -> default <=
 	 * 0.05 if(DEmethod == null) -> returns all gene under threshold in all
-	 * DEMethods -> possible values DESeq, edgeR, limma valueOfInterest =
-	 * [fc|raw|adj|null]; default is raw
+	 * DEMethods -> possible values DESeq, edgeR, limma; valueOfInterest =
+	 * [fc|raw|adj|null]; default for sorting is geneId default for threshold is
+	 * adj_pval <= 0.05
 	 */
 	public static TreeSet<GeneObject> getGenesUnderThreshold(Species s, String tissue1, String tissue2, String mapper,
 			Double threshold, String DEmethod, String valueOfInterest, boolean pcrIndex0) {
@@ -113,8 +114,12 @@ public class EnrichmentAnalysisUtils {
 		case "raw":
 			return go.getRaw_pval() <= threshold;
 		default:
-			return go.getRaw_pval() <= threshold;
+			return go.getAdj_pval() <= threshold;
 		}
+	}
+
+	public static void setValueOfInterest(String valueOfInterest) {
+		EnrichmentAnalysisUtils.valueOfInterest = valueOfInterest;
 	}
 
 	public static Comparator<GeneObject> getComparator() {
@@ -131,7 +136,7 @@ public class EnrichmentAnalysisUtils {
 					case "raw":
 						return Double.compare(o1.getRaw_pval(), o2.getRaw_pval());
 					default:
-						return Double.compare(o1.getRaw_pval(), o2.getRaw_pval());
+						return o1.getName().compareTo(o2.getName());
 					}
 				}
 			};
