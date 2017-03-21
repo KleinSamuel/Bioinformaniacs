@@ -1,9 +1,8 @@
 package dennis.utility_manager;
 
-import java.util.Iterator;
-
-import dennis.enrichment.EBUtils;
-import dennis.tissues.TissuePair;
+import dennis.GO.GOHandler;
+import dennis.GO.Graph;
+import dennis.GO.TermNode;
 
 public class Runner {
 
@@ -19,18 +18,24 @@ public class Runner {
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		int i = 1;
-		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
-			Species s = spIt.next();
-			for (String m : UtilityManager.mapperList()) {
-				if (i == Integer.parseInt(args[0])) {
-					EBUtils.runEBForAllTissuePairs(s, m, false);
-					return;
-				} else {
-					i++;
-				}
-			}
+		Graph g = GOHandler.getGOgraph();
+		for (TermNode n : g.getTermNodes().values()) {
+			System.out.println(n.getId() + ": " + n.getName() + " " + n.getNamespace());
 		}
+
+		// int i = 1;
+		// for (Iterator<Species> spIt = UtilityManager.speciesIterator();
+		// spIt.hasNext();) {
+		// Species s = spIt.next();
+		// for (String m : UtilityManager.mapperList()) {
+		// if (i == Integer.parseInt(args[0])) {
+		// EBUtils.runEBForAllTissuePairs(s, m, false);
+		// return;
+		// } else {
+		// i++;
+		// }
+		// }
+		// }
 
 		// for (Iterator<Species> s = UtilityManager.speciesIterator();
 		// s.hasNext();) {
