@@ -42,6 +42,7 @@ public class Point_Analysis {
 		Sample_Data sd_target = fpkm_samples.get(Integer.parseInt(args[1]) - 7001);
 		System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
 		String temp = sd_query.get_value(sd_target) + "";
+		System.out.println(temp);
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/"
 					+ (Integer.parseInt(args[0])-Integer.parseInt(args[2])) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));

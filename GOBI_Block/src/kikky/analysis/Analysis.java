@@ -46,23 +46,21 @@ public class Analysis {
 			System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 			Process plotting;
 			try {
-				for (int i = 1; i <= 10; i++) {
-					int id = 7000 + (10 * (i - 1));
+				for (int i = 1; i <= fpkm_samples.size(); i++) {
+					int id = 7000 + (fpkm_samples.size() * (i - 1));
 					plotting = Runtime.getRuntime()
 							.exec("qsub -b Y -t " + (id + 1) + "-"
-									+ /* (7000 + (fpkm_samples.size() - 1)) */(id + 10)
+									+ /* (7000 + (fpkm_samples.size() - 1)) */(id + fpkm_samples.size())
 									+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
 									+ (7000 + i) + " " + id);
 				}
-				Process start_checker;
-				start_checker = Runtime.getRuntime().exec("bash checkAnalysis.sh");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (args[0].equals("phase two")) {
 			System.out.println(systemInfoString() + "Starting phase two!");
-			Number[][] matrix = new Number[10][10];
+			Number[][] matrix = new Number[fpkm_samples.size()][fpkm_samples.size()];
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {
 					try {
@@ -74,10 +72,7 @@ public class Analysis {
 					}
 				}
 			}
-			ArrayList<Sample_Data> al = new ArrayList<>();
-			for (int i = 0; i < 10; i++)
-				al.add(fpkm_samples.get(i));
-			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
+			HeatMap hm = new HeatMap("FPKM", fpkm_samples, fpkm_samples, matrix);
 			hm.plot();
 			System.out.println(systemInfoString() + "Terminated");
 		}
