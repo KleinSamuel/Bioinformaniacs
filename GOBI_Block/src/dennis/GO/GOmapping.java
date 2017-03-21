@@ -50,7 +50,7 @@ public class GOmapping {
 			br.readLine();
 			while ((line = br.readLine()) != null) {
 				String[] split = line.split("\t");
-				String[] goArray = split[2].split("|");
+				String[] goArray = split[2].split("[|]");
 				TreeSet<String> gos = GOperGene.get(split[0]);
 				if (gos == null) {
 					gos = new TreeSet<>();
