@@ -57,9 +57,6 @@ public class UtilityManager {
 	 *            lï¿½dt GO graph im GOHandler
 	 * @param preloadGOmappings
 	 *            lï¿½dt alle GOmappings im GOHandler
-	 * @param preloadSimilarities
-	 *            lï¿½dt alle similarities in den similaritHandler lädt alle
-	 *            similarities in den similarityHandler
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
