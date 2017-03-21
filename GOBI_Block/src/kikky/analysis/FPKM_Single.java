@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
+import dennis.counter.CounterUtils;
 import dennis.similarities.SimilarityHandler;
 import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
@@ -24,15 +25,14 @@ public class FPKM_Single implements Sample_Data {
 
 	}
 
-	public FPKM_Single(Species species, String tissue, String exp_number, HashMap<String, Double> gene_rawcount,
-			String gene_file) {
+	public FPKM_Single(Species species, String tissue, String exp_number, HashMap<String, Double> fpkm) {
 		this(species, tissue, exp_number);
-		gene_data = Calculator.FPKM_generator(gene_rawcount, gene_file);
+		gene_data = fpkm;
 	}
 
-	public FPKM_Single(Species species, String tissue, String exp_number, String gene_rawcount, String gene_file) {
+	public FPKM_Single(Species species, String tissue, String exp_number, String fpkm_file) {
 		this(species, tissue, exp_number);
-		gene_data = Calculator.FPKM_generator(gene_rawcount, gene_file);
+		gene_data = CounterUtils.readCountFile(fpkm_file, false, false, false, false);
 	}
 
 	@Override
@@ -42,6 +42,10 @@ public class FPKM_Single implements Sample_Data {
 
 	public int get_organism_ID() {
 		return species.getId();
+	}
+
+	public String get_organism_name() {
+		return species.getName();
 	}
 
 	public String get_tissue() {

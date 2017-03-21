@@ -1,13 +1,12 @@
 package kikky.analysis;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 
-import dennis.tissues.Tissue;
-import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
@@ -15,37 +14,50 @@ import kikky.heatmap.Sample_Data;
 public class Point_Analysis {
 	private static long start;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NumberFormatException, IOException {
 		start = System.currentTimeMillis();
-		System.out.println(systemInfoString() + "Starting to generate all partners");
-		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
+		System.out.println(systemInfoString() + "Starting to generate partners");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
 				false);
 		String data_path = UtilityManager.getConfig("output_directory");
-		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
-			Species organism = it_org.next();
-			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
-				Tissue tissue = it_tis.next();
-				for (Experiment exp : tissue.getExperiments()) {
-					String map = "star";
-					String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + exp.getName() + "/"
-							+ map + "/gene.counts";
-					FPKM_Single fs = new FPKM_Single(organism, tissue.getName(), exp.getName(), path,
-							data_path + "geneLengths/" + organism.getId() + ".geneLengths");
-					fpkm_samples.add(fs);
-				}
+		BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/fpkm.info"));
+		String line;
+		Sample_Data sd_query = null;
+		Sample_Data sd_target = null;
+		while ((line = br.readLine()) != null) {
+			if (line.startsWith((Integer.parseInt(args[0]) - Integer.parseInt(args[2])) + "#")) {
+				String[] split = line.split("\t");
+				int organism_id = Integer.parseInt(split[1]);
+				String organism_name = split[2];
+				Species s = new Species(organism_id, organism_name, null, null, null);
+				String tissue = split[3];
+				String exp = split[4];
+				String map = "star";
+				String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
+				sd_query = new FPKM_Single(s, tissue, exp, path);
+			} else if (line.startsWith((Integer.parseInt(args[1]) - 7000) + "#")) {
+				String[] split = line.split("\t");
+				int organism_id = Integer.parseInt(split[1]);
+				String organism_name = split[2];
+				Species s = new Species(organism_id, organism_name, null, null, null);
+				String tissue = split[3];
+				String exp = split[4];
+				String map = "star";
+				String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
+				sd_target = new FPKM_Single(s, tissue, exp, path);
 			}
+			if (sd_query != null && sd_target != null)
+				break;
 		}
-		fpkm_samples.sort(new TissueComparator<>());
+		br.close();
 		System.out.println(systemInfoString() + "Starting to calculate values to partner");
-		Sample_Data sd_query = fpkm_samples.get(Integer.parseInt(args[0])-Integer.parseInt(args[2])-1);
-		Sample_Data sd_target = fpkm_samples.get(Integer.parseInt(args[1]) - 7001);
 		System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
 		String temp = sd_query.get_value(sd_target) + "";
 		System.out.println(temp);
 		try {
 			BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/files/"
-					+ (Integer.parseInt(args[0])-Integer.parseInt(args[2])) + "-" + (Integer.parseInt(args[1]) - 7000) + "FPKM.txt"));
+					+ (Integer.parseInt(args[0]) - Integer.parseInt(args[2])) + "-" + (Integer.parseInt(args[1]) - 7000)
+					+ "FPKM.txt"));
 			bw.write(temp + "\n");
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());
