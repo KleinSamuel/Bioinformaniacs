@@ -46,11 +46,16 @@ public class OBOreader {
 	public static void parseTerm(LinkedList<String> term, Graph oboGraph) {
 		String[] split = null;
 		TermNode t = null;
+		boolean newNode = false;
 		for (String s : term) {
 			split = s.split(": ", 2);
-			switch (s) {
+			switch (split[0]) {
 			case "id":
-				t = new TermNode(split[1], null, null);
+				t = oboGraph.getNode(split[1]);
+				if (t == null) {
+					t = new TermNode(split[1], null, null);
+					newNode = true;
+				}
 				break;
 			case "name":
 				t.setName(split[1]);
@@ -67,16 +72,17 @@ public class OBOreader {
 				}
 				break;
 			case "is_a":
-				String id = split[1].substring(0, split[1].indexOf("!") - 1);
+				String id = split[1].split(" ! ")[0];
 				TermNode n = oboGraph.getNode(id);
 				if (n == null) {
-					oboGraph.addNode(new TermNode(id, null, null));
+					n = new TermNode(id, null, null);
+					oboGraph.addNode(n);
 				}
 				t.addEdge(n, Relation.IS_A);
 				break;
 			}
 		}
-		if (t != null)
+		if (t != null && newNode)
 			oboGraph.addNode(t);
 	}
 
