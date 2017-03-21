@@ -83,24 +83,22 @@ public class Analysis {
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (args[0].equals("phase two")) {
 			System.out.println(systemInfoString() + "Starting phase two!");
-			Number[][] matrix = new Number[100][100];
+			int max = 20;
+			Number[][] matrix = new Number[max][max];
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {
-					try {
-						BufferedReader br = new BufferedReader(new FileReader("files/" + i + "-" + j + "FPKM.txt"));
-						matrix[i - 1][j - 1] = Double.parseDouble(br.readLine());
-						br.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					matrix[i - 1][j - 1] = File_Preparer.read_file_fpkm("files/" + i + "-" + j + "FPKM.txt",
+							fpkm_samples);
 				}
 			}
-			 ArrayList<Sample_Data> al = new ArrayList<>();
-			 for (int i = 1; i <= 100; i++)
-			 al.add(fpkm_samples.get(i - 1));
+			ArrayList<Sample_Data> al = new ArrayList<>();
+			for (int i = 1; i <= max; i++)
+				al.add(fpkm_samples.get(i - 1));
+
 			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
 			hm.plot();
 			System.out.println(systemInfoString() + "Terminated");
+
 		}
 	}
 

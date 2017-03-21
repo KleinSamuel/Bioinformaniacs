@@ -27,9 +27,9 @@ public class HeatMap {
 	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
 		matrix = "m <- matrix(c(";
 		String temp = "";
-		for (Sample_Data sd1 : col) {
-			for (Sample_Data sd2 : row) {
-				temp += "," + sd1.get_value(sd2);
+		for (Sample_Data sd1 : row) {
+			for (Sample_Data sd2 : col) {
+				temp += "," + sd2.get_value(sd1);
 			}
 		}
 		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
@@ -45,11 +45,11 @@ public class HeatMap {
 		labels.add("c(" + label.substring(1) + ")");
 	}
 
-	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row, Number[][] m) {
+	public HeatMap(String title, Collection<Sample_Data> row, Collection<Sample_Data> col, Number[][] m) {
 		matrix = "m <- matrix(c(";
 		String temp = "";
-		for (int y = 0; y < col.size(); y++) {
-			for (int x = 0; x < row.size(); x++) {
+		for (int x = 0; x < row.size(); x++) {
+			for (int y = 0; y < col.size(); y++) {
 				temp += "," + m[y][x];
 			}
 		}
@@ -76,7 +76,7 @@ public class HeatMap {
 			bw.write("json <- plotly_json(p, FALSE);");
 			bw.write("write(json, \"/home/a/adamowicz/GoBi/json.txt\");");
 			bw.close();
-			// System.out.println(R_path + " " + r_script.getAbsolutePath());
+			System.out.println(R_path + " " + r_script.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
 			plotting.waitFor();
 		} catch (IOException | InterruptedException e) {
