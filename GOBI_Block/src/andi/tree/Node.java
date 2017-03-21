@@ -1,7 +1,6 @@
 package andi.tree;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -114,7 +113,6 @@ public class Node implements Node_Data {
 
 	@Override
 	public double compute_distance(Node_Data nd) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -127,8 +125,10 @@ public class Node implements Node_Data {
 			return out;
 		out += "Leaves: " + this.count_leaves() + "; ";
 		out += "Dist_to_Leaves: " + total_dist + "; ";
-		out += "Shared info: " + this.get_leaves().firstEntry().getValue().shared_info(this.get_leaves().values());
-		return out;
+		out += "Shared info: ";
+		for(Object o:this.get_leaves().firstEntry().getValue().get_shared(this.get_share_vector()))
+			out+=o.toString()+", ";
+		return out.substring(0, out.length());
 	}
 
 	public TreeMap<Node, Double> get_children() {
@@ -158,6 +158,7 @@ public class Node implements Node_Data {
 			leaves = null;
 		}
 	}
+	
 
 	public TreeSet<Double> get_distances() {
 		TreeSet<Double> dists = new TreeSet<>();
@@ -169,21 +170,14 @@ public class Node implements Node_Data {
 
 	@Override
 	public String data_title() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
-	public HashSet<?> get_shared(Vector<Boolean> shared) {
-		// TODO Auto-generated method stub
+	public Vector<?> get_shared(Vector<Boolean> shared) {
 		return null;
 	}
 
-	@Override
-	public Vector<Boolean> compute_shared(Collection<Node_Data> nds) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	public void compute_shared() {
 		if (this.is_leaf())
@@ -203,6 +197,13 @@ public class Node implements Node_Data {
 		if(shared==null)
 			compute_shared();
 		return shared;
+	}
+
+
+	@Override
+	public String shared_type() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	// @Override

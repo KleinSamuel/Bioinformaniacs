@@ -1,10 +1,13 @@
 package andi.tree;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Vector;
 
 public class Car implements Node_Data{
 	private int preis;
 	private String name;
+	private static Vector<String> bauteile;
 	
 	public Car(int preis, String name) {
 		this.preis = preis;
@@ -63,6 +66,32 @@ public class Car implements Node_Data{
 	@Override
 	public String data_title() {
 		return "Price difference of Cars";
+	}
+
+	
+	public String shared_type() {
+		return "Bauteile";
+	}
+
+	@Override
+	public Vector<?> get_shared(Vector<Boolean> shared) {
+		Vector<String> out=new Vector<>();
+		if(shared!=null&&shared.size()==bauteile.size()) {
+			Iterator<Boolean> i_shared = shared.iterator();
+			Iterator<String> i_bauteil = bauteile.iterator();
+			while(i_shared.hasNext())
+				if(i_shared.next())
+					out.add(i_bauteil.next());
+		}
+		return out;
+	}
+
+
+
+	@Override
+	public Vector<Boolean> get_share_vector() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	

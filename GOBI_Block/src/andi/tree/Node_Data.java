@@ -1,12 +1,10 @@
 package andi.tree;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Vector;
 
 public interface Node_Data extends Comparable<Node_Data>{
-	
 	
 	
 	public String toString();
@@ -22,6 +20,9 @@ public interface Node_Data extends Comparable<Node_Data>{
 	public String data_title();
 	
 	public Vector<?> get_shared(Vector<Boolean> shared);
+	
+	
+	public String shared_type();
 	
 	public Vector<Boolean> get_share_vector();
 	

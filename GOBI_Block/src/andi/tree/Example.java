@@ -37,7 +37,7 @@ public class Example {
 			cars.clear();
 //			long s = System.currentTimeMillis();
 			generate_Cars(start, cars);
-			car_t  = new Tree(cars,Cluster_method.NJ);
+			car_t  = new Tree(cars,Cluster_method.UPGMA);
 			try {
 				Runtime.getRuntime().exec("display "+Plot.get_plot(car_t, car_t.get_root()));
 			} catch (IOException e1) {
