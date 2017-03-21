@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -22,6 +23,8 @@ public class UtilityManager {
 	private static HashMap<String, Species> speciesByName;
 	private static HashMap<Integer, Species> speciesById;
 	private static SimilarityHandler similarities;
+
+	private static HashSet<String> experimentsWithMissingBam;
 	// private GOHandler goUtils;
 	// private CounterUtils counterUtils;
 	// private TissueHandler tissueHandler;
@@ -54,11 +57,6 @@ public class UtilityManager {
 	 *            lï¿½dt GO graph im GOHandler
 	 * @param preloadGOmappings
 	 *            lï¿½dt alle GOmappings im GOHandler
-	 * @param preloadSimilarities
-	 *            <<<<<<< HEAD lï¿½dt alle similarities in den similaritHandler
-	 *            ======= lädt alle similarities in den similarityHandler
-	 *            >>>>>>> branch 'master' of
-	 *            https://github.com/KleinSamuel/Bioinformaniacs.git
 	 */
 	public UtilityManager(String utilityMapping, boolean preloadGOgraph, boolean preloadGOmappings,
 			boolean preloadSimilarities) {
@@ -85,6 +83,19 @@ public class UtilityManager {
 			}
 		}
 
+	}
+
+	public static HashSet<String> getExperimentNamesWithMissingBams() {
+		if (experimentsWithMissingBam == null) {
+			experimentsWithMissingBam = new HashSet<>();
+			experimentsWithMissingBam.add("SRR594397");
+			experimentsWithMissingBam.add("SRR594405");
+			experimentsWithMissingBam.add("SRR594502");
+			experimentsWithMissingBam.add("SRR594522");
+			experimentsWithMissingBam.add("SRR594461");
+			experimentsWithMissingBam.add("SRR306816");
+		}
+		return experimentsWithMissingBam;
 	}
 
 	/**
