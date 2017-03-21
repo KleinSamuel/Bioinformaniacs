@@ -1,8 +1,10 @@
 package andi.tree;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Vector;
 
 public class Node implements Node_Data {
 	private int id;
@@ -11,6 +13,7 @@ public class Node implements Node_Data {
 	private double total_dist;
 	private Node_Data data;
 	private TreeMap<Node, Node_Data> leaves;
+	private Vector<Boolean> shared;
 
 	public Node(int id, Node p) {
 		this.id = id;
@@ -34,7 +37,7 @@ public class Node implements Node_Data {
 	}
 
 	public boolean is_root() {
-		return this.id<1;
+		return this.id < 1;
 	}
 
 	public void add_child(Node c, double dist) {
@@ -100,7 +103,7 @@ public class Node implements Node_Data {
 	public String toString() {
 		String out = "";
 		out += "(" + id + ")";
-		if (this.is_leaf()) 
+		if (this.is_leaf())
 			out += " Data: " + this.data.toString();
 		return out;
 	}
@@ -114,18 +117,16 @@ public class Node implements Node_Data {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
 
 	@Override
 	public String shared_info(Collection<Node_Data> nds) {
 		String out = "";
 		if (!this.is_root())
-			out += "Dist_to_Parent: " + parent.get_children().get(this)+"; ";
+			out += "Dist_to_Parent: " + parent.get_children().get(this) + "; ";
 		if (this.is_leaf())
 			return out;
-		out += "Leaves: " + this.count_leaves()+"; ";
-		out += "Dist_to_Leaves: " + total_dist+"; ";
+		out += "Leaves: " + this.count_leaves() + "; ";
+		out += "Dist_to_Leaves: " + total_dist + "; ";
 		out += "Shared info: " + this.get_leaves().firstEntry().getValue().shared_info(this.get_leaves().values());
 		return out;
 	}
@@ -136,31 +137,32 @@ public class Node implements Node_Data {
 
 	@Override
 	public String get_Name() {
-		if(this.is_leaf())
+		if (this.is_leaf())
 			return data.get_Name();
 		return "";
 	}
-	
+
 	public Node get_Parent() {
 		return parent;
 	}
-	
+
 	public double dist_to_parent() {
 		return this.get_Parent().get_children().get(this);
 	}
+
 	public void reset() {
-		if(this.is_root()) {
+		if (this.is_root()) {
 			childs.clear();
-			total_dist=0;
-			data=null;
-			leaves=null;
+			total_dist = 0;
+			data = null;
+			leaves = null;
 		}
 	}
-	
-	public TreeSet<Double> get_distances(){
+
+	public TreeSet<Double> get_distances() {
 		TreeSet<Double> dists = new TreeSet<>();
 		dists.add(this.total_dist);
-		for(Node c:childs.keySet())
+		for (Node c : childs.keySet())
 			dists.addAll(c.get_distances());
 		return dists;
 	}
@@ -170,31 +172,63 @@ public class Node implements Node_Data {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-//	@Override
-//	public Node getChild(Node node, int index) {
-//		if(index > node.get_children().size()){
-//			return null;
-//		}else{
-//			int cnt = 0;
-//			for(Node n : node.get_children().keySet()){
-//				if(cnt == index){
-//					return n;
-//				}
-//				cnt++;
-//			}
-//		}
-//		return null;
-//	}
-//
-//	@Override
-//	public int getChildCount(Node node) {
-//		return node.get_children().size();
-//	}
-//
-//	@Override
-//	public boolean isLeaf(Node node) {
-//		return node.is_leaf();
-//	}
+
+	@Override
+	public HashSet<?> get_shared(Vector<Boolean> shared) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Vector<Boolean> compute_shared(Collection<Node_Data> nds) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void compute_shared() {
+		if (this.is_leaf())
+			shared=this.data.get_share_vector();
+		Vector<Boolean> v1 = null;
+		Vector<Boolean> v2 = null;
+		for (Node n : this.childs.keySet())
+			if (v1 == null)
+				v1 = n.get_share_vector();
+			else
+				v2 = n.get_share_vector();
+		shared = Node_Data.combine_shared(v1, v2);
+	}
+
+	@Override
+	public Vector<Boolean> get_share_vector() {
+		if(shared==null)
+			compute_shared();
+		return shared;
+	}
+
+	// @Override
+	// public Node getChild(Node node, int index) {
+	// if(index > node.get_children().size()){
+	// return null;
+	// }else{
+	// int cnt = 0;
+	// for(Node n : node.get_children().keySet()){
+	// if(cnt == index){
+	// return n;
+	// }
+	// cnt++;
+	// }
+	// }
+	// return null;
+	// }
+	//
+	// @Override
+	// public int getChildCount(Node node) {
+	// return node.get_children().size();
+	// }
+	//
+	// @Override
+	// public boolean isLeaf(Node node) {
+	// return node.is_leaf();
+	// }
 
 }
