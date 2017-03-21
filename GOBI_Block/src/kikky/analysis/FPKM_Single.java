@@ -1,6 +1,7 @@
 package kikky.analysis;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
@@ -110,8 +111,9 @@ public class FPKM_Single implements Sample_Data {
 		} else {
 			SimilarityHandler sh = UtilityManager.getSimilarityHandler();
 			for (String gene_id : gene_data.keySet()) {
-				SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id,
-						fs.gene_data.keySet());
+				HashSet<String> hs = new HashSet<>();
+				hs.addAll(fs.gene_data.keySet());
+				SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id, hs);
 				if (so != null)
 					mates.put(gene_id, so.getTarget_geneId());
 			}
