@@ -67,6 +67,7 @@ public class Tree /*
 	private void inner_node(Node i) {
 		nodes.put(i.get_id(), i);
 		inner.add(i);
+		i.compute_shared();
 	}
 
 	private void leaf_node(Node l, Node_Data nd) {

@@ -104,6 +104,8 @@ public class Node implements Node_Data {
 		out += "(" + id + ")";
 		if (this.is_leaf())
 			out += " Data: " + this.data.toString();
+		else
+			out += this.shared_info();
 		return out;
 	}
 
@@ -116,8 +118,7 @@ public class Node implements Node_Data {
 		return 0;
 	}
 
-	@Override
-	public String shared_info(Collection<Node_Data> nds) {
+	public String shared_info() {
 		String out = "";
 		if (!this.is_root())
 			out += "Dist_to_Parent: " + parent.get_children().get(this) + "; ";
@@ -125,10 +126,10 @@ public class Node implements Node_Data {
 			return out;
 		out += "Leaves: " + this.count_leaves() + "; ";
 		out += "Dist_to_Leaves: " + total_dist + "; ";
-		out += "Shared info: ";
-		for(Object o:this.get_leaves().firstEntry().getValue().get_shared(this.get_share_vector()))
-			out+=o.toString()+", ";
-		return out.substring(0, out.length());
+		out += "Sharing " + this.shared_type() + ": ";
+		for (Object o : this.get_leaves().firstEntry().getValue().get_shared(this.get_share_vector()))
+			out += o.toString() + ", ";
+		return out.substring(0, out.length() - 2);
 	}
 
 	public TreeMap<Node, Double> get_children() {
@@ -158,7 +159,6 @@ public class Node implements Node_Data {
 			leaves = null;
 		}
 	}
-	
 
 	public TreeSet<Double> get_distances() {
 		TreeSet<Double> dists = new TreeSet<>();
@@ -178,10 +178,11 @@ public class Node implements Node_Data {
 		return null;
 	}
 
-
 	public void compute_shared() {
-		if (this.is_leaf())
-			shared=this.data.get_share_vector();
+		if (this.is_leaf()) {
+			shared = this.data.get_share_vector();
+			return;
+		}
 		Vector<Boolean> v1 = null;
 		Vector<Boolean> v2 = null;
 		for (Node n : this.childs.keySet())
@@ -194,16 +195,14 @@ public class Node implements Node_Data {
 
 	@Override
 	public Vector<Boolean> get_share_vector() {
-		if(shared==null)
+		if (shared == null)
 			compute_shared();
 		return shared;
 	}
 
-
 	@Override
 	public String shared_type() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.get_leaves().firstEntry().getValue().shared_type();
 	}
 
 	// @Override

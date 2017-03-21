@@ -19,11 +19,6 @@ public class Total_Organism implements Node_Data{
 		return 0;
 	}
 
-	@Override
-	public String shared_info(Collection<Node_Data> nds) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public String get_Name() {
@@ -54,5 +49,6 @@ public class Total_Organism implements Node_Data{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
 
 }
