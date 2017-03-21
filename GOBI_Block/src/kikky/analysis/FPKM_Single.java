@@ -110,12 +110,15 @@ public class FPKM_Single implements Sample_Data {
 					mates.put(gene_id, gene_id);
 		} else {
 			SimilarityHandler sh = UtilityManager.getSimilarityHandler();
-			for (String gene_id : gene_data.keySet()) {
-				HashSet<String> hs = new HashSet<>();
-				hs.addAll(fs.gene_data.keySet());
-				SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id, hs);
-				if (so != null)
-					mates.put(gene_id, so.getTarget_geneId());
+			HashSet<String> query = sh.getAllGenesWithAnOrtholog(this.species, fs.species);
+			for (String gene_id : query) {
+				if (this.gene_data.containsKey(gene_id)) {
+					HashSet<String> hs = new HashSet<>();
+					hs.addAll(fs.gene_data.keySet());
+					SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id, hs);
+					if (so != null)
+						mates.put(gene_id, so.getTarget_geneId());
+				}
 			}
 		}
 		return mates;
