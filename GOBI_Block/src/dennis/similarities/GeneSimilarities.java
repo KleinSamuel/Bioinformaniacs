@@ -1,6 +1,7 @@
 package dennis.similarities;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 
 import dennis.utility_manager.Species;
@@ -14,6 +15,8 @@ public class GeneSimilarities {
 	 * <geneIdSpecies1, <geneIdSpecies2, SimilarityObject>>
 	 */
 	private HashMap<String, HashMap<String, SimilarityObject>> sims;
+
+	private HashSet<String> genesWithPartner = null;
 
 	public GeneSimilarities(Species sp1, Species sp2) {
 		sims = new HashMap<>();
@@ -34,6 +37,14 @@ public class GeneSimilarities {
 			sims.put(gene1, s);
 		}
 		s.put(gene2, sim);
+	}
+
+	public HashSet<String> getGenesWithPartner() {
+		if (genesWithPartner == null) {
+			genesWithPartner = new HashSet<>();
+			genesWithPartner.addAll(sims.keySet());
+		}
+		return genesWithPartner;
 	}
 
 	/**

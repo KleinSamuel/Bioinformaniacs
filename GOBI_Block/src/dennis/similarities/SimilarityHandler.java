@@ -62,6 +62,17 @@ public class SimilarityHandler {
 
 	/**
 	 * 
+	 * @param query
+	 * @param target
+	 * @return all geneIds in query_species that have an orthologue in the
+	 *         target_species
+	 */
+	public HashSet<String> getAllGenesWithAnOrtholog(Species query, Species target) {
+		return getSimilarities(query, target).getGenesWithPartner();
+	}
+
+	/**
+	 * 
 	 * @param query_species:
 	 *            can be null -> calculated by query_geneId
 	 * @param target_species:
