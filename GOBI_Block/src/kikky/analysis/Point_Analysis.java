@@ -60,6 +60,8 @@ public class Point_Analysis {
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());
 			bw.close();
+			System.out.println((Integer.parseInt(args[0]) - Integer.parseInt(args[2])) + "-"
+					+ (Integer.parseInt(args[1]) - 7000) + "FPKM.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
