@@ -1,11 +1,11 @@
 package sam.mapper_comparison;
 
-public class MAPPERxDE_Pair {
+public class MapperxMethodPair {
 	
 	private Mapper selectedMapper;
 	private DEmethods selectedMethod;
 	
-	public MAPPERxDE_Pair(Mapper mapper, DEmethods method){
+	public MapperxMethodPair(Mapper mapper, DEmethods method){
 		this.selectedMapper = mapper;
 		this.selectedMethod = method;
 	}
