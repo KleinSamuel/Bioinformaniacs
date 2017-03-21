@@ -16,7 +16,7 @@ import dennis.genomeAnnotation.GenomeAnnotation;
 public class Species implements Comparable<Species> {
 
 	private int id;
-	private String name, gtf;
+	private String name, gtf, sChrs;
 
 	private HashSet<String> standardChromosomes = null;
 
@@ -26,6 +26,7 @@ public class Species implements Comparable<Species> {
 		this.id = id;
 		this.name = name;
 		this.gtf = gtf;
+		this.sChrs = standardChrs;
 		readStandardChromosomes(standardChrs);
 	}
 
@@ -36,7 +37,10 @@ public class Species implements Comparable<Species> {
 	public String getName() {
 		return name;
 	}
-
+	
+	public String getChrs(){
+		return sChrs;
+	}
 	/**
 	 * 
 	 * @return name of gtf file full file:

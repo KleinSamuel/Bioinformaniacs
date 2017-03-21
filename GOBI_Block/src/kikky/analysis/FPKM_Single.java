@@ -18,6 +18,8 @@ public class FPKM_Single implements Sample_Data {
 	private HashMap<String, Double> gene_data = new HashMap<>();
 	private Point_Info pi;
 
+	private long start;
+
 	public FPKM_Single(Species species, String tissue, String exp_number) {
 		this.species = species;
 		this.tissue = tissue;
@@ -60,23 +62,39 @@ public class FPKM_Single implements Sample_Data {
 		return pi;
 	}
 
+	public String get_init_info() {
+		return species.getId() + "\t" + species.getName() + "\t" + species.getGtf() + "\t" + species.getChrs() + "\t"
+				+ tissue + "\t" + exp_number;
+	}
+
 	@Override
 	public double get_value(Sample_Data sd) {
+		start = System.currentTimeMillis();
 		FPKM_Single fs = (FPKM_Single) sd;
+		System.out.println(systemInfoString() + "Getting mates");
 		HashMap<String, String> mates = get_mates(fs);
+		System.out.println(systemInfoString() + "Calculate");
 		PearsonsCorrelation pc = new PearsonsCorrelation();
 		double[] x = new double[mates.size()];
 		double[] y = new double[mates.size()];
 		int index = 0;
+		String x_asString = "", y_asString = "", query_genes = "", target_genes = "";
 		if (mates.size() > 0) {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = fs.gene_data.get(mates.get(gene_id_x));
+				x_asString += "," + x[index];
+				y_asString += "," + y[index];
+				query_genes += "," + gene_id_x;
+				target_genes += "," + mates.get(gene_id_x);
 				index++;
 			}
+			System.out.println(systemInfoString() + "Save Infos");
 			pi = new Point_Info(mates, x, y);
-			pi.scatter_plot();
+			pi.scatter_plot(x_asString.substring(1), y_asString.substring(1), query_genes.substring(1),
+					target_genes.substring(1));
 			pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
+			System.out.println(systemInfoString() + "Calculate correlation");
 			return pc.correlation(x, y);
 		}
 		pi = new Point_Info(mates, x, y);
@@ -128,6 +146,14 @@ public class FPKM_Single implements Sample_Data {
 		result = prime * result + exp_number.hashCode();
 		result = prime * result + ((gene_data == null) ? 0 : gene_data.hashCode());
 		return result;
+	}
+
+	public String systemInfoString() {
+		String out = "[";
+		out += (System.currentTimeMillis() - start) / 1000 + "." + (System.currentTimeMillis() - start) % 1000 + "s";
+		out += "|" + ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d
+				/ 1024d * 1000d)) / 1000d + "GB]";
+		return out;
 	}
 
 }

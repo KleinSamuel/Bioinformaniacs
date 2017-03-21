@@ -2,7 +2,6 @@ package kikky.analysis;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,20 +27,19 @@ public class Point_Analysis {
 			if (line.startsWith((Integer.parseInt(args[0]) - Integer.parseInt(args[2])) + "#")) {
 				String[] split = line.split("\t");
 				int organism_id = Integer.parseInt(split[1]);
-				String organism_name = split[2];
-				Species s = new Species(organism_id, organism_name, null, null, null);
-				String tissue = split[3];
-				String exp = split[4];
+				Species s = new Species(organism_id, split[2], split[3], split[4], null);
+				String tissue = split[5];
+				String exp = split[6];
 				String map = "star";
 				String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
 				sd_query = new FPKM_Single(s, tissue, exp, path);
-			} else if (line.startsWith((Integer.parseInt(args[1]) - 7000) + "#")) {
+			}
+			if (line.startsWith((Integer.parseInt(args[1]) - 7000) + "#")) {
 				String[] split = line.split("\t");
 				int organism_id = Integer.parseInt(split[1]);
-				String organism_name = split[2];
-				Species s = new Species(organism_id, organism_name, null, null, null);
-				String tissue = split[3];
-				String exp = split[4];
+				Species s = new Species(organism_id, split[2], split[3], split[4], null);
+				String tissue = split[5];
+				String exp = split[6];
 				String map = "star";
 				String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
 				sd_target = new FPKM_Single(s, tissue, exp, path);
