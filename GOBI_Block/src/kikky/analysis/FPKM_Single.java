@@ -79,21 +79,22 @@ public class FPKM_Single implements Sample_Data {
 		double[] x = new double[mates.size()];
 		double[] y = new double[mates.size()];
 		int index = 0;
-		String x_asString = "", y_asString = "", query_genes = "", target_genes = "";
+		StringBuilder x_asString = new StringBuilder(), y_asString = new StringBuilder(), x_genes = new StringBuilder(),
+				y_genes = new StringBuilder();
 		if (mates.size() > 0) {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = fs.gene_data.get(mates.get(gene_id_x));
-				x_asString += "," + x[index];
-				y_asString += "," + y[index];
-				query_genes += "," + gene_id_x;
-				target_genes += "," + mates.get(gene_id_x);
+				x_asString.append(",").append(x[index]);
+				y_asString.append(",").append(y[index]);
+				x_genes.append(",").append(gene_id_x);
+				y_genes.append(",").append(gene_id_x);
 				index++;
 			}
 			System.out.println(systemInfoString() + "Save Infos");
 			pi = new Point_Info(mates, x, y);
-			pi.scatter_plot(x_asString.substring(1), y_asString.substring(1), query_genes.substring(1),
-					target_genes.substring(1));
+			pi.scatter_plot(x_asString.substring(1), y_asString.substring(1), x_genes.substring(1),
+					y_genes.substring(1));
 			pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
 			System.out.println(systemInfoString() + "Calculate correlation");
 			return pc.correlation(x, y);

@@ -55,32 +55,35 @@ public class Analysis {
 				bw.close();
 				System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 				Process plotting;
-				// bw = new BufferedWriter(new
-				// FileWriter("/home/a/adamowicz/GoBi/Block/results/call.txt"));
-				for (int i = 1; i <= 10; i++) {
-					int id = 7000 + (10 * (i - 1));
-					plotting = Runtime.getRuntime()
-							.exec("qsub -b Y -t " + (id + 1) + "-" + (id + 10)
-									+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-									+ (7000 + i) + " " + id);
-					// bw.write("qsub -b Y -t " + (id + 1) + "-"
+				bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/call.txt"));
+				for (int i = 1; i <= fpkm_samples.size(); i += 100) {
+					int id = 7000 + (fpkm_samples.size() * (i - 1));
+					int end = 7000 + i + 100;
+					if (i + 100 > fpkm_samples.size())
+						end = 7000 + (fpkm_samples.size() - i);
+					// plotting = Runtime.getRuntime()
+					// .exec("qsub -b Y -t " + (id + 1) + "-"
 					// + /* (7000 + (fpkm_samples.size() - 1)) */(id +
 					// fpkm_samples.size())
 					// + " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o
 					// $HOME/grid -e $HOME/grid
 					// \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"
 					// "
-					// + (7000 + i) + " " + id+"\n");
+					// + (7000 + i) + " " + id);
+					bw.write("qsub -b Y -t " + (id + 1) + "-"
+							+ /* (7000 + (fpkm_samples.size() - 1)) */(id + fpkm_samples.size())
+							+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
+							+ (7000 + i) + " " + id + " " + end + "\n");
 
 				}
-				// bw.close();
+				bw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (args[0].equals("phase two")) {
 			System.out.println(systemInfoString() + "Starting phase two!");
-			Number[][] matrix = new Number[10][10];
+			Number[][] matrix = new Number[100][100];
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {
 					try {
@@ -92,9 +95,9 @@ public class Analysis {
 					}
 				}
 			}
-			ArrayList<Sample_Data> al = new ArrayList<>();
-			for (int i = 1; i <= 10; i++)
-				al.add(fpkm_samples.get(i - 1));
+			 ArrayList<Sample_Data> al = new ArrayList<>();
+			 for (int i = 1; i <= 100; i++)
+			 al.add(fpkm_samples.get(i - 1));
 			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
 			hm.plot();
 			System.out.println(systemInfoString() + "Terminated");
