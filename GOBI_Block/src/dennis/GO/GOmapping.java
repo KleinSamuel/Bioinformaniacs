@@ -44,6 +44,7 @@ public class GOmapping {
 
 	public void readGOmapping(String mappingFile) {
 		try {
+			System.out.println("Reading GOmappingFile: " + mappingFile);
 			BufferedReader br = new BufferedReader(new FileReader(new File(mappingFile)));
 			String line = null;
 			br.readLine();
