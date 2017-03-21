@@ -89,8 +89,9 @@ public class SimilarityHandler {
 		GeneSimilarities gs = getSimilarities(query_species, target_species);
 		SimilarityObject highestSim = null;
 
+		SimilarityObject next = null;
 		for (String target : target_geneIds) {
-			SimilarityObject next = gs.getSimilarity(query_geneId, target);
+			next = gs.getSimilarity(query_geneId, target);
 			if (next != null) {
 				if (highestSim == null) {
 					highestSim = next;
