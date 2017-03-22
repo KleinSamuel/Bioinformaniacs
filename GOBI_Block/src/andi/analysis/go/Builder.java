@@ -11,9 +11,8 @@ public class Builder {
 	public Builder() {
 		UtilityManager um = new UtilityManager(
 				"/home/m/maieran/git/Bioinformaniacs/GOBI_Block/bin/andi/analysis/go/config.txt", false, true, false);
-		// um.
-//		for(String s: GOHandler.getMappedGOterms(null, "ENSGALG00000003855"))
-//			System.out.println(s);
+		
+		
 		for (Entry<String, LinkedList<String>> s : GOHandler.getAllMappedGOs(null, "ENSGALG00000003855").entrySet()) {
 			System.out.println(s.getKey());
 			for(String s2:s.getValue())

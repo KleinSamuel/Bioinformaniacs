@@ -127,6 +127,7 @@ public class GOHandler {
 		}
 		for (String mappedTerm : getMappedGOterms(s, geneId)) {
 			TermNode node = getGOgraph().getNode(mappedTerm);
+			System.out.println(mappedTerm);
 			ret.put(mappedTerm, getTermsToRoot(node));
 		}
 		return ret;

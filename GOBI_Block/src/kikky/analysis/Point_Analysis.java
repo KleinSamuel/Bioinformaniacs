@@ -68,7 +68,7 @@ public class Point_Analysis {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(
 					"/home/a/adamowicz/GoBi/Block/results/files/" + (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-"
 							+ (Integer.parseInt(a1) - 7000) + "FPKM.txt"));
-			bw.write(temp + "\n");
+			bw.write("#Heatmap_value\n" + temp);
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());
 			bw.close();

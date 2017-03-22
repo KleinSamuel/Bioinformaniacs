@@ -1,6 +1,7 @@
 package andi.tree;
 
 import java.util.Collection;
+import java.util.Vector;
 
 public class City implements Node_Data {
 
@@ -47,19 +48,6 @@ public class City implements Node_Data {
 		return pos_y;
 	}
 
-	@Override
-	public String shared_info(Collection<Node_Data> nds) {
-		double max_dist = 0;
-		for(Node_Data nd1:nds)
-			for(Node_Data nd2:nds) {
-				if(nd1==nd2)
-					continue;
-				double dist = nd1.compute_distance(nd2);
-				if(dist>max_dist)
-					max_dist = dist;
-			}
-		return "Max Distanz zwischen den Städten = "+max_dist;
-	}
 
 	@Override
 	public String get_Name() {
@@ -69,6 +57,25 @@ public class City implements Node_Data {
 	@Override
 	public String data_title() {
 		return "Distance of Cities";
+	}
+
+	@Override
+	public Vector<?> get_shared(Vector<Boolean> shared) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public Vector<Boolean> get_share_vector() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String shared_type() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
