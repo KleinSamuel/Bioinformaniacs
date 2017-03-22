@@ -10,6 +10,7 @@ public class TissuePairCompare extends TissuePair{
 
 	public TissuePairCompare(Tissue key, Tissue value, Species species) {
 		super(key, value);
+		this.species = species;
 	}
 	
 	public Species getSpecies(){

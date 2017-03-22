@@ -2,9 +2,12 @@ package sam.mapper_comparison;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Heatmap implements Serializable {
 
+	private static final long serialVersionUID = -1449463124049381126L;
+	
 	private String mapper;
 	private String method;
 	private ArrayList<String> tissuePairs;
@@ -47,6 +50,12 @@ public class Heatmap implements Serializable {
 
 	public void setScores(Double[][] scores) {
 		this.scores = scores;
+	}
+	
+	public void printHeatmap(){
+		for (int i = 0; i < scores.length; i++) {
+			System.out.println(Arrays.toString(scores[i]));
+		}
 	}
 	
 }

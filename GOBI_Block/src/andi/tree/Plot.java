@@ -41,7 +41,7 @@ public class Plot {
 			r_script = File.createTempFile("R_script_", ".R", new File(temp_dir));
 			r_newick = File.createTempFile("R_newick", ".txt", new File(temp_dir));
 		}
-		plot.deleteOnExit();
+//		plot.deleteOnExit();
 		r_script.deleteOnExit();
 		r_newick.deleteOnExit();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
@@ -120,6 +120,10 @@ public class Plot {
 		return paths.get(node_names).get(tree).get(n);
 	}
 
+	public static File get_plot(Tree tree) {
+		return get_plot(tree,tree.get_root());
+	}
+	
 	public static File get_plot(Tree tree, int id) {
 		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
