@@ -1,25 +1,17 @@
 package sam.mapper_comparison;
 
-import java.util.ArrayList;
-
-import dennis.enrichment.EBUtils;
-import dennis.utility_manager.UtilityManager;
-
 public class TestRunner {
 
 	public static void main(String[] args) {
 		
-		UtilityManager um = new UtilityManager("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/config.txt", false, false, false);
+		String line = "ENSGALG00000022964	2.61297977510462	4.46124867009472e-08	8.50849831278798e-07";
 		
-		ArrayList<String> cond1 = new ArrayList<>();
-		cond1.add(UtilityManager.getConfig("output_directory")+"10090/brain/SRR306757/contextmap/gene.counts");
-		cond1.add(UtilityManager.getConfig("output_directory")+"10090/brain/SRR594393/contextmap/gene.counts");
+		String[] array = line.split("\t");
 		
-		ArrayList<String> cond2 = new ArrayList<>();
-		cond2.add(UtilityManager.getConfig("output_directory")+"10090/liver/SRR306772/contextmap/gene.counts");
-		cond2.add(UtilityManager.getConfig("output_directory")+"10090/liver/SRR306774/contextmap/gene.counts");
+		double d = Double.parseDouble(array[3]);
 		
-		EBUtils.runEnrichment(cond1, cond2, "/home/k/kleins/Desktop/GOBI_OUT/", "test", false);
+		System.out.println(d);
+		
 		
 	}
 	
