@@ -25,11 +25,11 @@ public interface Node_Data extends Comparable<Node_Data>{
 	public Vector<Boolean> get_share_vector();
 	
 	public static Vector<Boolean> combine_shared(Vector<Boolean> v1, Vector<Boolean> v2){
+		Vector<Boolean> out = new Vector<>();
 		if(v1==null||v2==null||v1.size()!=v2.size())
-			return null;
+			return out;
 		Iterator<Boolean> i1=v1.iterator();
 		Iterator<Boolean> i2=v2.iterator();
-		Vector<Boolean> out = new Vector<>();
 		while(i1.hasNext())
 			out.add((Boolean)(((boolean)i1.next())&((boolean)i2.next())));
 		return out;

@@ -62,6 +62,7 @@ public class Tree /*
 
 	public void change_cluster_method(Cluster_method cm) {
 		this.cm = cm;
+		this.rebuild();
 	}
 
 	private void inner_node(Node i) {

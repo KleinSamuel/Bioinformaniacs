@@ -1,6 +1,5 @@
 package andi.tree;
 
-import java.util.Collection;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -104,8 +103,8 @@ public class Node implements Node_Data {
 		out += "(" + id + ")";
 		if (this.is_leaf())
 			out += " Data: " + this.data.toString();
-		else
-			out += this.shared_info();
+//		else
+//			out += this.shared_info();
 		return out;
 	}
 

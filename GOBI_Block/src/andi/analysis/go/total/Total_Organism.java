@@ -1,54 +1,95 @@
 package andi.analysis.go.total;
 
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.Vector;
 
 import andi.tree.Node_Data;
+import dennis.utility_manager.Species;
+import dennis.utility_manager.UtilityManager;
 
-public class Total_Organism implements Node_Data{
+public class Total_Organism implements Node_Data {
+	private Vector<String> all_orthologues;
+	private Vector<String> genes;
+	private String org_name;
+	private int id;
+	private Vector<Boolean> shared;
+	private Species org;
+
+	public Total_Organism(int id, String name, Species org) {
+		this.id = id;
+		this.org_name = name;
+		this.org = org;
+	}
+	
+	public void set_all_orthologues(Vector<String> all) {
+		all_orthologues = all;
+		Iterator<String> it_all = all.iterator();
+		shared = new Vector<>();
+		while(it_all.hasNext())
+				shared.add(genes.contains(it_all.next()));
+	}
+	
+	
+	public void set_genes(Vector<String> genes) {
+		this.genes=genes;
+	}
 
 	@Override
 	public int compareTo(Node_Data o) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (!(o instanceof Total_Organism))
+			return -1;
+		Total_Organism other = (Total_Organism) o;
+		return this.id - other.id;
 	}
 
 	@Override
 	public double compute_distance(Node_Data nd) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (nd==null||!(nd instanceof Total_Organism))
+			return Double.MAX_VALUE;
+		Total_Organism other = (Total_Organism) nd;
+		return (all_orthologues.size()*2)/(UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(), other.get_Species()).size()+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog( other.get_Species(),this.get_Species()).size());
 	}
 
-
+	
+	public Species get_Species() {
+		return org;
+	}
+	
 	@Override
 	public String get_Name() {
-		// TODO Auto-generated method stub
-		return null;
+		return org_name;
 	}
 
 	@Override
 	public String data_title() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Count of Orthologues between Organisms";
 	}
 
 	@Override
 	public Vector<?> get_shared(Vector<Boolean> shared) {
-		// TODO Auto-generated method stub
-		return null;
+		Iterator<Boolean> s = shared.iterator();
+		Iterator<String> all = all_orthologues.iterator();
+		Vector<String> out = new Vector<>();
+		while (s.hasNext())
+			if (s.next())
+				out.add(all.next());
+			else
+				all.next();
+		return out;
 	}
 
 	@Override
 	public String shared_type() {
-		// TODO Auto-generated method stub
-		return null;
+		return "Othologues";
 	}
 
 	@Override
 	public Vector<Boolean> get_share_vector() {
-		// TODO Auto-generated method stub
-		return null;
+		return shared;
 	}
-
+	
+	public String toString() {
+		return this.get_Name()+"("+this.id+")";
+	}
 
 }
