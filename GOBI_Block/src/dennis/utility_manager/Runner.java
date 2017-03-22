@@ -1,43 +1,24 @@
 package dennis.utility_manager;
 
-import dennis.GO.GOHandler;
-import dennis.GO.Graph;
-import dennis.GO.TermNode;
-import dennis.fuzzy.Fuzzy;
+import java.util.TreeSet;
 
 public class Runner {
 
 	// GOgraph fixen
 
 	public static void main(String[] args) {
-		// UtilityManager utils = new
-		// UtilityManager(UtilityManager.DefaultInputMapping, false, false,
-		// false);
+		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		Fuzzy fuz = new Fuzzy(3d, 0.1d);
-		for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
-			System.out.print(d + " ");
-		}
-		System.out.println();
+		// Fuzzy fuz = new Fuzzy(3d, 0.1d);
+		// for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
+		// System.out.print(d + " ");
+		// }
+		// System.out.println();
 
 		// Graph g = GOHandler.getGOgraph();
 		// for (TermNode n : g.getTermNodes().values()) {
 		// System.out.println(n.getId() + ": " + n.getName() + " " +
 		// n.getNamespace());
-		// }
-
-		// int i = 1;
-		// for (Iterator<Species> spIt = UtilityManager.speciesIterator();
-		// spIt.hasNext();) {
-		// Species s = spIt.next();
-		// for (String m : UtilityManager.mapperList()) {
-		// if (i == Integer.parseInt(args[0])) {
-		// EBUtils.runEBForAllTissuePairs(s, m, false);
-		// return;
-		// } else {
-		// i++;
-		// }
-		// }
 		// }
 
 		// for (Iterator<Species> s = UtilityManager.speciesIterator();

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -326,17 +327,52 @@ public class HeatmapFactory {
 		return output;
 	}
 	
+	public ArrayList<String> getAllTissuePairs(){
+		ArrayList<String> tissues = new ArrayList<>();
+		for (Iterator<String> iterator = TissueHandler.tissueNameIterator(); iterator.hasNext();){
+			tissues.add(iterator.next());
+		}
+		
+		ArrayList<String> tissuePairs = new ArrayList<>();
+		
+		for (int i = 0; i < tissues.size(); i++) {
+			for (int j = i+1; j < tissues.size(); j++) {
+				tissuePairs.add(tissues.get(i)+"_"+tissues.get(j));
+			}
+		}
+		
+		return tissuePairs;
+	}
+	
+	public ArrayList<String> getAllTissuePairsWithSpecies(){
+		ArrayList<String> tissuePairs = getAllTissuePairs();
+		ArrayList<String> out = new ArrayList<>();
+		
+		for (Iterator<Species> iterator = UtilityManager.speciesIterator(); iterator.hasNext();){
+			Species spec = iterator.next();
+			for(String s : tissuePairs){
+				out.add(s+"_"+spec.getName());
+			}
+		}
+		return out;
+	}
+	
 	/**
 	 * Generate a heatmap from heatmaps showing the difference in each cell
 	 * 
 	 * @param heatmaps a collection of heatmaps
 	 * @return master heatmap showing the difference of each cell
 	 */
-	public Heatmap generateMasterHeatmap(Collection<Heatmap> heatmaps){
+	public MasterHeatmap generateMasterHeatmap(Collection<Heatmap> heatmaps){
+		
+		/* contains all tissue-pairs for every species like this: tissue1_tissue2_species name */
+		ArrayList<String> tissuePairsWithSpecies = getAllTissuePairsWithSpecies();
+		
+		MasterHeatmap masterHM = new MasterHeatmap(tissuePairsWithSpecies.size());
 		
 		
-		
-		return null;
+			  
+		return masterHM;
 	}
 
 	public static void main(String[] args) {
@@ -357,9 +393,8 @@ public class HeatmapFactory {
 //		MapperxMethodPair pair = new MapperxMethodPair(mapper, method);
 //		hmf.createHeatmapForMapperPair(pair);
 		
-		hmf.createHeatmapForEachMapperPair(true);
-		
-		hmf.extBW_heatmapsInfo.closeWriter();
+//		hmf.createHeatmapForEachMapperPair(true);
+//		hmf.extBW_heatmapsInfo.closeWriter();
 
 	}
 

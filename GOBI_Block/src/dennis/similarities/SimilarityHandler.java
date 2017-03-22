@@ -6,10 +6,13 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
+import javafx.util.Pair;
 
 public class SimilarityHandler {
 
@@ -196,6 +199,61 @@ public class SimilarityHandler {
 			String[] prots = s.split(":");
 			so.addProteinSimilarity(prots[0], prots[1], Double.parseDouble(prots[2]));
 		}
+	}
+
+	public LinkedList<NxMmapping> getNxMmappings(Species sp1, Species sp2) {
+		GeneSimilarities gs1 = getSimilarities(sp1, sp2), gs2 = getSimilarities(sp2, sp1);
+		TreeSet<String> geneWithPartnerSp1 = new TreeSet<>(), geneWithPartnerSp2 = new TreeSet<>();
+		geneWithPartnerSp1.addAll(gs1.getGenesWithPartner());
+		geneWithPartnerSp2.addAll(gs2.getGenesWithPartner());
+
+		int l = geneWithPartnerSp1.size();
+
+		while (l > 0) {
+
+			System.out.println(getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first()));
+
+			l = geneWithPartnerSp1.size();
+		}
+
+	}
+
+	public Pair<TreeSet<String>, TreeSet<String>> getNewMappingGenes(TreeSet<String> currentGenesSp1,
+			TreeSet<String> currentGenesSp2, TreeSet<String> newGenes, GeneSimilarities gs1, GeneSimilarities gs2) {
+
+		if (newGenes.isEmpty()) {
+			return new Pair<>(currentGenesSp1, currentGenesSp2);
+		}
+
+		TreeSet<String> newerGenes = new TreeSet<>();
+
+		for (String s : newGenes) {
+			HashMap<String, SimilarityObject> mappedToS = gs1.getSimilarities(s);
+			for (String geneMappedToS : mappedToS.keySet()) {
+				if (!currentGenesSp2.contains(geneMappedToS)) {
+					newerGenes.add(geneMappedToS);
+				}
+			}
+		}
+
+		currentGenesSp1.addAll(newGenes);
+
+		return getNewMappingGenes(currentGenesSp2, currentGenesSp1, newerGenes, gs2, gs1);
+	}
+
+	public NxMmapping getNxMmapping(Species species1, Species species2, GeneSimilarities gs1, GeneSimilarities gs2,
+			String startId) {
+
+		TreeSet<String> in = new TreeSet<>();
+		in.add(startId);
+		Pair<TreeSet<String>, TreeSet<String>> cluster = getNewMappingGenes(new TreeSet<String>(),
+				new TreeSet<String>(), in, gs1, gs2);
+
+		if (UtilityManager.getSpeciesIDFromGeneID(cluster.getKey().first()) != species1.getId()) {
+			cluster = new Pair<TreeSet<String>, TreeSet<String>>(cluster.getValue(), cluster.getKey());
+		}
+
+		return new NxMmapping(species1, species2, cluster.getKey(), cluster.getValue());
 	}
 
 }

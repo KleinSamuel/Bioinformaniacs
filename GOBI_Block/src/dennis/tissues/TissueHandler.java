@@ -3,8 +3,8 @@ package dennis.tissues;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -20,7 +20,7 @@ import dennis.utility_manager.UtilityManager;
  */
 public class TissueHandler {
 
-	private static HashSet<String> tissueList = null;
+	private static TreeSet<String> tissueList = null;
 	private static HashMap<Species, HashMap<String, Tissue>> tissues = null;
 
 	public static void readTissueMapping(Species sp) {
@@ -66,7 +66,7 @@ public class TissueHandler {
 	}
 
 	public static void readTissueList() {
-		tissueList = new HashSet<>();
+		tissueList = new TreeSet<>();
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(new File(UtilityManager.getConfig("tissue_list"))));
 			String line = null;
@@ -91,6 +91,18 @@ public class TissueHandler {
 		TreeSet<String> ret = new TreeSet<>();
 		ret.addAll(tissueList);
 		return ret.iterator();
+	}
+
+	/**
+	 * return tissues sorted
+	 */
+	public static ArrayList<String> getSortedTissueNames() {
+		if (tissueList == null) {
+			readTissueList();
+		}
+		ArrayList<String> sortedTissueNames = new ArrayList<>(tissueList.size());
+		sortedTissueNames.addAll(tissueList);
+		return sortedTissueNames;
 	}
 
 	/**
