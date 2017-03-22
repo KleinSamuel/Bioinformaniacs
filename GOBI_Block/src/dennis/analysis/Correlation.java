@@ -1,5 +1,6 @@
 package dennis.analysis;
 
+import dennis.enrichment.EnrichmentAnalysisUtils;
 import dennis.utility_manager.Species;
 
 public class Correlation {
@@ -14,7 +15,7 @@ public class Correlation {
 	}
 
 	public static double correlation() {
-		return 0;
+		EnrichmentAnalysisUtils.readDEfile(filePath)
 	}
 
 }
