@@ -44,6 +44,7 @@ public class Plot {
 //		plot.deleteOnExit();
 		r_script.deleteOnExit();
 		r_newick.deleteOnExit();
+		System.out.println(r_script);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n, node_names));
 
@@ -51,7 +52,7 @@ public class Plot {
 		bw = new BufferedWriter(new FileWriter(r_script));
 		bw.write("library(ape);");
 		bw.newLine();
-		bw.write("png(filename=\"" + plot.getAbsolutePath() + "\", res=100,width = 800, height = 800);");
+		bw.write("png(filename=\"" + plot.getAbsolutePath() + "\", res=80,width = 800, height = 800);");
 		bw.newLine();
 		bw.write("tree <-read.tree(\"" + r_newick.getAbsolutePath() + "\");");
 		bw.newLine();
@@ -71,7 +72,7 @@ public class Plot {
 		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(dists_rev,false) + "),labels=c("
 				+ t.distances_to_String(t.get_distances(n),true) + "));");
 		bw.newLine();
-		for (int i = 1; i<dists_rev.size()-2;i++) {
+		for (int i = 1; i<dists_rev.size()-1;i++) {
 			bw.write("abline(v=" + dists_rev.get(i) + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
