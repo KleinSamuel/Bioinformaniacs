@@ -76,6 +76,7 @@ public class EnrichmentAnalysisUtils {
 			BufferedReader br = new BufferedReader(new FileReader(new File(filePath)));
 			br.readLine();
 			String line = null;
+
 			while ((line = br.readLine()) != null) {
 				genes.add(new GeneObject(line));
 			}
