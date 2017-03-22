@@ -19,4 +19,19 @@ public enum Mapper {
 		}
 	}
 	
+	public Mapper getMapperForString(String s){
+		switch (s) {
+		case "star":
+			return Mapper.STAR;
+		case "contextmap":
+			return Mapper.CONTEXTMAP;
+		case "hisat":
+			return Mapper.HISAT;
+		case "tophat":
+			return Mapper.TOPHAT;
+		default:
+			return null;
+		}
+	}
+	
 }

@@ -17,4 +17,17 @@ public enum DEmethods {
 		}
 	}
 	
+	public DEmethods getMethodForString(String s){
+		switch (s) {
+		case "deseq":
+			return DEmethods.DESEQ;
+		case "edger":
+			return DEmethods.EDGER;
+		case "limma":
+			return DEmethods.LIMMA;
+		default:
+			return null;
+		}
+	}
+	
 }
