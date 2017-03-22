@@ -3,25 +3,28 @@ package dennis.utility_manager;
 import dennis.GO.GOHandler;
 import dennis.GO.Graph;
 import dennis.GO.TermNode;
+import dennis.fuzzy.Fuzzy;
 
 public class Runner {
 
-	// count bam files
-
-	// TODO
-	// counts noch mal laufen lassen mit standardChrs
-	// GO mappings testen / überlegen ob zur wurzel mitgespeichert wird oder
-	// immer neu berechnet
-	// den anderen einen Beispiel aufruf schreiben
-	// fuzzy stuff
+	// GOgraph fixen
 
 	public static void main(String[] args) {
-		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
+		// UtilityManager utils = new
+		// UtilityManager(UtilityManager.DefaultInputMapping, false, false,
+		// false);
 
-		Graph g = GOHandler.getGOgraph();
-		for (TermNode n : g.getTermNodes().values()) {
-			System.out.println(n.getId() + ": " + n.getName() + " " + n.getNamespace());
+		Fuzzy fuz = new Fuzzy(3d, 0.1d);
+		for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
+			System.out.print(d + " ");
 		}
+		System.out.println();
+
+		// Graph g = GOHandler.getGOgraph();
+		// for (TermNode n : g.getTermNodes().values()) {
+		// System.out.println(n.getId() + ": " + n.getName() + " " +
+		// n.getNamespace());
+		// }
 
 		// int i = 1;
 		// for (Iterator<Species> spIt = UtilityManager.speciesIterator();
