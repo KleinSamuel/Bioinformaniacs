@@ -1,10 +1,6 @@
 package dennis.utility_manager;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-
-import dennis.enrichment.EBUtils;
-import dennis.tissues.TissuePair;
+import java.util.TreeSet;
 
 public class Runner {
 
@@ -24,39 +20,6 @@ public class Runner {
 		// System.out.println(n.getId() + ": " + n.getName() + " " +
 		// n.getNamespace());
 		// }
-
-		int i = 1;
-		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
-			Species s = spIt.next();
-			for (String m : UtilityManager.mapperList()) {
-				for (Iterator<TissuePair> tissuePairIterator = UtilityManager.tissuePairIterator(s); tissuePairIterator
-						.hasNext();) {
-					TissuePair tp = tissuePairIterator.next();
-					if (i == Integer.parseInt(args[0])) {
-						LinkedList<String> filesT1 = new LinkedList<>(), filesT2 = new LinkedList<>();
-						for (Experiment e : tp.getKey().getExperiments()) {
-							if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
-								filesT1.add(UtilityManager.getConfig("output_directory") + s.getId() + "/"
-										+ tp.getKey().getName() + "/" + e.getName() + "/" + m + "/gene.counts");
-							}
-						}
-						for (Experiment e : tp.getValue().getExperiments()) {
-							if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
-								filesT2.add(UtilityManager.getConfig("output_directory") + s.getId() + "/"
-										+ tp.getValue().getName() + "/" + e.getName() + "/" + m + "/gene.counts");
-							}
-						}
-
-						EBUtils.runEnrichment(filesT1, filesT2,
-								UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName()
-										+ "_" + tp.getValue().getName() + "/" + m + "/",
-								tp.getKey().getName() + "_" + tp.getValue().getName(), false);
-					} else {
-						i++;
-					}
-				}
-			}
-		}
 
 		// for (Iterator<Species> s = UtilityManager.speciesIterator();
 		// s.hasNext();) {
