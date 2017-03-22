@@ -1,24 +1,23 @@
 package dennis.utility_manager;
 
-import dennis.GO.GOHandler;
-import dennis.GO.Graph;
-import dennis.GO.TermNode;
-import dennis.fuzzy.Fuzzy;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import dennis.enrichment.EBUtils;
+import dennis.tissues.TissuePair;
 
 public class Runner {
 
 	// GOgraph fixen
 
 	public static void main(String[] args) {
-		// UtilityManager utils = new
-		// UtilityManager(UtilityManager.DefaultInputMapping, false, false,
-		// false);
+		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		Fuzzy fuz = new Fuzzy(3d, 0.1d);
-		for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
-			System.out.print(d + " ");
-		}
-		System.out.println();
+		// Fuzzy fuz = new Fuzzy(3d, 0.1d);
+		// for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
+		// System.out.print(d + " ");
+		// }
+		// System.out.println();
 
 		// Graph g = GOHandler.getGOgraph();
 		// for (TermNode n : g.getTermNodes().values()) {
@@ -26,19 +25,38 @@ public class Runner {
 		// n.getNamespace());
 		// }
 
-		// int i = 1;
-		// for (Iterator<Species> spIt = UtilityManager.speciesIterator();
-		// spIt.hasNext();) {
-		// Species s = spIt.next();
-		// for (String m : UtilityManager.mapperList()) {
-		// if (i == Integer.parseInt(args[0])) {
-		// EBUtils.runEBForAllTissuePairs(s, m, false);
-		// return;
-		// } else {
-		// i++;
-		// }
-		// }
-		// }
+		int i = 1;
+		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
+			Species s = spIt.next();
+			for (String m : UtilityManager.mapperList()) {
+				for (Iterator<TissuePair> tissuePairIterator = UtilityManager.tissuePairIterator(s); tissuePairIterator
+						.hasNext();) {
+					TissuePair tp = tissuePairIterator.next();
+					if (i == Integer.parseInt(args[0])) {
+						LinkedList<String> filesT1 = new LinkedList<>(), filesT2 = new LinkedList<>();
+						for (Experiment e : tp.getKey().getExperiments()) {
+							if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
+								filesT1.add(UtilityManager.getConfig("output_directory") + s.getId() + "/"
+										+ tp.getKey().getName() + "/" + e.getName() + "/" + m + "/gene.counts");
+							}
+						}
+						for (Experiment e : tp.getValue().getExperiments()) {
+							if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
+								filesT2.add(UtilityManager.getConfig("output_directory") + s.getId() + "/"
+										+ tp.getValue().getName() + "/" + e.getName() + "/" + m + "/gene.counts");
+							}
+						}
+
+						EBUtils.runEnrichment(filesT1, filesT2,
+								UtilityManager.getConfig("enrichment_output") + s.getId() + "/" + tp.getKey().getName()
+										+ "_" + tp.getValue().getName() + "/" + m + "/",
+								tp.getKey().getName() + "_" + tp.getValue().getName(), false);
+					} else {
+						i++;
+					}
+				}
+			}
+		}
 
 		// for (Iterator<Species> s = UtilityManager.speciesIterator();
 		// s.hasNext();) {

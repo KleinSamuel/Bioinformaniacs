@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import dennis.utility_manager.Species;
@@ -196,6 +197,17 @@ public class SimilarityHandler {
 			String[] prots = s.split(":");
 			so.addProteinSimilarity(prots[0], prots[1], Double.parseDouble(prots[2]));
 		}
+	}
+
+	public LinkedList<NxMmapping> getNxMmappings(Species sp1, Species sp2) {
+		GeneSimilarities gs1 = getSimilarities(sp1, sp2), gs2 = getSimilarities(sp2, sp1);
+		
+		for(S)
+		
+	}
+
+	public NxMmapping getNxMmapping(GeneSimilarities gs1, GeneSimilarities gs2, String geneId) {
+
 	}
 
 }
