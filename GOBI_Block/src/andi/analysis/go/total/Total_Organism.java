@@ -11,7 +11,8 @@ import dennis.utility_manager.UtilityManager;
 
 public class Total_Organism implements Node_Data {
 	private Vector<String> all_orthologues;
-	private Vector<String> genes;
+	private Vector<String> self_genes;
+	private Vector<String> orthologue_genes;
 	private String org_name;
 	private int id;
 	private Vector<Boolean> shared;
@@ -27,12 +28,16 @@ public class Total_Organism implements Node_Data {
 		all_orthologues = all;
 		Iterator<String> it_all = all.iterator();
 		shared = new Vector<>();
-		while (it_all.hasNext())
-			shared.add(genes.contains(it_all.next()));
+		for( String g = "";it_all.hasNext();g=it_all.next())
+			shared.add(self_genes.contains(g)|orthologue_genes.contains(g));
 	}
 
-	public void set_genes(Vector<String> genes) {
-		this.genes = genes;
+	public void set_self_genes(Vector<String> genes) {
+		this.self_genes = genes;
+	}
+	
+	public void set_orthologue_genes(Vector<String> genes) {
+		this.orthologue_genes = genes;
 	}
 
 	@Override

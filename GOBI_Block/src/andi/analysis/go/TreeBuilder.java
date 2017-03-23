@@ -44,7 +44,8 @@ public class TreeBuilder {
 			}
 			all_orthologues.addAll(genes);
 			Vector<String> orth = new Vector<>();
-			((Total_Organism) orgs.get(orgs.size() - 1)).set_genes(orth);
+			orth.addAll(genes);
+			((Total_Organism) orgs.get(orgs.size() - 1)).set_self_genes(orth);
 		}
 		Vector<String> all = new Vector<>();
 		all.addAll(all_orthologues);
