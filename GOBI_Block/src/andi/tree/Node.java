@@ -88,6 +88,21 @@ public class Node implements Node_Data {
 		return data;
 	}
 
+	public void round_to(int decimals) {
+		total_dist = round(decimals,total_dist);
+		for(Node c:childs.keySet())
+			childs.put(c, round(decimals, childs.get(c)));
+			
+	}
+
+	public double round(int decimals, double val) {
+		double mult = 1;
+		for (int i = 0; i < decimals; i++)
+			mult *= 10;
+		int d = (int) (val * mult);
+		return (double) (d / mult);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node)
@@ -103,8 +118,8 @@ public class Node implements Node_Data {
 		out += "(" + id + ")";
 		if (this.is_leaf())
 			out += " Data: " + this.data.toString();
-//		else
-//			out += this.shared_info();
+		// else
+		// out += this.shared_info();
 		return out;
 	}
 

@@ -1,9 +1,11 @@
 package andi.analysis.go.total;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
 
 import andi.tree.Node_Data;
+import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
@@ -20,18 +22,17 @@ public class Total_Organism implements Node_Data {
 		this.org_name = name;
 		this.org = org;
 	}
-	
+
 	public void set_all_orthologues(Vector<String> all) {
 		all_orthologues = all;
 		Iterator<String> it_all = all.iterator();
 		shared = new Vector<>();
-		while(it_all.hasNext())
-				shared.add(genes.contains(it_all.next()));
+		while (it_all.hasNext())
+			shared.add(genes.contains(it_all.next()));
 	}
-	
-	
+
 	public void set_genes(Vector<String> genes) {
-		this.genes=genes;
+		this.genes = genes;
 	}
 
 	@Override
@@ -44,17 +45,31 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public double compute_distance(Node_Data nd) {
-		if (nd==null||!(nd instanceof Total_Organism))
+		if (nd == null || !(nd instanceof Total_Organism))
 			return Double.MAX_VALUE;
 		Total_Organism other = (Total_Organism) nd;
-		return (all_orthologues.size()*2)/(UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(), other.get_Species()).size()+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog( other.get_Species(),this.get_Species()).size());
+		double sim_score = 0;
+		double count = 0;
+		for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+				other.get_Species())) {
+			HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
+					.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
+			for (SimilarityObject so : sims.values()) {
+				sim_score += so.getMaximumIdentityScore();
+				count++;
+			}
+		}
+		// return
+		// (all_orthologues.size()*2)/(UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+		// other.get_Species()).size()+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(
+		// other.get_Species(),this.get_Species()).size());
+		return 1 - (sim_score / count);
 	}
 
-	
 	public Species get_Species() {
 		return org;
 	}
-	
+
 	@Override
 	public String get_Name() {
 		return org_name;
@@ -87,9 +102,9 @@ public class Total_Organism implements Node_Data {
 	public Vector<Boolean> get_share_vector() {
 		return shared;
 	}
-	
+
 	public String toString() {
-		return this.get_Name()+"("+this.id+")";
+		return this.get_Name() + "(" + this.id + ")";
 	}
 
 }

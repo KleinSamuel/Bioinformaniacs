@@ -1,7 +1,6 @@
 package andi.analysis.go;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -10,7 +9,6 @@ import andi.analysis.go.total.Total_Organism;
 import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
-import andi.tree.Tree.Cluster_method;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
@@ -40,17 +38,17 @@ public class Builder {
 		}
 		Vector<String> all = new Vector<>();
 		all.addAll(all_orthologues);
-		for(Node_Data o:orgs) {
-			((Total_Organism)o).set_all_orthologues(all);
-			for(Node_Data o2:orgs) {
-				Total_Organism org1 = (Total_Organism)o;
-				Total_Organism org2 = (Total_Organism)o2;
-				System.out.println(org1.get_Name()+ " - "+org2.get_Name()+":"+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(org1.get_Species(), org2.get_Species()).size());
-			}
-		
-		}
+//		for(Node_Data o:orgs) {
+//			((Total_Organism)o).set_all_orthologues(all);
+//			for(Node_Data o2:orgs) {
+//				Total_Organism org1 = (Total_Organism)o;
+//				Total_Organism org2 = (Total_Organism)o2;
+//				System.out.println(org1.get_Name()+ " - "+org2.get_Name()+":"+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(org1.get_Species(), org2.get_Species()).size());
+//			}
+//		
+//		}
 		tot_org_tree = new Tree(orgs);
-		System.out.println(tot_org_tree);
+//		System.out.println(tot_org_tree);
 		try {
 			Runtime.getRuntime().exec("display "+Plot.get_plot(tot_org_tree));
 		} catch (IOException e) {
