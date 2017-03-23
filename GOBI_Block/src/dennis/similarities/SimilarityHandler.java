@@ -209,20 +209,27 @@ public class SimilarityHandler {
 
 		int l = geneWithPartnerSp1.size();
 
+		LinkedList<NxMmapping> nXm = new LinkedList<>();
+
 		while (l > 0) {
 
-			System.out.println(getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first()));
+			NxMmapping n = getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first());
+			nXm.add(n);
+//			System.out.println(n);
+			geneWithPartnerSp1.removeAll(n.getGenesFromSpecies(true));
+			geneWithPartnerSp2.removeAll(n.getGenesFromSpecies(false));
 
 			l = geneWithPartnerSp1.size();
 		}
-
+		System.out.println(nXm.size());
+		return nXm;
 	}
 
 	public Pair<TreeSet<String>, TreeSet<String>> getNewMappingGenes(TreeSet<String> currentGenesSp1,
 			TreeSet<String> currentGenesSp2, TreeSet<String> newGenes, GeneSimilarities gs1, GeneSimilarities gs2) {
 
 		if (newGenes.isEmpty()) {
-			return new Pair<>(currentGenesSp1, currentGenesSp2);
+			return new Pair<TreeSet<String>, TreeSet<String>>(currentGenesSp1, currentGenesSp2);
 		}
 
 		TreeSet<String> newerGenes = new TreeSet<>();

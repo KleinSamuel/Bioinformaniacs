@@ -1,6 +1,8 @@
 package dennis.utility_manager;
 
-import java.util.TreeSet;
+import dennis.analysis.BipartitMapping;
+import dennis.analysis.ScoringFunction;
+import dennis.similarities.NxMmapping;
 
 public class Runner {
 
@@ -8,6 +10,13 @@ public class Runner {
 
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
+
+		for (NxMmapping m : UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
+				UtilityManager.getSpecies(9544))) {
+			System.out.println(new BipartitMapping(m,
+					new ScoringFunction(UtilityManager.getSpecies(9031), UtilityManager.getSpecies(9544)))
+							.matrixToString());
+		}
 
 		// Fuzzy fuz = new Fuzzy(3d, 0.1d);
 		// for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
