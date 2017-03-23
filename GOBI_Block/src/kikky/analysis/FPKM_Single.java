@@ -63,6 +63,10 @@ public class FPKM_Single implements Sample_Data {
 		return pi;
 	}
 
+	public Species get_species() {
+		return species;
+	}
+
 	public String get_init_info() {
 		return species.getId() + "\t" + species.getName() + "\t" + species.getGtf() + "\t" + species.getChrs() + "\t"
 				+ tissue + "\t" + exp_number;
