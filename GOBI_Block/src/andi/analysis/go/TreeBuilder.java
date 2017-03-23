@@ -6,6 +6,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import andi.analysis.go.total.Total_Organism;
+import andi.analysis.go.total.Total_Organism.Distance_measurement;
 import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
@@ -19,6 +20,8 @@ public class TreeBuilder {
 				"/home/m/maieran/git/Bioinformaniacs/GOBI_Block/bin/andi/analysis/go/config.txt", false, true, false);
 		Tree avg_seq_id = build_avg_sequence_id_of_orthologues_tree();
 		try {
+			Runtime.getRuntime().exec("display " + Plot.get_plot(avg_seq_id));
+			avg_seq_id.change_distance_measurement(Distance_measurement.Avg_seq_id_all);
 			Runtime.getRuntime().exec("display " + Plot.get_plot(avg_seq_id));
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,7 +53,6 @@ public class TreeBuilder {
 		Vector<String> all = new Vector<>();
 		all.addAll(all_orthologues);
 		return new Tree(orgs);
-
 	}
 
 	public static void main(String[] args) {

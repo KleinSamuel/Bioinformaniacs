@@ -34,6 +34,8 @@ public interface Node_Data extends Comparable<Node_Data>{
 			out.add((Boolean)(((boolean)i1.next())&((boolean)i2.next())));
 		return out;
 	}
+	
+	public String get_distance_measurement();
 
 	
 }

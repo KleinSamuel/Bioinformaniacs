@@ -90,6 +90,13 @@ public class Car implements Node_Data{
 		while(i.hasNext())
 				this.bauteile.add(bauteile.contains(i.next()));
 	}
+
+
+	@Override
+	public String get_distance_measurement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 }

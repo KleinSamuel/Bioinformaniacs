@@ -10,6 +10,11 @@ import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
 public class Total_Organism implements Node_Data {
+
+	public enum Distance_measurement {
+		Avg_seq_id_max, Avg_seq_id_all;
+	};
+
 	private Vector<String> all_orthologues;
 	private Vector<String> self_genes;
 	private Vector<String> orthologue_genes;
@@ -17,6 +22,7 @@ public class Total_Organism implements Node_Data {
 	private int id;
 	private Vector<Boolean> shared;
 	private Species org;
+	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
 
 	public Total_Organism(int id, String name, Species org) {
 		this.id = id;
@@ -28,14 +34,14 @@ public class Total_Organism implements Node_Data {
 		all_orthologues = all;
 		Iterator<String> it_all = all.iterator();
 		shared = new Vector<>();
-		for( String g = "";it_all.hasNext();g=it_all.next())
-			shared.add(self_genes.contains(g)|orthologue_genes.contains(g));
+		for (String g = ""; it_all.hasNext(); g = it_all.next())
+			shared.add(self_genes.contains(g) | orthologue_genes.contains(g));
 	}
 
 	public void set_self_genes(Vector<String> genes) {
 		this.self_genes = genes;
 	}
-	
+
 	public void set_orthologue_genes(Vector<String> genes) {
 		this.orthologue_genes = genes;
 	}
@@ -48,6 +54,10 @@ public class Total_Organism implements Node_Data {
 		return this.id - other.id;
 	}
 
+	public void set_distance_measurement(Distance_measurement dm) {
+		this.dm = dm;
+	}
+
 	@Override
 	public double compute_distance(Node_Data nd) {
 		if (nd == null || !(nd instanceof Total_Organism))
@@ -55,16 +65,32 @@ public class Total_Organism implements Node_Data {
 		Total_Organism other = (Total_Organism) nd;
 		double sim_score = 0;
 		double count = 0;
-		for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
-				other.get_Species())) {
-			HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
-					.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
-			for (SimilarityObject so : sims.values()) {
-				sim_score += so.getMaximumIdentityScore();
-				count++;
+		switch (dm) {
+		case Avg_seq_id_all:
+			for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+					other.get_Species())) {
+				HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
+						.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
+				for (SimilarityObject so : sims.values()) {
+					sim_score += so.getMaximumIdentityScore();
+					count++;
+				}
 			}
+			return 1 - (sim_score / count);
+
+		default:
+			for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+					other.get_Species())) {
+				HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
+						.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
+				for (SimilarityObject so : sims.values()) {
+					sim_score += so.getMaximumIdentityScore();
+					count++;
+					break;
+				}
+			}
+			return 1 - (sim_score / count);
 		}
-		return 1 - (sim_score / count);
 	}
 
 	public Species get_Species() {
@@ -78,7 +104,13 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public String data_title() {
-		return "Average Sequence Identity of Othologues between Organisms";
+		switch (dm) {
+		case Avg_seq_id_all:
+			return "All possible Orthologue Pairs";
+
+		default:
+			return "Highest identity Othologue Pairs";
+		}
 	}
 
 	@Override
@@ -106,6 +138,17 @@ public class Total_Organism implements Node_Data {
 
 	public String toString() {
 		return this.get_Name() + "(" + this.id + ")";
+	}
+
+	@Override
+	public String get_distance_measurement() {
+		switch (dm) {
+		case Avg_seq_id_all:
+			return "1 - Average Sequence Identity";
+
+		default:
+			return "1 - Average Sequence Identity";
+		}
 	}
 
 }
