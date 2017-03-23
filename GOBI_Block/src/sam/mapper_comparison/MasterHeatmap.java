@@ -16,8 +16,8 @@ public class MasterHeatmap implements Serializable{
 		this.setTissuePairs(new ArrayList<String>());
 	}
 	
-	public void addEntryToMatrix(int x, int y, TreeMap<String, Double> mapperWithScore){
-		this.matrix[x][y] = new MasterHeatmapCell(mapperWithScore);
+	public void addEntryToMatrix(int row, int col, TreeMap<String, Double> mapperWithScore){
+		this.matrix[row][col] = new MasterHeatmapCell(mapperWithScore);
 	}
 
 	public MasterHeatmapCell[][] getMatrix() {
