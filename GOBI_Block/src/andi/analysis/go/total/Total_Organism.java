@@ -59,10 +59,6 @@ public class Total_Organism implements Node_Data {
 				count++;
 			}
 		}
-		// return
-		// (all_orthologues.size()*2)/(UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
-		// other.get_Species()).size()+UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(
-		// other.get_Species(),this.get_Species()).size());
 		return 1 - (sim_score / count);
 	}
 
@@ -77,7 +73,7 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public String data_title() {
-		return "Count of Orthologues between Organisms";
+		return "Average Sequence Identity of Othologues between Organisms";
 	}
 
 	@Override
