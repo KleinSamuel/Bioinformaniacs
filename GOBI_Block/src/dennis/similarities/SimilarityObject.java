@@ -2,7 +2,9 @@ package dennis.similarities;
 
 import java.util.HashMap;
 
-public class SimilarityObject {
+import dennis.analysis.ScoringObject;
+
+public class SimilarityObject extends ScoringObject {
 
 	private String query_geneId, target_geneId;
 	/**
@@ -12,6 +14,7 @@ public class SimilarityObject {
 	private double maxIdentityScore;
 
 	public SimilarityObject(double maxScore, String query, String target) {
+		super(maxScore);
 		prots = new HashMap<>();
 		this.maxIdentityScore = maxScore;
 		query_geneId = query;

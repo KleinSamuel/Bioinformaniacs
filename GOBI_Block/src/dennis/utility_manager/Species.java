@@ -37,10 +37,11 @@ public class Species implements Comparable<Species> {
 	public String getName() {
 		return name;
 	}
-	
-	public String getChrs(){
+
+	public String getChrs() {
 		return sChrs;
 	}
+
 	/**
 	 * 
 	 * @return name of gtf file full file:
@@ -88,6 +89,11 @@ public class Species implements Comparable<Species> {
 	@Override
 	public int compareTo(Species o) {
 		return Integer.compare(id, o.getId());
+	}
+
+	@Override
+	public String toString() {
+		return id + ": " + name;
 	}
 
 	public void writeGeneLenghts() {

@@ -1,16 +1,21 @@
 package dennis.analysis;
 
+import dennis.similarities.SimilarityObject;
+import dennis.util.GenePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
 public class ScoringFunction {
 
-	public ScoringFunction() {
+	private Species querySpecies, targetSpecies;
 
+	public ScoringFunction(Species sp1, Species sp2) {
+		querySpecies = sp1;
+		targetSpecies = sp2;
 	}
 
 	/**
-	 * standard scoring
+	 * standard scoring by identity
 	 * 
 	 * @param query
 	 * @param target
@@ -18,9 +23,21 @@ public class ScoringFunction {
 	 * @param target_gene
 	 * @return
 	 */
-	public double score(Species query, Species target, String query_gene, String target_gene) {
-		return UtilityManager.getSimilarityHandler().getSimilarities(query, target)
-				.getSimilarity(query_gene, target_gene).getMaximumIdentityScore();
+	public double score(GenePair genePair) {
+		SimilarityObject sim = UtilityManager.getSimilarityHandler().getSimilarities(querySpecies, targetSpecies)
+				.getSimilarity(genePair.getKey(), genePair.getValue());
+		if (sim == null) {
+			return 0;
+		}
+		return sim.getScore();
+	}
+
+	public Species getQuerySpecies() {
+		return querySpecies;
+	}
+
+	public Species getTargetSpecies() {
+		return targetSpecies;
 	}
 
 }
