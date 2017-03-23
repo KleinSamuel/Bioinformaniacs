@@ -50,6 +50,7 @@ public class Tree /*
 		this.nds.addAll(nds);
 		build();
 	}
+	
 
 	public void change_distance_measurement(Distance_measurement dm) {
 		for (Node_Data nd : leaves.values()) {
