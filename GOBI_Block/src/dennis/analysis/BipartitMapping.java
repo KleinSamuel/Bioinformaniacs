@@ -20,10 +20,7 @@ public class BipartitMapping {
 	public BipartitMapping(NxMmapping input, ScoringFunction scoring) {
 		this.input = input;
 		this.scoring = scoring;
-		geneIds1 = new ArrayList<>(input.getGenesFromSpecies(true).size());
-		geneIds1.addAll(input.getGenesFromSpecies(true));
-		geneIds2 = new ArrayList<>(input.getGenesFromSpecies(false).size());
-		geneIds2.addAll(input.getGenesFromSpecies(false));
+		
 		buildScoringMatrix();
 	}
 
@@ -69,6 +66,10 @@ public class BipartitMapping {
 		}
 
 		return matches;
+	}
+	
+	public void calculateBestMatching(){
+		
 	}
 
 	public TreeMap<GenePair, ScoringObject> getMatches() {
