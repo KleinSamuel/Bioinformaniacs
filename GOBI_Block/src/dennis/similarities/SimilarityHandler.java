@@ -201,6 +201,12 @@ public class SimilarityHandler {
 		}
 	}
 
+	/**
+	 * 
+	 * @param sp1
+	 * @param sp2
+	 * @return all NxMmappings in the two species
+	 */
 	public LinkedList<NxMmapping> getNxMmappings(Species sp1, Species sp2) {
 		GeneSimilarities gs1 = getSimilarities(sp1, sp2), gs2 = getSimilarities(sp2, sp1);
 		TreeSet<String> geneWithPartnerSp1 = new TreeSet<>(), geneWithPartnerSp2 = new TreeSet<>();
@@ -215,7 +221,7 @@ public class SimilarityHandler {
 
 			NxMmapping n = getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first());
 			nXm.add(n);
-//			System.out.println(n);
+			// System.out.println(n);
 			geneWithPartnerSp1.removeAll(n.getGenesFromSpecies(true));
 			geneWithPartnerSp2.removeAll(n.getGenesFromSpecies(false));
 
@@ -225,6 +231,15 @@ public class SimilarityHandler {
 		return nXm;
 	}
 
+	/**
+	 * 
+	 * @param currentGenesSp1
+	 * @param currentGenesSp2
+	 * @param newGenes
+	 * @param gs1
+	 * @param gs2
+	 * @return the mapping cluster for genes given in newGenes
+	 */
 	public Pair<TreeSet<String>, TreeSet<String>> getNewMappingGenes(TreeSet<String> currentGenesSp1,
 			TreeSet<String> currentGenesSp2, TreeSet<String> newGenes, GeneSimilarities gs1, GeneSimilarities gs2) {
 
@@ -248,6 +263,15 @@ public class SimilarityHandler {
 		return getNewMappingGenes(currentGenesSp2, currentGenesSp1, newerGenes, gs2, gs1);
 	}
 
+	/**
+	 * 
+	 * @param species1
+	 * @param species2
+	 * @param gs1
+	 * @param gs2
+	 * @param startId
+	 * @return NxMmapping for the two species containing gene startId and the whole cluster mapped to it
+	 */
 	public NxMmapping getNxMmapping(Species species1, Species species2, GeneSimilarities gs1, GeneSimilarities gs2,
 			String startId) {
 
