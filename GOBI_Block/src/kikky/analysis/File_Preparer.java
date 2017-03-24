@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Vector;
 
@@ -53,8 +54,30 @@ public class File_Preparer {
 					create_boxplot(sample_1, sample_2, used, f.getName());
 				}
 			}
-			create_gomapping(x_genes, x_s);
-			create_gomapping(y_genes, y_s);
+			HashMap<String, LinkedList<String>> x_go = create_gomapping(x_genes, x_s);
+			HashMap<String, LinkedList<String>> y_go = create_gomapping(y_genes, y_s);
+			HashSet<String> all_gos = new HashSet<String>();
+			all_gos.addAll(x_go.keySet());
+			all_gos.addAll(y_go.keySet());
+			bw.write("#GO Mapping");
+			StringBuilder sb = new StringBuilder();
+			for (String goterm : all_gos) {
+				bw.write("\n#" + goterm);
+				if (x_go.containsKey(goterm)) {
+					for (String gene_id : x_go.get(goterm)) {
+						sb.append(",").append(gene_id);
+					}
+					bw.write("\n#x " + sb.substring(1).toString());
+					sb.setLength(0);
+				}
+				if (y_go.containsKey(goterm)) {
+					for (String gene_id : y_go.get(goterm)) {
+						sb.append(",").append(gene_id);
+					}
+					bw.write("\n#y " + sb.substring(1).toString());
+					sb.setLength(0);
+				}
+			}
 			br.close();
 			bw.close();
 		} catch (IOException e) {
@@ -63,7 +86,7 @@ public class File_Preparer {
 		return value;
 	}
 
-	private static void create_gomapping(String[] genes, Species s) {
+	private static HashMap<String, LinkedList<String>> create_gomapping(String[] genes, Species s) {
 		HashMap<String, LinkedList<String>> gos = new HashMap<>();
 		for (String x_gene : genes) {
 			for (String go : GOHandler.getMappedGOterms(s, x_gene)) {
@@ -72,7 +95,7 @@ public class File_Preparer {
 				gos.get(go).add(x_gene);
 			}
 		}
-
+		return gos;
 	}
 
 	private static void create_boxplot(String sample_1, String sample_2, String used, String f_name) {
