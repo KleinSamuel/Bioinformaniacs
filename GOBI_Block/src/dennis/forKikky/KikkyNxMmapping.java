@@ -47,6 +47,10 @@ public class KikkyNxMmapping {
 
 	}
 
+	public TreeMap<String, TreeMap<String, SimilarityObject>> getSims() {
+		return simsObjects;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

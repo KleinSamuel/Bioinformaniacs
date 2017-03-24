@@ -71,7 +71,7 @@ public class Analysis {
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (phase.equals("phase two")) {
 			System.out.println(systemInfoString() + "Starting phase two!");
-			int max = 5;
+			int max = fpkm_samples.size();
 			Number[][] matrix = new Number[max][max];
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {
@@ -80,11 +80,11 @@ public class Analysis {
 							((FPKM_Single) fpkm_samples.get(j)).get_species());
 				}
 			}
-			ArrayList<Sample_Data> al = new ArrayList<>();
-			for (int i = 1; i <= max; i++)
-				al.add(fpkm_samples.get(i - 1));
+//			ArrayList<Sample_Data> al = new ArrayList<>();
+//			for (int i = 1; i <= max; i++)
+//				al.add(fpkm_samples.get(i - 1));
 
-			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
+			HeatMap hm = new HeatMap("FPKM", fpkm_samples, fpkm_samples, matrix);
 			hm.plot();
 			System.out.println(systemInfoString() + "Terminated");
 

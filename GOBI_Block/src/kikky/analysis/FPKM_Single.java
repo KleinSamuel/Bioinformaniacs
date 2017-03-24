@@ -4,12 +4,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
-
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import dennis.counter.CounterUtils;
 import dennis.forKikky.Clustering;
+import dennis.forKikky.KikkyNxMmapping;
 import dennis.forKikky.MatesScoring;
 import dennis.similarities.NxMmapping;
 import dennis.similarities.SimilarityObject;
@@ -91,12 +90,21 @@ public class FPKM_Single implements Sample_Data {
 				y_genes = new StringBuilder();
 		if (mates.size() > 0) {
 			for (String gene_id_x : mates.keySet()) {
-				x[index] = this.gene_data.get(gene_id_x);
-				y[index] = fs.gene_data.get(mates.get(gene_id_x));
-				x_asString.append(",").append(x[index]);
-				y_asString.append(",").append(y[index]);
-				x_genes.append(",").append(gene_id_x);
-				y_genes.append(",").append(gene_id_x);
+				if (this.gene_data.containsKey(gene_id_x)) {
+					x[index] = this.gene_data.get(gene_id_x);
+					y[index] = fs.gene_data.get(mates.get(gene_id_x));
+					x_asString.append(",").append(x[index]);
+					y_asString.append(",").append(y[index]);
+					x_genes.append(",").append(gene_id_x);
+					y_genes.append(",").append(mates.get(gene_id_x));
+				} else {
+					x[index] = this.gene_data.get(mates.get(gene_id_x));
+					y[index] = fs.gene_data.get(gene_id_x);
+					x_asString.append(",").append(x[index]);
+					y_asString.append(",").append(y[index]);
+					x_genes.append(",").append(mates.get(gene_id_x));
+					y_genes.append(",").append(gene_id_x);
+				}
 				index++;
 			}
 			System.out.println(systemInfoString() + "Save Infos");
@@ -122,40 +130,12 @@ public class FPKM_Single implements Sample_Data {
 			allowed_geneids.addAll(this.gene_data.keySet());
 			allowed_geneids.addAll(fs.gene_data.keySet());
 			Clustering cl = new Clustering(this.species, fs.species, allowed_geneids);
-			LinkedList<NxMmapping> cluster = cl.getNxMmappings();
+			LinkedList<KikkyNxMmapping> cluster = cl.getNxMmappings();
 			System.out.println("TreeMap<g1,<g2,SimilarityObject(so.g1, so.g2)>>");
-			for (NxMmapping nm : cluster) {
+			for (KikkyNxMmapping nm : cluster) {
 				for (String id : nm.getSims().keySet()) {
 					for (String id2 : nm.getSims().get(id).keySet()) {
 						SimilarityObject so = nm.getSims().get(id).get(id2);
-						if (!allowed_geneids.contains(id) || !allowed_geneids.contains(id2)
-								|| !allowed_geneids.contains(so.getQuery_geneId())
-								|| !allowed_geneids.contains(so.getTarget_geneId())) {
-							if (!allowed_geneids.contains(id)) {
-								System.out.println("g1 "+id + " not allowed!");
-							} else {
-								System.out.println("g1 "+id + " allowed!");
-							}
-							if (!allowed_geneids.contains(id2)) {
-								System.out.println("g2 "+id2 + " not allowed!");
-							} else {
-								System.out.println("g2 "+id2 + " allowed!");
-							}
-							if (!allowed_geneids.contains(so.getQuery_geneId())) {
-								System.out.println("so.g1 "+so.getQuery_geneId() + " #" + id + " " + id2 + " "
-										+ so.getQuery_geneId() + " not allowed!#query");
-							} else {
-								System.out.println("so.g1 "+so.getQuery_geneId() + " #" + id + " " + id2 + " "
-										+ so.getQuery_geneId() + " allowed!#query");
-							}
-							if (!allowed_geneids.contains(so.getTarget_geneId())) {
-								System.out.println("so.g2 "+so.getTarget_geneId() + " #" + id + " " + id2 + " "
-										+ so.getTarget_geneId() + " not allowed!#target");
-							} else {
-								System.out.println("so.g2 "+so.getTarget_geneId() + " #" + id + " " + id2 + " "
-										+ so.getTarget_geneId() + " allowed!#target");
-							}
-						}
 					}
 				}
 			}

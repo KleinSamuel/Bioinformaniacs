@@ -11,9 +11,9 @@ import dennis.similarities.SimilarityObject;
 
 public class MatesScoring {
 
-	public static HashMap<String, String> greedy_score(LinkedList<NxMmapping> cluster) {
+	public static HashMap<String, String> greedy_score(LinkedList<KikkyNxMmapping> cluster) {
 		HashMap<String, String> mates = new HashMap<>();
-		for (NxMmapping single_cluster : cluster) {
+		for (KikkyNxMmapping single_cluster : cluster) {
 			ArrayList<SimilarityObject> all_objects = new ArrayList<>();
 			HashSet<String> used_ids = new HashSet<>();
 			TreeMap<String, TreeMap<String, SimilarityObject>> curr_cluster = single_cluster.getSims();
