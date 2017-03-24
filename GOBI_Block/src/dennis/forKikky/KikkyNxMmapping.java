@@ -1,5 +1,6 @@
 package dennis.forKikky;
 
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -25,12 +26,22 @@ public class KikkyNxMmapping {
 	public void init() {
 		for (String s : geneIdsSpecies1) {
 			TreeMap<String, SimilarityObject> x = new TreeMap<>();
-			x.putAll(UtilityManager.getSimilarityHandler().getSimilarities(species1, species2).getSimilarities(s));
+			for (Entry<String, SimilarityObject> e : UtilityManager.getSimilarityHandler()
+					.getSimilarities(species1, species2).getSimilarities(s).entrySet()) {
+				if (geneIdsSpecies2.contains(e.getKey())) {
+					x.put(e.getKey(), e.getValue());
+				}
+			}
 			simsObjects.put(s, x);
 		}
 		for (String s : geneIdsSpecies2) {
 			TreeMap<String, SimilarityObject> x = new TreeMap<>();
-			x.putAll(UtilityManager.getSimilarityHandler().getSimilarities(species2, species1).getSimilarities(s));
+			for (Entry<String, SimilarityObject> e : UtilityManager.getSimilarityHandler()
+					.getSimilarities(species2, species1).getSimilarities(s).entrySet()) {
+				if (geneIdsSpecies1.contains(e.getKey())) {
+					x.put(e.getKey(), e.getValue());
+				}
+			}
 			simsObjects.put(s, x);
 		}
 
