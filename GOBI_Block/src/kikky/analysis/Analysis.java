@@ -1,8 +1,6 @@
 package kikky.analysis;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,6 +18,10 @@ public class Analysis {
 
 	public static void main(String[] args) {
 		start = System.currentTimeMillis();
+		FPKM(args[0]);
+	}
+
+	private static void FPKM(String phase) {
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
@@ -42,7 +44,7 @@ public class Analysis {
 		}
 
 		fpkm_samples.sort(new TissueComparator<>());
-		if (args[0].equals("phase one")) {
+		if (phase.equals("phase one")) {
 			try {
 				System.out.println(systemInfoString() + "Starting phase one!");
 				BufferedWriter bw = new BufferedWriter(
@@ -55,35 +57,21 @@ public class Analysis {
 				bw.close();
 				System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 				Process plotting;
-				bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/call.txt"));
-				for (int i = 1; i <= fpkm_samples.size(); i += 100) {
-					int id = 7000 + (fpkm_samples.size() * (i - 1));
-					int end = 7000 + i + 100;
-					if (i + 100 > fpkm_samples.size())
-						end = 7000 + (fpkm_samples.size() - i);
-					// plotting = Runtime.getRuntime()
-					// .exec("qsub -b Y -t " + (id + 1) + "-"
-					// + /* (7000 + (fpkm_samples.size() - 1)) */(id +
-					// fpkm_samples.size())
-					// + " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o
-					// $HOME/grid -e $HOME/grid
-					// \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\"
-					// "
-					// + (7000 + i) + " " + id);
-					bw.write("qsub -b Y -t " + (id + 1) + "-"
-							+ /* (7000 + (fpkm_samples.size() - 1)) */(id + fpkm_samples.size())
+				for (int i = 1; i <= fpkm_samples.size(); i++) {
+					int id = 7000;
+					plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
 							+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-							+ (7000 + i) + " " + id + " " + end + "\n");
-
+							+ (7000 + 1) + " " + id);
+					System.out.println();
 				}
 				bw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println(systemInfoString() + "Terminated");
-		} else if (args[0].equals("phase two")) {
+		} else if (phase.equals("phase two")) {
 			System.out.println(systemInfoString() + "Starting phase two!");
-			int max = 20;
+			int max = 5;
 			Number[][] matrix = new Number[max][max];
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {

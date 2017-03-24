@@ -106,6 +106,7 @@ public class File_Preparer {
 		used = used.replace("target=", "");
 		String[] split = used.split(" ");
 		Barplot bp = new Barplot("Used gene_ids", "", "Number of genes");
+		bp.set_boolean(true);
 		Vector<Double> vals = new Vector<>();
 		vals.add(Double.parseDouble(split[0].split("[|]")[1]));
 		double in_both = Double.parseDouble(split[0].split("[|]")[0]);

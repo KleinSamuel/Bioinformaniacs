@@ -13,11 +13,16 @@ public class Barplot {
 	private StringBuilder x = new StringBuilder(), names = new StringBuilder(), text = new StringBuilder();
 	private String log = "", las = "1,", ylim = "";
 	private int names_size = 0;
+	private boolean genes = false;
 
 	public Barplot(String title, String xlab, String ylab) {
 		this.title = title;
 		this.xlab = xlab;
 		this.ylab = ylab;
+	}
+
+	public void set_boolean(boolean b) {
+		genes = b;
 	}
 
 	public void set_values(Vector<Double> x) {
@@ -29,11 +34,23 @@ public class Barplot {
 			this.text.append(",\"").append(d_x).append("\"");
 		}
 		this.x.deleteCharAt(0);
+		this.x.insert(0, "x<-c(");
+		this.x.append(");");
+		if (genes) {
+			set_lim(highest);
+			set_text(highest);
+		}
+	}
+
+	private void set_text(double highest) {
 		this.text.deleteCharAt(0);
 		this.text.insert(0, "mid,1000,labels=c(");
 		this.text.append(")");
-		this.x.insert(0, "x<-c(");
-		this.x.append(");");
+		this.text.insert(0, "text(");
+		this.text.append(");");
+	}
+
+	private void set_lim(double highest) {
 		if (highest < 15000)
 			ylim = "ylim=c(0,15000),";
 		else if (highest < 20000)
@@ -84,7 +101,7 @@ public class Barplot {
 			bw.println(String.format("mid <- barplot(x, names.arg=names, las=" + las + log + ylim + " col = rainbow("
 					+ names_size + "), xlab=\"\", ylab=\"\");"));
 			bw.println(String.format("title(main='%s', xlab='%s', ylab='%s');", title, xlab, ylab));
-			bw.println("text(" + text.toString() + ");");
+			bw.println(text.toString());
 			bw.close();
 			// System.out.println(R_path + " " + tmp.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + tmp.getAbsolutePath());
