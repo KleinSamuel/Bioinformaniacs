@@ -2,6 +2,7 @@ package dennis.utility_manager;
 
 import dennis.analysis.BipartitMapping;
 import dennis.analysis.ScoringFunction;
+import dennis.analysis.ScoringMatrix;
 import dennis.similarities.NxMmapping;
 
 public class Runner {
@@ -13,9 +14,11 @@ public class Runner {
 
 		for (NxMmapping m : UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
 				UtilityManager.getSpecies(9544))) {
-			System.out.println(new BipartitMapping(m,
+			for (ScoringMatrix sm : new BipartitMapping(m,
 					new ScoringFunction(UtilityManager.getSpecies(9031), UtilityManager.getSpecies(9544)))
-							.matrixToString());
+							.getScoringMatrix()) {
+				System.out.println(sm.toString());
+			}
 		}
 
 		// Fuzzy fuz = new Fuzzy(3d, 0.1d);

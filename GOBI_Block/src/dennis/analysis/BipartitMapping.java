@@ -1,79 +1,91 @@
 package dennis.analysis;
 
 import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.TreeSet;
 
 import dennis.similarities.NxMmapping;
-import dennis.util.GenePair;
 
 public class BipartitMapping {
 
-	private TreeMap<GenePair, ScoringObject> matches;
-	private TreeSet<String> unmatched;
 	private ScoringFunction scoring;
 	private NxMmapping input;
-	private double[][] scoringMatrix;
-	private int posXofMaxScore = 0, posYofMaxScore = 0;
+	private TreeSet<ScoringMatrix> bestScore;
 	private ArrayList<String> geneIds1, geneIds2;
 
 	public BipartitMapping(NxMmapping input, ScoringFunction scoring) {
 		this.input = input;
 		this.scoring = scoring;
-		
-		buildScoringMatrix();
+		bestScore = new TreeSet<>();
+		calculateBestBipartitMatching();
 	}
 
-	public double[][] buildScoringMatrix() {
+	public void calculateBestBipartitMatching() {
 
-		double[][] scoringMatrix = new double[geneIds1.size() + 1][geneIds2.size() + 1];
-		for (int i = 0; i < scoringMatrix.length; i++) {
-			scoringMatrix[i][0] = 0;
+		String[] genes1 = geneIds1.toArray(new String[geneIds1.size()]),
+				genes2 = geneIds2.toArray(new String[geneIds2.size()]);
+
+		String[] genesToPermutate = genes1;
+		int speciesToPermutateId = input.getSpecies(true).getId();
+		if (genes2.length < genes1.length) {
+			genesToPermutate = genes2;
+			speciesToPermutateId = input.getSpecies(false).getId();
 		}
-		for (int i = 0; i < scoringMatrix[0].length; i++) {
-			scoringMatrix[0][i] = 0;
-		}
-		for (int i = 1; i < scoringMatrix.length; i++) {
-			for (int j = 1; j < scoringMatrix[i].length; j++) {
-				double score = scoring.score(new GenePair(geneIds1.get(i - 1), geneIds2.get(j - 1)));
-				scoringMatrix[i][j] = Math.max(Math.max(scoringMatrix[i - 1][j], scoringMatrix[i][j - 1]),
-						scoringMatrix[i - 1][j - 1] + score);
-				if (scoringMatrix[i][j] > scoringMatrix[posXofMaxScore][posYofMaxScore]) {
-					posXofMaxScore = i;
-					posYofMaxScore = j;
+		// sorted alphabetically
+		TreeSet<String[]> perms = new TreeSet<>(new Comparator<String[]>() {
+
+			@Override
+			public int compare(String[] o1, String[] o2) {
+				if (o1.length == 0)
+					return -1;
+				if (o2.length == 0)
+					return 1;
+				int i = 0;
+				while (i < o1.length && i < o2.length) {
+					int comp = o1[i].compareTo(o2[i]);
+					if (comp != 0)
+						return comp;
+					i++;
 				}
+				if (i == o1.length)
+					return -1;
+				return 1;
 			}
-		}
-		this.scoringMatrix = scoringMatrix;
-		return scoringMatrix;
-	}
+		});
+		BipartitMapping.getAllPermutations(genesToPermutate, genesToPermutate.length, perms);
 
-	public TreeMap<GenePair, ScoringObject> backtrack() {
-		unmatched = new TreeSet<>();
-		matches = new TreeMap<>();
-
-		int x = posXofMaxScore, y = posYofMaxScore;
-
-		while (x > 1 && y > 1 && scoringMatrix[x][y] > 0) {
-
-			if (scoringMatrix[x - 1][y - 1] < scoringMatrix[x][y]) {
-				matches.put(new GenePair(geneIds1.get(x - 1), geneIds2.get(y - 1)),
-						new ScoringObject(scoringMatrix[x][y] - scoringMatrix[x - 1][y - 1]));
+		// store old max --> will be replaced --> reset if old was better
+		ScoringMatrix scoringMatrix = null;
+		for (String[] perm : perms) {
+			if (speciesToPermutateId == input.getSpecies(true).getId()) {
+				scoringMatrix = new ScoringMatrix(perm, genes2, scoring);
 			} else {
-
+				scoringMatrix = new ScoringMatrix(genes1, perm, scoring);
 			}
-
+			bestScore.add(scoringMatrix);
 		}
 
-		return matches;
-	}
-	
-	public void calculateBestMatching(){
-		
 	}
 
-	public TreeMap<GenePair, ScoringObject> getMatches() {
-		return matches;
+	public static void getAllPermutations(String[] arr, int n, TreeSet<String[]> out) {
+
+		for (int i = 0; i < n; i++) {
+			swap(arr, i, n - 1);
+			getAllPermutations(arr, n - 1, out);
+			swap(arr, i, n - 1);
+		}
+		if (n == 1) {
+			out.add(Arrays.copyOf(arr, arr.length));
+			return;
+		}
+
+	}
+
+	public static void swap(String[] arr, int a, int b) {
+		String tmp = arr[a];
+		arr[a] = arr[b];
+		arr[b] = tmp;
 	}
 
 	public ScoringFunction getScoring() {
@@ -84,16 +96,8 @@ public class BipartitMapping {
 		return input;
 	}
 
-	public double[][] getScoringMatrix() {
-		return scoringMatrix;
-	}
-
-	public int getPosXofMaxScore() {
-		return posXofMaxScore;
-	}
-
-	public int getPosYofMaxScore() {
-		return posYofMaxScore;
+	public TreeSet<ScoringMatrix> getScoringMatrix() {
+		return bestScore;
 	}
 
 	public ArrayList<String> getGeneIds1() {
@@ -102,34 +106,6 @@ public class BipartitMapping {
 
 	public ArrayList<String> getGeneIds2() {
 		return geneIds2;
-	}
-
-	public String matrixToString() {
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append(input.getSpecies(true) + " <-> " + input.getSpecies(false) + "\n\n");
-
-		sb.append("\t");
-		for (String s : input.getGenesFromSpecies(false)) {
-			sb.append("\t" + s);
-		}
-		sb.append("\n");
-
-		for (int i = 0; i < scoringMatrix[0].length; i++) {
-			sb.append("\t" + scoringMatrix[0][i]);
-		}
-		sb.append("\n");
-
-		for (int i = 1; i < scoringMatrix.length; i++) {
-			sb.append(geneIds1.get(i - 1));
-			for (int j = 0; j < scoringMatrix[i].length; j++) {
-				sb.append("\t" + scoringMatrix[i][j]);
-			}
-			sb.append("\n");
-		}
-
-		return sb.toString();
 	}
 
 }

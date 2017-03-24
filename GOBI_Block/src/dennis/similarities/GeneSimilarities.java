@@ -2,7 +2,6 @@ package dennis.similarities;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Map.Entry;
 
 import dennis.utility_manager.Species;
@@ -40,6 +39,10 @@ public class GeneSimilarities {
 		s.put(gene2, sim);
 	}
 
+	/**
+	 * 
+	 * @return genes that have at least one orthologue in the other species
+	 */
 	public HashSet<String> getGenesWithPartner() {
 		if (genesWithPartner == null) {
 			genesWithPartner = new HashSet<>();
