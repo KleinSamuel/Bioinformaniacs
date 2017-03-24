@@ -8,7 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import dennis.GO.GOHandler;
@@ -53,8 +55,30 @@ public class File_Preparer {
 					create_boxplot(sample_1, sample_2, used, f.getName());
 				}
 			}
-			create_gomapping(x_genes, x_s);
-			create_gomapping(y_genes, y_s);
+			HashMap<String, LinkedList<String>> x_go = create_gomapping(x_genes, x_s);
+			HashMap<String, LinkedList<String>> y_go = create_gomapping(y_genes, y_s);
+			HashSet<String> all_gos = new HashSet<String>();
+			all_gos.addAll(x_go.keySet());
+			all_gos.addAll(y_go.keySet());
+			bw.write("\n#GO Mapping");
+			StringBuilder sb = new StringBuilder();
+			for (String goterm : all_gos) {
+				bw.write("\n#" + goterm);
+				if (x_go.containsKey(goterm)) {
+					for (String gene_id : x_go.get(goterm)) {
+						sb.append(",").append(gene_id);
+					}
+					bw.write("\n#x " + sb.substring(1).toString());
+					sb.setLength(0);
+				}
+				if (y_go.containsKey(goterm)) {
+					for (String gene_id : y_go.get(goterm)) {
+						sb.append(",").append(gene_id);
+					}
+					bw.write("\n#y " + sb.substring(1).toString());
+					sb.setLength(0);
+				}
+			}
 			br.close();
 			bw.close();
 		} catch (IOException e) {
@@ -63,16 +87,18 @@ public class File_Preparer {
 		return value;
 	}
 
-	private static void create_gomapping(String[] genes, Species s) {
+	private static HashMap<String, LinkedList<String>> create_gomapping(String[] genes, Species s) {
 		HashMap<String, LinkedList<String>> gos = new HashMap<>();
 		for (String x_gene : genes) {
-			for (String go : GOHandler.getMappedGOterms(s, x_gene)) {
-				if (!gos.containsKey(go))
-					gos.put(go, new LinkedList<String>());
-				gos.get(go).add(x_gene);
-			}
+			TreeSet<String> mapped_gos = GOHandler.getMappedGOterms(s, x_gene);
+			if (mapped_gos != null)
+				for (String go : mapped_gos) {
+					if (!gos.containsKey(go))
+						gos.put(go, new LinkedList<String>());
+					gos.get(go).add(x_gene);
+				}
 		}
-
+		return gos;
 	}
 
 	private static void create_boxplot(String sample_1, String sample_2, String used, String f_name) {
@@ -82,7 +108,8 @@ public class File_Preparer {
 		Barplot bp = new Barplot("Used gene_ids", "", "Number of genes");
 		Vector<Double> vals = new Vector<>();
 		vals.add(Double.parseDouble(split[0].split("[|]")[1]));
-		vals.add(Double.parseDouble(split[0].split("[|]")[0]));
+		double in_both = Double.parseDouble(split[0].split("[|]")[0]);
+		vals.add(in_both);
 		vals.add(Double.parseDouble(split[1].split("[|]")[1]));
 		bp.set_values(vals);
 		bp.setnames("\"" + sample_1 + "\",\"both\",\"" + sample_2 + "\"", 3);

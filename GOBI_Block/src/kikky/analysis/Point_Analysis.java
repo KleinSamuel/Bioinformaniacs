@@ -14,6 +14,7 @@ public class Point_Analysis {
 	private long start;
 
 	public static void main(String[] args) {
+		long real_start = System.currentTimeMillis();
 		if (args.length < 4)
 			new Point_Analysis(args[0], args[1], args[2]);
 		else {
@@ -21,6 +22,12 @@ public class Point_Analysis {
 				new Point_Analysis(args[0], i + "", args[2]);
 			}
 		}
+		String out = "[";
+		out += (System.currentTimeMillis() - real_start) / 1000 + "." + (System.currentTimeMillis() - real_start) % 1000
+				+ "s";
+		out += "|" + ((int) ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1024d / 1024d
+				/ 1024d * 1000d)) / 1000d + "GB]";
+		System.out.println(out + "Full Terminated");
 	}
 
 	public Point_Analysis(String a0, String a1, String a2) {

@@ -2,14 +2,18 @@ package kikky.analysis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane.MaximizeAction;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import dennis.counter.CounterUtils;
-import dennis.similarities.SimilarityHandler;
+import dennis.forKikky.Clustering;
+import dennis.forKikky.MatesScoring;
+import dennis.similarities.NxMmapping;
 import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
-import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
 public class FPKM_Single implements Sample_Data {
@@ -114,17 +118,48 @@ public class FPKM_Single implements Sample_Data {
 				if (fs.gene_data.containsKey(gene_id))
 					mates.put(gene_id, gene_id);
 		} else {
-			SimilarityHandler sh = UtilityManager.getSimilarityHandler();
-			HashSet<String> query = sh.getAllGenesWithAnOrtholog(this.species, fs.species);
-			for (String gene_id : query) {
-				if (this.gene_data.containsKey(gene_id)) {
-					HashSet<String> hs = new HashSet<>();
-					hs.addAll(fs.gene_data.keySet());
-					SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id, hs);
-					if (so != null)
-						mates.put(gene_id, so.getTarget_geneId());
+			HashSet<String> allowed_geneids = new HashSet<String>();
+			allowed_geneids.addAll(this.gene_data.keySet());
+			allowed_geneids.addAll(fs.gene_data.keySet());
+			Clustering cl = new Clustering(this.species, fs.species, allowed_geneids);
+			LinkedList<NxMmapping> cluster = cl.getNxMmappings();
+			System.out.println("TreeMap<g1,<g2,SimilarityObject(so.g1, so.g2)>>");
+			for (NxMmapping nm : cluster) {
+				for (String id : nm.getSims().keySet()) {
+					for (String id2 : nm.getSims().get(id).keySet()) {
+						SimilarityObject so = nm.getSims().get(id).get(id2);
+						if (!allowed_geneids.contains(id) || !allowed_geneids.contains(id2)
+								|| !allowed_geneids.contains(so.getQuery_geneId())
+								|| !allowed_geneids.contains(so.getTarget_geneId())) {
+							if (!allowed_geneids.contains(id)) {
+								System.out.println("g1 "+id + " not allowed!");
+							} else {
+								System.out.println("g1 "+id + " allowed!");
+							}
+							if (!allowed_geneids.contains(id2)) {
+								System.out.println("g2 "+id2 + " not allowed!");
+							} else {
+								System.out.println("g2 "+id2 + " allowed!");
+							}
+							if (!allowed_geneids.contains(so.getQuery_geneId())) {
+								System.out.println("so.g1 "+so.getQuery_geneId() + " #" + id + " " + id2 + " "
+										+ so.getQuery_geneId() + " not allowed!#query");
+							} else {
+								System.out.println("so.g1 "+so.getQuery_geneId() + " #" + id + " " + id2 + " "
+										+ so.getQuery_geneId() + " allowed!#query");
+							}
+							if (!allowed_geneids.contains(so.getTarget_geneId())) {
+								System.out.println("so.g2 "+so.getTarget_geneId() + " #" + id + " " + id2 + " "
+										+ so.getTarget_geneId() + " not allowed!#target");
+							} else {
+								System.out.println("so.g2 "+so.getTarget_geneId() + " #" + id + " " + id2 + " "
+										+ so.getTarget_geneId() + " allowed!#target");
+							}
+						}
+					}
 				}
 			}
+			mates = MatesScoring.greedy_score(cluster);
 		}
 		return mates;
 	}
