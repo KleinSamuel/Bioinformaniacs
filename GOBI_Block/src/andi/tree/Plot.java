@@ -44,7 +44,6 @@ public class Plot {
 //		plot.deleteOnExit();
 		r_script.deleteOnExit();
 		r_newick.deleteOnExit();
-		System.out.println(r_script);
 		BufferedWriter bw = new BufferedWriter(new FileWriter(r_newick));
 		bw.write(t.to_R_newick(n, n, node_names));
 
@@ -77,7 +76,7 @@ public class Plot {
 			bw.newLine();
 		}
 		double leaves = n.count_leaves();
-		bw.write("mtext(\"Distance(" + t.get_cluster_method() + ")\",side=1,line="+(leaves<5? 5.5*(leaves/(0.001+leaves)) : 0.5*(5.0+(leaves)/(leaves)))+",at="
+		bw.write("mtext(\""+t.get_distance_measurement()+"(" + t.get_cluster_method() + ")\",side=1,line="+(leaves<5? 5.5*(leaves/(0.001+leaves)) : 0.5*(5.0+(leaves)/(leaves)))+",at="
 				+ ((n.get_total_dist() / 2.0) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");

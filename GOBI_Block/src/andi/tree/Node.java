@@ -219,6 +219,12 @@ public class Node implements Node_Data {
 		return this.get_leaves().firstEntry().getValue().shared_type();
 	}
 
+	@Override
+	public String get_distance_measurement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	// @Override
 	// public Node getChild(Node node, int index) {
 	// if(index > node.get_children().size()){

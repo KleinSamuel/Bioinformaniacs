@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Vector;
+
+import andi.analysis.go.total.Total_Organism;
+import andi.analysis.go.total.Total_Organism.Distance_measurement;
 
 public class Tree /*
 					 * extends AbstractTreeModel<Node> implements
@@ -31,7 +33,6 @@ public class Tree /*
 		nds = new HashSet<>();
 	}
 
-
 	public Tree(Collection<Node_Data> nds) {
 		// super(super_root);
 		init();
@@ -48,6 +49,21 @@ public class Tree /*
 		this.nds = new HashSet<>();
 		this.nds.addAll(nds);
 		build();
+	}
+	
+
+	public void change_distance_measurement(Distance_measurement dm) {
+		for (Node_Data nd : leaves.values()) {
+			if (nd instanceof Total_Organism) {
+				Total_Organism org = (Total_Organism) nd;
+				org.set_distance_measurement(dm);
+			}
+		}
+		rebuild();
+	}
+	
+	public String get_distance_measurement() {
+		return leaves.values().iterator().next().get_distance_measurement();
 	}
 
 	private void init() {
@@ -122,7 +138,6 @@ public class Tree /*
 
 	}
 
-	
 	public int get_round_val() {
 		return round_val;
 	}
@@ -458,12 +473,12 @@ public class Tree /*
 		String out = "";
 		if (rev)
 			for (double d : dists) {
-				String val = d+"                ";
-				val=val.substring(0, round_val+2);
+				String val = d + "                ";
+				val = val.substring(0, round_val + 2);
 				out += (val) + ",";
 			}
 		else
-			for (int i = dists.size() - 1; i >= 0; i--) 
+			for (int i = dists.size() - 1; i >= 0; i--)
 				out += dists.get(i) + ",";
 		return out.substring(0, out.length() - 1);
 

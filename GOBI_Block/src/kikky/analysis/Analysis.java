@@ -88,7 +88,8 @@ public class Analysis {
 			for (int i = 1; i <= matrix.length; i++) {
 				for (int j = 1; j <= matrix[i - 1].length; j++) {
 					matrix[i - 1][j - 1] = File_Preparer.read_file_fpkm("files/" + i + "-" + j + "FPKM.txt",
-							fpkm_samples);
+							fpkm_samples, ((FPKM_Single) fpkm_samples.get(i)).get_species(),
+							((FPKM_Single) fpkm_samples.get(j)).get_species());
 				}
 			}
 			ArrayList<Sample_Data> al = new ArrayList<>();
