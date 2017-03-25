@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.TreeSet;
 
 import dennis.similarities.GeneSimilarities;
-import dennis.similarities.NxMmapping;
+import dennis.forKikky.KikkyNxMmapping;
 import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
@@ -31,7 +31,7 @@ public class Clustering {
 	 * @return all NxMmappings in the two species only containing genesWith a
 	 *         count > 0
 	 */
-	public LinkedList<NxMmapping> getNxMmappings() {
+	public LinkedList<KikkyNxMmapping> getNxMmappings() {
 		GeneSimilarities gs1 = UtilityManager.getSimilarityHandler().getSimilarities(sp1, sp2),
 				gs2 = UtilityManager.getSimilarityHandler().getSimilarities(sp2, sp1);
 		TreeSet<String> geneWithPartnerSp1 = new TreeSet<>(), geneWithPartnerSp2 = new TreeSet<>();
@@ -54,11 +54,11 @@ public class Clustering {
 
 		int l = geneWithPartnerSp1.size();
 
-		LinkedList<NxMmapping> nXm = new LinkedList<>();
+		LinkedList<KikkyNxMmapping> nXm = new LinkedList<>();
 
 		while (l > 0) {
 
-			NxMmapping n = getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first());
+			KikkyNxMmapping n = getNxMmapping(sp1, sp2, gs1, gs2, geneWithPartnerSp1.first());
 			nXm.add(n);
 			// System.out.println(n);
 			geneWithPartnerSp1.removeAll(n.getGenesFromSpecies(true));
@@ -113,19 +113,17 @@ public class Clustering {
 	 * @return NxMmapping for the two species containing gene startId and the
 	 *         whole cluster mapped to it
 	 */
-	public NxMmapping getNxMmapping(Species species1, Species species2, GeneSimilarities gs1, GeneSimilarities gs2,
+	public KikkyNxMmapping getNxMmapping(Species species1, Species species2, GeneSimilarities gs1, GeneSimilarities gs2,
 			String startId) {
 
 		TreeSet<String> in = new TreeSet<>();
 		in.add(startId);
 		Pair<TreeSet<String>, TreeSet<String>> cluster = getNewMappingGenes(new TreeSet<String>(),
 				new TreeSet<String>(), in, gs1, gs2);
-
 		if (UtilityManager.getSpeciesIDFromGeneID(cluster.getKey().first()) != species1.getId()) {
 			cluster = new Pair<TreeSet<String>, TreeSet<String>>(cluster.getValue(), cluster.getKey());
 		}
-
-		return new NxMmapping(species1, species2, cluster.getKey(), cluster.getValue());
+		return new KikkyNxMmapping(species1, species2, cluster.getKey(), cluster.getValue());
 	}
 
 }

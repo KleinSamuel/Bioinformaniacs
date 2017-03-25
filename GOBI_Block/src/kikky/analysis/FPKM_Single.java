@@ -2,14 +2,17 @@ package kikky.analysis;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import dennis.counter.CounterUtils;
-import dennis.similarities.SimilarityHandler;
+import dennis.forKikky.Clustering;
+import dennis.forKikky.KikkyNxMmapping;
+import dennis.forKikky.MatesScoring;
+import dennis.similarities.NxMmapping;
 import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
-import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
 public class FPKM_Single implements Sample_Data {
@@ -92,7 +95,7 @@ public class FPKM_Single implements Sample_Data {
 				x_asString.append(",").append(x[index]);
 				y_asString.append(",").append(y[index]);
 				x_genes.append(",").append(gene_id_x);
-				y_genes.append(",").append(gene_id_x);
+				y_genes.append(",").append(mates.get(gene_id_x));
 				index++;
 			}
 			System.out.println(systemInfoString() + "Save Infos");
@@ -114,17 +117,12 @@ public class FPKM_Single implements Sample_Data {
 				if (fs.gene_data.containsKey(gene_id))
 					mates.put(gene_id, gene_id);
 		} else {
-			SimilarityHandler sh = UtilityManager.getSimilarityHandler();
-			HashSet<String> query = sh.getAllGenesWithAnOrtholog(this.species, fs.species);
-			for (String gene_id : query) {
-				if (this.gene_data.containsKey(gene_id)) {
-					HashSet<String> hs = new HashSet<>();
-					hs.addAll(fs.gene_data.keySet());
-					SimilarityObject so = sh.checkForHighestSimilarity(this.species, fs.species, gene_id, hs);
-					if (so != null)
-						mates.put(gene_id, so.getTarget_geneId());
-				}
-			}
+			HashSet<String> allowed_geneids = new HashSet<String>();
+			allowed_geneids.addAll(this.gene_data.keySet());
+			allowed_geneids.addAll(fs.gene_data.keySet());
+			Clustering cl = new Clustering(this.species, fs.species, allowed_geneids);
+			LinkedList<KikkyNxMmapping> cluster = cl.getNxMmappings();
+			mates = MatesScoring.greedy_score(cluster);
 		}
 		return mates;
 	}
