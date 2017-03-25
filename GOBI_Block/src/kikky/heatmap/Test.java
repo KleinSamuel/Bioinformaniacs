@@ -17,7 +17,7 @@ public class Test {
 			for(int j = 0; j<x.size(); j++)
 				 m[i][j] = 0-j;
 		HeatMap hm = new HeatMap("Test", y, x, m);
-		hm.plot();
+//		hm.plot();
 		
 //		HeatMap hm = new HeatMap("Test", y, x);
 //		hm.plot();

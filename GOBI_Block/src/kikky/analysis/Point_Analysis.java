@@ -6,12 +6,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import dennis.tissues.Tissue;
+import dennis.tissues.TissuePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
 
 public class Point_Analysis {
 	private long start;
+	private final String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
 	public static void main(String[] args) {
 		long real_start = System.currentTimeMillis();
@@ -31,6 +34,11 @@ public class Point_Analysis {
 	}
 
 	public Point_Analysis(String a0, String a1, String a2) {
+//		FPKM(a0, a1, a2);
+		DEP(a0, a1, a2);
+	}
+
+	public void FPKM(String a0, String a1, String a2) {
 		try {
 			start = System.currentTimeMillis();
 			System.out.println(systemInfoString() + "Starting to generate partners");
@@ -72,8 +80,8 @@ public class Point_Analysis {
 			String temp = sd_query.get_value(sd_target) + "";
 			System.out.println(temp);
 
-			BufferedWriter bw = new BufferedWriter(new FileWriter(
-					"/home/a/adamowicz/GoBi/Block/results/files/" + (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-"
+			BufferedWriter bw = new BufferedWriter(
+					new FileWriter(path + "files/" + (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-"
 							+ (Integer.parseInt(a1) - 7000) + "FPKM.txt"));
 			bw.write("#Heatmap_value\n" + temp);
 			Point_Info pInfo = sd_query.get_point_info();
@@ -81,6 +89,57 @@ public class Point_Analysis {
 			bw.close();
 			System.out.println(
 					(Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "FPKM.txt");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println(systemInfoString() + "Terminated");
+	}
+
+	public void DEP(String a0, String a1, String a2) {
+		try {
+			start = System.currentTimeMillis();
+			System.out.println(systemInfoString() + "Starting to generate partners");
+			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+					false);
+			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/dep.info"));
+			String line;
+			Sample_Data sd_query = null;
+			Sample_Data sd_target = null;
+			System.out.println(a0 + " " + a1 + " " + a2);
+			while ((line = br.readLine()) != null) {
+				if (line.startsWith((Integer.parseInt(a0) - Integer.parseInt(a2)) + "#")) {
+					String[] split = line.split("\t");
+					int organism_id = Integer.parseInt(split[1]);
+					Species s = new Species(organism_id, split[2], split[3], split[4], null);
+					TissuePair tissues = new TissuePair(new Tissue(split[5]), new Tissue(split[6]));
+					String path = split[7];
+					sd_query = new DE_Pairs(s, tissues, path);
+				}
+				if (line.startsWith((Integer.parseInt(a1) - 7000) + "#")) {
+					String[] split = line.split("\t");
+					int organism_id = Integer.parseInt(split[1]);
+					Species s = new Species(organism_id, split[2], split[3], split[4], null);
+					TissuePair tissues = new TissuePair(new Tissue(split[5]), new Tissue(split[6]));
+					String path = split[7];
+					sd_target = new DE_Pairs(s, tissues, path);
+				}
+				if (sd_query != null && sd_target != null)
+					break;
+			}
+			br.close();
+			System.out.println(systemInfoString() + "Starting to calculate values to partner");
+			System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
+			String temp = sd_query.get_value(sd_target) + "";
+			System.out.println(temp);
+
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "files/"
+					+ (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "DEP.txt"));
+			bw.write("#Heatmap_value\n" + temp);
+			Point_Info pInfo = sd_query.get_point_info();
+			bw.write(pInfo.get_point_info_text());
+			bw.close();
+			System.out.println(
+					(Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "DEP.txt");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
