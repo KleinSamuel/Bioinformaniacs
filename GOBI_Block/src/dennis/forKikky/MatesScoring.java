@@ -28,7 +28,6 @@ public class MatesScoring {
 					used_ids.add(so.getTarget_geneId());
 				}
 		}
-		System.out.println(mates.size());
 		return mates;
 	}
 

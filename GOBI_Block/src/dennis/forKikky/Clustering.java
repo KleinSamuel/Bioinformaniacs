@@ -120,11 +120,9 @@ public class Clustering {
 		in.add(startId);
 		Pair<TreeSet<String>, TreeSet<String>> cluster = getNewMappingGenes(new TreeSet<String>(),
 				new TreeSet<String>(), in, gs1, gs2);
-
 		if (UtilityManager.getSpeciesIDFromGeneID(cluster.getKey().first()) != species1.getId()) {
 			cluster = new Pair<TreeSet<String>, TreeSet<String>>(cluster.getValue(), cluster.getKey());
 		}
-
 		return new KikkyNxMmapping(species1, species2, cluster.getKey(), cluster.getValue());
 	}
 

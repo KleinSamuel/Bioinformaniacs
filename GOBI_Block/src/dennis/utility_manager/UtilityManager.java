@@ -249,8 +249,6 @@ public class UtilityManager {
 			return 10090;
 		if (geneId.startsWith("ENSGALG"))
 			return 9031;
-		if (geneId.startsWith("ENSG"))
-			return 9606;
 		if (geneId.startsWith("ENSRNOG"))
 			return 10116;
 		if (geneId.startsWith("ENSPTRG"))
@@ -261,6 +259,8 @@ public class UtilityManager {
 			return 9593;
 		if (geneId.startsWith("ENSBTAG"))
 			return 9913;
+		if (geneId.startsWith("ENSG"))
+			return 9606;
 		return -1;
 	}
 

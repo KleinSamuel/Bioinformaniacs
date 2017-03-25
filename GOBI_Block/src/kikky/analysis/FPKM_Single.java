@@ -90,21 +90,12 @@ public class FPKM_Single implements Sample_Data {
 				y_genes = new StringBuilder();
 		if (mates.size() > 0) {
 			for (String gene_id_x : mates.keySet()) {
-				if (this.gene_data.containsKey(gene_id_x)) {
-					x[index] = this.gene_data.get(gene_id_x);
-					y[index] = fs.gene_data.get(mates.get(gene_id_x));
-					x_asString.append(",").append(x[index]);
-					y_asString.append(",").append(y[index]);
-					x_genes.append(",").append(gene_id_x);
-					y_genes.append(",").append(mates.get(gene_id_x));
-				} else {
-					x[index] = this.gene_data.get(mates.get(gene_id_x));
-					y[index] = fs.gene_data.get(gene_id_x);
-					x_asString.append(",").append(x[index]);
-					y_asString.append(",").append(y[index]);
-					x_genes.append(",").append(mates.get(gene_id_x));
-					y_genes.append(",").append(gene_id_x);
-				}
+				x[index] = this.gene_data.get(gene_id_x);
+				y[index] = fs.gene_data.get(mates.get(gene_id_x));
+				x_asString.append(",").append(x[index]);
+				y_asString.append(",").append(y[index]);
+				x_genes.append(",").append(gene_id_x);
+				y_genes.append(",").append(mates.get(gene_id_x));
 				index++;
 			}
 			System.out.println(systemInfoString() + "Save Infos");
@@ -131,14 +122,6 @@ public class FPKM_Single implements Sample_Data {
 			allowed_geneids.addAll(fs.gene_data.keySet());
 			Clustering cl = new Clustering(this.species, fs.species, allowed_geneids);
 			LinkedList<KikkyNxMmapping> cluster = cl.getNxMmappings();
-			System.out.println("TreeMap<g1,<g2,SimilarityObject(so.g1, so.g2)>>");
-			for (KikkyNxMmapping nm : cluster) {
-				for (String id : nm.getSims().keySet()) {
-					for (String id2 : nm.getSims().get(id).keySet()) {
-						SimilarityObject so = nm.getSims().get(id).get(id2);
-					}
-				}
-			}
 			mates = MatesScoring.greedy_score(cluster);
 		}
 		return mates;
