@@ -12,7 +12,6 @@ import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
 import dennis.tissues.Tissue;
-import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
@@ -24,8 +23,12 @@ public class TreeBuilder {
 		Tree avg_seq_id = build_avg_sequence_id_of_orthologues_tree();
 		try {
 			Runtime.getRuntime().exec("display " + Plot.get_plot(avg_seq_id));
-			avg_seq_id.change_distance_measurement(Distance_measurement.Avg_seq_id_all);
-			Runtime.getRuntime().exec("display " + Plot.get_plot(avg_seq_id));
+//			avg_seq_id.change_distance_measurement(Distance_measurement.Avg_seq_id_all);
+			
+			for(Tree t:build_tissue_trees())
+			Runtime.getRuntime().exec("display " + Plot.get_plot(t));
+				
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -39,24 +42,25 @@ public class TreeBuilder {
 
 		Iterator<Species> it_s = UtilityManager.speciesIterator();
 
-		HashMap<Tissue, HashMap<Species, String>> count_paths = new HashMap<>();
+		HashMap<String, HashMap<Species, String>> count_paths = new HashMap<>();
 
 		for (Species s = it_s.next(); it_s.hasNext(); s = it_s.next()) {
 			Iterator<Tissue> it_t = UtilityManager.tissueIterator(s);
 			for (Tissue t = it_t.next(); it_t.hasNext(); t = it_t.next()) {
 				// for(Experiment e:t.getExperiments()) {
-				if (!count_paths.containsKey(t))
-					count_paths.put(t, new HashMap<>());
-				count_paths.get(t).put(s, count_path + s.getId() + "/" + t.getName() + "/star_tissue_average.counts");
+				if (!count_paths.containsKey(t.getName()))
+					count_paths.put(t.getName(), new HashMap<>());
+				count_paths.get(t.getName()).put(s, count_path + s.getId() + "/" + t.getName() + "/star_tissue_average.counts");
 				// }
 			}
 		}
 
-		for (Tissue t : count_paths.keySet()) {
+		for (String t : count_paths.keySet()) {
 			Vector<Node_Data> orgs = new Vector<>();
 			for (Species s : count_paths.get(t).keySet()) {
-				orgs.add(new Total_Organism(s.getId(), s.getName(), s, t.getName(), count_paths.get(t).get(s),Distance_measurement.GO_tissue_basic));
+				orgs.add(new Total_Organism(s.getId(), s.getName(), s, t, count_paths.get(t).get(s),Distance_measurement.GO_tissue_basic));
 			}
+			if(orgs.size()>1)
 			trees.add(new Tree(orgs));
 		}
 
