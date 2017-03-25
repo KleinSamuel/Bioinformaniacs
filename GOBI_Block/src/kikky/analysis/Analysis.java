@@ -20,8 +20,10 @@ public class Analysis {
 
 	public static void main(String[] args) throws IOException {
 		start = System.currentTimeMillis();
-		// FPKM(args[0]);
-		DE_Pairs(args[0]);
+		if (args[1].equals("FPKM"))
+			FPKM(args[0]);
+		else if (args[1].equals("DEP"))
+			DE_Pairs(args[0]);
 	}
 
 	private static void DE_Pairs(String phase) {
@@ -57,8 +59,9 @@ public class Analysis {
 				System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 				Process plotting;
 				int id = 7000;
-				plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) /* + "-" + (id + dep_samples.size())*/
-						+ " -N DEP -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 7001 " + id + " " + (id + dep_samples.size()));
+				plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1)
+						+ " -N DEP -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 7001 "
+						+ id + " " + (id + dep_samples.size()));
 				bw.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -133,14 +136,10 @@ public class Analysis {
 				bw.close();
 				System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 				Process plotting;
-				for (int i = 1; i <= fpkm_samples.size(); i++) {
-					int id = 7000;
-					plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
-							+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-							+ (7000 + 1) + " " + id);
-					System.out.println();
-				}
-				bw.close();
+				int id = 7000;
+				plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
+						+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
+						+ (id + 1) + " " + id + " " + (id + fpkm_samples.size()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -149,7 +148,7 @@ public class Analysis {
 			System.out.println(systemInfoString() + "Starting phase two!");
 			int max = fpkm_samples.size();
 			BufferedWriter bw = new BufferedWriter(
-					new FileWriter("/home/a/adamowicz/GoBi/Block/results/heatmaps_vals.txt"));
+					new FileWriter("/home/a/adamowicz/GoBi/Block/results/heatmaps_vals_fpkm_all.txt"));
 			Number[][] matrix = new Number[max][max];
 			StringBuilder sb = new StringBuilder("");
 			for (int i = 1; i <= matrix.length; i++) {
@@ -165,11 +164,7 @@ public class Analysis {
 			}
 			bw.write(sb.toString());
 			bw.close();
-			ArrayList<Sample_Data> al = new ArrayList<>();
-			for (int i = 1; i <= max; i++)
-				al.add(fpkm_samples.get(i - 1));
-
-			HeatMap hm = new HeatMap("FPKM", al, al, matrix);
+			HeatMap hm = new HeatMap("FPKM", fpkm_samples, fpkm_samples, matrix);
 			hm.plot("/home/a/adamowicz/GoBi/json_all_fpkm.txt");
 			System.out.println(systemInfoString() + "Terminated");
 

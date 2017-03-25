@@ -18,11 +18,11 @@ public class Point_Analysis {
 
 	public static void main(String[] args) {
 		long real_start = System.currentTimeMillis();
-		if (args.length < 4)
-			new Point_Analysis(args[0], args[1], args[2]);
+		if (args.length < 5)
+			new Point_Analysis(args[0], args[1], args[2], args[3]);
 		else {
 			for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[3]); i++) {
-				new Point_Analysis(args[0], i + "", args[2]);
+				new Point_Analysis(args[0], i + "", args[2], args[4]);
 			}
 		}
 		String out = "[";
@@ -33,9 +33,11 @@ public class Point_Analysis {
 		System.out.println(out + "Full Terminated");
 	}
 
-	public Point_Analysis(String a0, String a1, String a2) {
-//		FPKM(a0, a1, a2);
-		DEP(a0, a1, a2);
+	public Point_Analysis(String a0, String a1, String a2, String type) {
+		if (type.equals("FPKM"))
+			FPKM(a0, a1, a2);
+		else if (type.equals("DEP"))
+			DEP(a0, a1, a2);
 	}
 
 	public void FPKM(String a0, String a1, String a2) {

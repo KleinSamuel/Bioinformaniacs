@@ -1,5 +1,8 @@
 package kikky.analysis;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -32,7 +35,19 @@ public class DE_Pairs implements Sample_Data {
 
 	public DE_Pairs(Species species, TissuePair tissues, String gene_after_de) {
 		this(species, tissues);
-		//TODO: work with file
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(gene_after_de));
+			String line = br.readLine();
+			while ((line = br.readLine()) != null) {
+				String[] split = line.split("\t");
+				if (Double.parseDouble(split[3]) < 0.05) {
+					gene_data.put(split[0], Double.parseDouble(split[1]));
+				}
+			}
+			br.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
