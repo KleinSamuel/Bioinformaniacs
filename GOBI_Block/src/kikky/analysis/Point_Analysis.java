@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import dennis.tissues.Tissue;
-import dennis.tissues.TissuePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.Sample_Data;
@@ -18,11 +16,11 @@ public class Point_Analysis {
 
 	public static void main(String[] args) {
 		long real_start = System.currentTimeMillis();
-		if (args.length < 5)
-			new Point_Analysis(args[0], args[1], args[2], args[3]);
+		if (args.length < 6)
+			new Point_Analysis(args[0], args[1], args[2], args[3], args[4]);
 		else {
 			for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[3]); i++) {
-				new Point_Analysis(args[0], i + "", args[2], args[4]);
+				new Point_Analysis(args[0], i + "", args[2], args[4], args[5]);
 			}
 		}
 		String out = "[";
@@ -33,14 +31,14 @@ public class Point_Analysis {
 		System.out.println(out + "Full Terminated");
 	}
 
-	public Point_Analysis(String a0, String a1, String a2, String type) {
+	public Point_Analysis(String a0, String a1, String a2, String type, String filter) {
 		if (type.equals("FPKM"))
-			FPKM(a0, a1, a2);
-		else if (type.equals("DEP"))
-			DEP(a0, a1, a2);
+			FPKM(a0, a1, a2, filter);
+		else if (type.equals("DEP")) {}
+
 	}
 
-	public void FPKM(String a0, String a1, String a2) {
+	public void FPKM(String a0, String a1, String a2, String filter) {
 		try {
 			start = System.currentTimeMillis();
 			System.out.println(systemInfoString() + "Starting to generate partners");
@@ -61,7 +59,7 @@ public class Point_Analysis {
 					String exp = split[6];
 					String map = "star";
 					String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
-					sd_query = new FPKM_Single(s, tissue, exp, path);
+					sd_query = new FPKM_Single(s, tissue, exp, path, split[7]);
 				}
 				if (line.startsWith((Integer.parseInt(a1) - 7000) + "#")) {
 					String[] split = line.split("\t");
@@ -71,7 +69,7 @@ public class Point_Analysis {
 					String exp = split[6];
 					String map = "star";
 					String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
-					sd_target = new FPKM_Single(s, tissue, exp, path);
+					sd_target = new FPKM_Single(s, tissue, exp, path, split[7]);
 				}
 				if (sd_query != null && sd_target != null)
 					break;
@@ -84,10 +82,14 @@ public class Point_Analysis {
 
 			BufferedWriter bw = new BufferedWriter(
 					new FileWriter(path + "files/" + (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-"
-							+ (Integer.parseInt(a1) - 7000) + "FPKM.txt"));
+							+ (Integer.parseInt(a1) - 7000) + "-" + filter + "FPKM.txt"));
 			bw.write("#Heatmap_value\n" + temp);
-			Point_Info pInfo = sd_query.get_point_info();
-			bw.write(pInfo.get_point_info_text());
+			if (((FPKM_Single) sd_query).get_tissue().equals(((FPKM_Single) sd_target).get_tissue()))
+				bw.write("\n#tt");
+			else
+				bw.write("\n#tat");
+			// Point_Info pInfo = sd_query.get_point_info();
+			// bw.write(pInfo.get_point_info_text());
 			bw.close();
 			System.out.println(
 					(Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "FPKM.txt");
@@ -97,56 +99,6 @@ public class Point_Analysis {
 		System.out.println(systemInfoString() + "Terminated");
 	}
 
-	public void DEP(String a0, String a1, String a2) {
-		try {
-			start = System.currentTimeMillis();
-			System.out.println(systemInfoString() + "Starting to generate partners");
-			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
-					false);
-			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/dep.info"));
-			String line;
-			Sample_Data sd_query = null;
-			Sample_Data sd_target = null;
-			System.out.println(a0 + " " + a1 + " " + a2);
-			while ((line = br.readLine()) != null) {
-				if (line.startsWith((Integer.parseInt(a0) - Integer.parseInt(a2)) + "#")) {
-					String[] split = line.split("\t");
-					int organism_id = Integer.parseInt(split[1]);
-					Species s = new Species(organism_id, split[2], split[3], split[4], null);
-					TissuePair tissues = new TissuePair(new Tissue(split[5]), new Tissue(split[6]));
-					String path = split[7];
-					sd_query = new DE_Pairs(s, tissues, path);
-				}
-				if (line.startsWith((Integer.parseInt(a1) - 7000) + "#")) {
-					String[] split = line.split("\t");
-					int organism_id = Integer.parseInt(split[1]);
-					Species s = new Species(organism_id, split[2], split[3], split[4], null);
-					TissuePair tissues = new TissuePair(new Tissue(split[5]), new Tissue(split[6]));
-					String path = split[7];
-					sd_target = new DE_Pairs(s, tissues, path);
-				}
-				if (sd_query != null && sd_target != null)
-					break;
-			}
-			br.close();
-			System.out.println(systemInfoString() + "Starting to calculate values to partner");
-			System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
-			String temp = sd_query.get_value(sd_target) + "";
-			System.out.println(temp);
-
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "files/"
-					+ (Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "DEP.txt"));
-			bw.write("#Heatmap_value\n" + temp);
-			Point_Info pInfo = sd_query.get_point_info();
-			bw.write(pInfo.get_point_info_text());
-			bw.close();
-			System.out.println(
-					(Integer.parseInt(a0) - Integer.parseInt(a2)) + "-" + (Integer.parseInt(a1) - 7000) + "DEP.txt");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		System.out.println(systemInfoString() + "Terminated");
-	}
 
 	public String systemInfoString() {
 		String out = "[";
