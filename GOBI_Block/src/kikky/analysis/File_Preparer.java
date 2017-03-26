@@ -22,25 +22,34 @@ import kikky.heatmap.Scatterplot;
 public class File_Preparer {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
-	public static double read_file_fpkm(String file, ArrayList<Sample_Data> values, Species x_s, Species y_s,
+	public static Number[] read_file_fpkm(String file, ArrayList<Sample_Data> values,
 			HashMap<String, ArrayList<Double>> comp) {
 		double value = 0;
 		String[] x_genes = null, y_genes = null;
+		Number[] matrix_row = new Number[values.size()];
 		try {
 			File f = new File(path + file);
 			BufferedReader br = new BufferedReader(new FileReader(f));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "info_files/FPKM/" + f.getName()));
 			bw.write("#Point_info\n");
-			String[] samples = (f.getName().substring(0, f.getName().length() - 8)).split("-");
-			String sample_1 = values.get(Integer.parseInt(samples[0]) - 1).get_name();
-			String sample_2 = values.get(Integer.parseInt(samples[1]) - 1).get_name();
-			bw.write(samples[0] + " " + sample_1 + "\n");
-			bw.write(samples[1] + " " + sample_2 + "\n");
+			String sample_1 = "";
+			String sample_2 = "";
 			String line;
+			int j = 0;
 			while ((line = br.readLine()) != null) {
+				if (line.startsWith("#Pair")) {
+					line = line.substring(5);
+					String[] samples = line.split("-");
+					bw.write(samples[0] + " " + sample_1 + "\n");
+					bw.write(samples[1] + " " + sample_2 + "\n");
+					sample_1 = values.get(Integer.parseInt(samples[0]) - 1).get_name();
+					sample_2 = values.get(Integer.parseInt(samples[1]) - 1).get_name();
+				}
 				if (line.startsWith("#Heatmap_value")) {
 					value = Double.parseDouble(br.readLine());
 					comp.get(br.readLine()).add(value);
+					matrix_row[j++] = value;
+					bw.write(value + "\n");
 				}
 				if (line.startsWith("#Scatterplot")) {
 					Scatterplot sp = new Scatterplot("FPKM distribution", sample_1, sample_2);
@@ -57,40 +66,40 @@ public class File_Preparer {
 					create_boxplot(sample_1, sample_2, used, f.getName(), "FPKM");
 				}
 			}
-			HashSet<String> all_gos = new HashSet<String>();
-			HashMap<String, LinkedList<String>> x_go = new HashMap<>();
-			HashMap<String, LinkedList<String>> y_go = new HashMap<>();
-			if (x_genes != null)
-				x_go = create_gomapping(x_genes, x_s);
-			if (y_genes != null)
-				y_go = create_gomapping(y_genes, y_s);
-			all_gos.addAll(x_go.keySet());
-			all_gos.addAll(y_go.keySet());
-			bw.write("\n#GO Mapping");
-			StringBuilder sb = new StringBuilder();
-			for (String goterm : all_gos) {
-				bw.write("\n#" + goterm);
-				if (x_go.containsKey(goterm)) {
-					for (String gene_id : x_go.get(goterm)) {
-						sb.append(",").append(gene_id);
-					}
-					bw.write("\n#x " + sb.substring(1).toString());
-					sb.setLength(0);
-				}
-				if (y_go.containsKey(goterm)) {
-					for (String gene_id : y_go.get(goterm)) {
-						sb.append(",").append(gene_id);
-					}
-					bw.write("\n#y " + sb.substring(1).toString());
-					sb.setLength(0);
-				}
-			}
+			// HashSet<String> all_gos = new HashSet<String>();
+			// HashMap<String, LinkedList<String>> x_go = new HashMap<>();
+			// HashMap<String, LinkedList<String>> y_go = new HashMap<>();
+			// if (x_genes != null)
+			// x_go = create_gomapping(x_genes, x_s);
+			// if (y_genes != null)
+			// y_go = create_gomapping(y_genes, y_s);
+			// all_gos.addAll(x_go.keySet());
+			// all_gos.addAll(y_go.keySet());
+			// bw.write("\n#GO Mapping");
+			// StringBuilder sb = new StringBuilder();
+			// for (String goterm : all_gos) {
+			// bw.write("\n#" + goterm);
+			// if (x_go.containsKey(goterm)) {
+			// for (String gene_id : x_go.get(goterm)) {
+			// sb.append(",").append(gene_id);
+			// }
+			// bw.write("\n#x " + sb.substring(1).toString());
+			// sb.setLength(0);
+			// }
+			// if (y_go.containsKey(goterm)) {
+			// for (String gene_id : y_go.get(goterm)) {
+			// sb.append(",").append(gene_id);
+			// }
+			// bw.write("\n#y " + sb.substring(1).toString());
+			// sb.setLength(0);
+			// }
+			// }
 			br.close();
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return value;
+		return matrix_row;
 	}
 
 	private static HashMap<String, LinkedList<String>> create_gomapping(String[] genes, Species s) {

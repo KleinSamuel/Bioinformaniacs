@@ -54,7 +54,7 @@ public class Analysis {
 				System.out.println(systemInfoString() + "Starting phase one!");
 				BufferedWriter bw = new BufferedWriter(
 						new FileWriter("/home/a/adamowicz/GoBi/Block/results/fpkm.info"));
-				bw.write("Number\tOrganism_ID\tOrganism_name\tOrganism_gtf\tOrganism_chr\tTissue\tExperiment\tFilter");
+				bw.write("Number\tOrganism_ID\tOrganism_name\tOrganism_gtf\tOrganism_chr\tTissue\tExperiment");
 				for (int i = 1; i <= fpkm_samples.size(); i++) {
 					FPKM_Single fs = (FPKM_Single) fpkm_samples.get(i - 1);
 					bw.write("\n" + i + "#\t" + fs.get_init_info());
@@ -65,7 +65,7 @@ public class Analysis {
 				int id = 7000;
 				plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
 						+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-						+ (id + 1) + " " + id + " " + (id + fpkm_samples.size()));
+						+ (id + 1) + " " + (id + fpkm_samples.size()) + " FPKM " + filter);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -81,13 +81,9 @@ public class Analysis {
 			comp.put("#tat", new ArrayList<>());
 			StringBuilder sb = new StringBuilder("");
 			for (int i = 1; i <= matrix.length; i++) {
-				for (int j = 1; j <= matrix[i - 1].length; j++) {
-					matrix[i - 1][j - 1] = File_Preparer.read_file_fpkm(
-							"files/" + i + "-" + j + "-" + filter + "FPKM.txt", fpkm_samples,
-							((FPKM_Single) fpkm_samples.get(i - 1)).get_species(),
-							((FPKM_Single) fpkm_samples.get(j - 1)).get_species(), comp);
-					sb.append(matrix[i - 1][j - 1]).append(",");
-				}
+				matrix[i - 1] = File_Preparer.read_file_fpkm("files/" + i + "-" + filter + "FPKM.txt", fpkm_samples,
+						comp);
+				sb.append(matrix[i - 1].toString()).append(",");
 				System.out.println(systemInfoString() + i + " rows done!");
 				sb.deleteCharAt(sb.length() - 1);
 				sb.append("\n");

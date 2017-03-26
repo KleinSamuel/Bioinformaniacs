@@ -74,7 +74,7 @@ public class FPKM_Single implements Sample_Data {
 
 	public String get_init_info() {
 		return species.getId() + "\t" + species.getName() + "\t" + species.getGtf() + "\t" + species.getChrs() + "\t"
-				+ tissue + "\t" + exp_number + "\t" + filter;
+				+ tissue + "\t" + exp_number;
 	}
 
 	@Override
