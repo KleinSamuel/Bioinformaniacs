@@ -26,19 +26,7 @@ public class DE_Single implements Sample_Data {
 	}
 
 	public DE_Single(int organism_id, String organism_name, String tissue, String gene_rawcount, String gene_file) {
-		this(organism_id, organism_name, tissue);
-		try {
-			BufferedReader br = new BufferedReader(new FileReader(gene_rawcount));
-			String line;
-			while ((line = br.readLine()) != null) {
-				String[] split = line.split("\t");
-				gene_data.put(split[0], Double.parseDouble(split[1]));
-			}
-			br.close();
-			Calculator.FPKM_generator(gene_rawcount, gene_file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
 	}
 
 	@Override

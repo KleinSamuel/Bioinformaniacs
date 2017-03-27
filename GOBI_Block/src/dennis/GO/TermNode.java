@@ -1,12 +1,14 @@
 package dennis.GO;
 
 import java.util.HashMap;
+import java.util.TreeSet;
 
 public class TermNode {
 
 	private String id, name, namespace, definition;
 	private HashMap<TermNode, Edge> edges;
 	private boolean isObsolete = false;
+	private TreeSet<String> altIds = null;
 
 	public TermNode(String id, String name, String namespace) {
 		this.id = id;
@@ -45,6 +47,17 @@ public class TermNode {
 
 	public HashMap<TermNode, Edge> getEdges() {
 		return edges;
+	}
+
+	public void addAltId(String alt_id) {
+		if (altIds == null) {
+			altIds = new TreeSet<>();
+		}
+		altIds.add(alt_id);
+	}
+
+	public TreeSet<String> altIds() {
+		return altIds;
 	}
 
 	@Override

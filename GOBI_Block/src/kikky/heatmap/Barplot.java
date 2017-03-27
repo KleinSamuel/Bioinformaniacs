@@ -93,7 +93,7 @@ public class Barplot {
 		File tmp = null;
 		try {
 			tmp = File.createTempFile("bar", "plot");
-			// tmp.deleteOnExit();
+			tmp.deleteOnExit();
 			PrintWriter bw = new PrintWriter(new FileWriter(tmp));
 			bw.println(String.format("png('%s');", filename));
 			bw.println(x.toString());

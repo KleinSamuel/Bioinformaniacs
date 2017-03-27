@@ -8,8 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -20,31 +20,50 @@ import kikky.heatmap.Sample_Data;
 import kikky.heatmap.Scatterplot;
 
 public class File_Preparer {
-	public static double read_file_fpkm(String file, ArrayList<Sample_Data> values, Species x_s, Species y_s) {
+	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
+
+	public static Number[] read_file_fpkm(String file, ArrayList<Sample_Data> values,
+			HashMap<String, TreeMap<Double, Double>> comp, HashMap<String, TreeMap<Double, Double>> comp_spe) {
 		double value = 0;
 		String[] x_genes = null, y_genes = null;
+		Number[] matrix_row = new Number[values.size()];
 		try {
-			File f = new File("/home/a/adamowicz/GoBi/Block/results/" + file);
+			File f = new File(path + file);
 			BufferedReader br = new BufferedReader(new FileReader(f));
-			BufferedWriter bw = new BufferedWriter(
-					new FileWriter("/home/a/adamowicz/GoBi/Block/results/info_files/FPKM/" + f.getName()));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "info_files/FPKM/" + f.getName()));
 			bw.write("#Point_info\n");
-			String[] samples = (f.getName().substring(0, f.getName().length() - 8)).split("-");
-			String sample_1 = values.get(Integer.parseInt(samples[0])).get_name();
-			String sample_2 = values.get(Integer.parseInt(samples[1])).get_name();
-			bw.write(samples[0] + " " + sample_1 + "\n");
-			bw.write(samples[1] + " " + sample_2 + "\n");
+			String sample_1 = "";
+			String sample_2 = "";
 			String line;
+			int j = 0;
 			while ((line = br.readLine()) != null) {
+				if (line.startsWith("#Pair")) {
+					line = line.substring(6);
+					String[] samples = line.split("-");
+					bw.write(samples[0] + " " + sample_1 + "\n");
+					bw.write(samples[1] + " " + sample_2 + "\n");
+					sample_1 = values.get(Integer.parseInt(samples[0]) - 1).get_name();
+					sample_2 = values.get(Integer.parseInt(samples[1]) - 1).get_name();
+				}
 				if (line.startsWith("#Heatmap_value")) {
 					value = Double.parseDouble(br.readLine());
+					String tissue_pair = br.readLine();
+					String species_pair = br.readLine();
+					double use_for_cor = round(value, 2);
+					if (!comp.get(tissue_pair).containsKey(use_for_cor))
+						comp.get(tissue_pair).put(use_for_cor, 0.0);
+					comp.get(tissue_pair).put(use_for_cor, comp.get(tissue_pair).get(use_for_cor) + 1);
+					if (!comp_spe.get(species_pair).containsKey(use_for_cor))
+						comp_spe.get(species_pair).put(use_for_cor, 0.0);
+					comp_spe.get(species_pair).put(use_for_cor, comp_spe.get(species_pair).get(use_for_cor) + 1);
+					matrix_row[j++] = value;
+					bw.write(value + "\n");
 				}
 				if (line.startsWith("#Scatterplot")) {
 					Scatterplot sp = new Scatterplot("FPKM distribution", sample_1, sample_2);
 					sp.set_values(br.readLine().substring(3), br.readLine().substring(3));
 					sp.set_log(true, true);
-					sp.plot("/home/a/adamowicz/GoBi/Block/results/info_files/FPKM/"
-							+ f.getName().replace("FPKM.txt", "DistFPKM.png"));
+					sp.plot(path + "plot/FPKM/" + f.getName().replace("FPKM.txt", "DistFPKM.png"));
 					x_genes = br.readLine().substring(9).split(",");
 					y_genes = br.readLine().substring(9).split(",");
 				}
@@ -52,39 +71,43 @@ public class File_Preparer {
 					bw.write("#Percentage_mate_all\n");
 					String used = br.readLine();
 					bw.write(used);
-					create_boxplot(sample_1, sample_2, used, f.getName());
+					create_boxplot(sample_1, sample_2, used, f.getName(), "FPKM");
 				}
 			}
-			HashMap<String, LinkedList<String>> x_go = create_gomapping(x_genes, x_s);
-			HashMap<String, LinkedList<String>> y_go = create_gomapping(y_genes, y_s);
-			HashSet<String> all_gos = new HashSet<String>();
-			all_gos.addAll(x_go.keySet());
-			all_gos.addAll(y_go.keySet());
-			bw.write("\n#GO Mapping");
-			StringBuilder sb = new StringBuilder();
-			for (String goterm : all_gos) {
-				bw.write("\n#" + goterm);
-				if (x_go.containsKey(goterm)) {
-					for (String gene_id : x_go.get(goterm)) {
-						sb.append(",").append(gene_id);
-					}
-					bw.write("\n#x " + sb.substring(1).toString());
-					sb.setLength(0);
-				}
-				if (y_go.containsKey(goterm)) {
-					for (String gene_id : y_go.get(goterm)) {
-						sb.append(",").append(gene_id);
-					}
-					bw.write("\n#y " + sb.substring(1).toString());
-					sb.setLength(0);
-				}
-			}
+			// HashSet<String> all_gos = new HashSet<String>();
+			// HashMap<String, LinkedList<String>> x_go = new HashMap<>();
+			// HashMap<String, LinkedList<String>> y_go = new HashMap<>();
+			// if (x_genes != null)
+			// x_go = create_gomapping(x_genes, x_s);
+			// if (y_genes != null)
+			// y_go = create_gomapping(y_genes, y_s);
+			// all_gos.addAll(x_go.keySet());
+			// all_gos.addAll(y_go.keySet());
+			// bw.write("\n#GO Mapping");
+			// StringBuilder sb = new StringBuilder();
+			// for (String goterm : all_gos) {
+			// bw.write("\n#" + goterm);
+			// if (x_go.containsKey(goterm)) {
+			// for (String gene_id : x_go.get(goterm)) {
+			// sb.append(",").append(gene_id);
+			// }
+			// bw.write("\n#x " + sb.substring(1).toString());
+			// sb.setLength(0);
+			// }
+			// if (y_go.containsKey(goterm)) {
+			// for (String gene_id : y_go.get(goterm)) {
+			// sb.append(",").append(gene_id);
+			// }
+			// bw.write("\n#y " + sb.substring(1).toString());
+			// sb.setLength(0);
+			// }
+			// }
 			br.close();
 			bw.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return value;
+		return matrix_row;
 	}
 
 	private static HashMap<String, LinkedList<String>> create_gomapping(String[] genes, Species s) {
@@ -101,7 +124,7 @@ public class File_Preparer {
 		return gos;
 	}
 
-	private static void create_boxplot(String sample_1, String sample_2, String used, String f_name) {
+	private static void create_boxplot(String sample_1, String sample_2, String used, String f_name, String type) {
 		used = used.replace("query=", "");
 		used = used.replace("target=", "");
 		String[] split = used.split(" ");
@@ -114,7 +137,17 @@ public class File_Preparer {
 		vals.add(Double.parseDouble(split[1].split("[|]")[1]));
 		bp.set_values(vals);
 		bp.setnames("\"" + sample_1 + "\",\"both\",\"" + sample_2 + "\"", 3);
-		bp.plot("/home/a/adamowicz/GoBi/Block/results/info_files/FPKM/" + f_name.replace("FPKM.txt", "DistGenes.png"));
+		bp.plot(path + "plot/" + type + "/" + f_name.replace(type + ".txt", "DistGenes.png"));
+	}
+
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
 	}
 
 }

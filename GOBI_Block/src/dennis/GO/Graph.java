@@ -19,15 +19,11 @@ public class Graph {
 	}
 
 	public void addNode(TermNode n) {
-		TermNode next = nodes.get(n.getId());
-		if (next != null) {
-			// dummy existiert bereits
-			next.setName(n.getName());
-			next.setNamespace(n.getNamespace());
-			next.setDefinition(n.getDefinition());
-		} else {
-			nodes.put(n.getId(), n);
-		}
+		nodes.put(n.getId(), n);
+	}
+
+	public void addAltNode(String alt_id, TermNode n) {
+		nodes.put(alt_id, n);
 	}
 
 }
