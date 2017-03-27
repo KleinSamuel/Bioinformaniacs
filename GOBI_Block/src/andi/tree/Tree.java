@@ -29,6 +29,7 @@ public class Tree /*
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
 	private Gene_focus gf = Gene_focus.All_genes;
 	private int round_val = 2;
+	private boolean go_terms_to_root = false;
 
 	public Tree(Collection<Node_Data> nds) {
 		// super(super_root);
@@ -68,13 +69,14 @@ public class Tree /*
 		return this;
 	}
 
-	public void construct(Distance_measurement dm, Gene_focus gf) {
-		System.out.println("\tconstruct with "+dm+" and "+gf);
+	public void construct(Distance_measurement dm, Gene_focus gf, boolean go_terms) {
+		System.out.println("\tconstruct with "+dm+" and "+gf+ " and all_gos_"+go_terms);
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
 				Organism_Data org = (Organism_Data) nd;
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
+				org.set_all_go_terms(go_terms);
 			}
 		}
 	}
@@ -82,7 +84,17 @@ public class Tree /*
 	public void set_cluster_method(Cluster_method cm) {
 		this.cm = cm;
 	}
-
+	
+	public void set_go_to_root(boolean b) {
+		this.go_terms_to_root = b;
+	}
+	public Tree change_go_to_root(boolean b) {
+		if(go_terms_to_root==b)
+			return this;
+		this.go_terms_to_root = b;
+		this.rebuild();
+		return this;
+	}
 	public Tree change_cluster_method(Cluster_method cm) {
 		if (this.cm == cm)
 			return this;
@@ -175,7 +187,7 @@ public class Tree /*
 
 	public Tree build() {
 		if (this.nds.first() instanceof Organism_Data)
-			construct(dm, gf);
+			construct(dm, gf,go_terms_to_root);
 		switch (cm) {
 		case WPGMA:
 			build_wpgma();
@@ -565,9 +577,11 @@ public class Tree /*
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((cm == null) ? 0 : cm.hashCode());
+		result = prime * result + ((dm == null) ? 0 : dm.hashCode());
+		result = prime * result + ((gf == null) ? 0 : gf.hashCode());
+		result = prime * result + (go_terms_to_root ? 1231 : 1237);
+		result = prime * result + ((inner == null) ? 0 : inner.hashCode());
 		result = prime * result + ((leaves == null) ? 0 : leaves.hashCode());
-		result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
-		result = prime * result + ((root == null) ? 0 : root.hashCode());
 		return result;
 	}
 
@@ -582,23 +596,26 @@ public class Tree /*
 		Tree other = (Tree) obj;
 		if (cm != other.cm)
 			return false;
+		if (dm != other.dm)
+			return false;
+		if (gf != other.gf)
+			return false;
+		if (go_terms_to_root != other.go_terms_to_root)
+			return false;
+		if (inner == null) {
+			if (other.inner != null)
+				return false;
+		} else if (!inner.equals(other.inner))
+			return false;
 		if (leaves == null) {
 			if (other.leaves != null)
 				return false;
 		} else if (!leaves.equals(other.leaves))
 			return false;
-		if (nodes == null) {
-			if (other.nodes != null)
-				return false;
-		} else if (!nodes.equals(other.nodes))
-			return false;
-		if (root == null) {
-			if (other.root != null)
-				return false;
-		} else if (!root.equals(other.root))
-			return false;
 		return true;
 	}
+
+
 	// @Override
 	// public Node getChild(Node node, int index) {
 	// if(index > node.get_children().size()){

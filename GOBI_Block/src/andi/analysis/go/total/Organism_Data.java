@@ -94,6 +94,7 @@ public class Organism_Data implements Node_Data {
 						go_counts.put(go_term, count);
 					}
 			} else {
+				System.out.println("Species : "+this.get_Species().getName()+" ; Gene : "+gene);
 				HashMap<String, LinkedList<String>> go_terms = GOHandler.getAllMappedGOs(this.get_Species(), gene);
 				if (go_terms != null)
 					for (String go_term : go_terms.keySet()) {
@@ -107,6 +108,12 @@ public class Organism_Data implements Node_Data {
 
 			}
 		}
+	}
+
+	public void set_all_go_terms(boolean b) {
+		if (all_gos_to_root != b)
+			go_counts = null;
+		all_gos_to_root = b;
 	}
 
 	public void set_all_orthologues(Collection<String> all) {
@@ -322,7 +329,8 @@ public class Organism_Data implements Node_Data {
 		case Avg_seq_id_all:
 			return "1 - Average Sequence Identity";
 		case GO_tissue_basic:
-			return "GSE-Difference Top " + go_comparison_top + " terms";
+			return "GSE-Difference Top " + go_comparison_top + " of " + (all_gos_to_root ? "all" : "most specific")
+					+ " go_terms";
 		case GO_tissue_xgsa:
 			return "GSE_Difference using XGSA Top " + go_comparison_top + " terms";
 		default:

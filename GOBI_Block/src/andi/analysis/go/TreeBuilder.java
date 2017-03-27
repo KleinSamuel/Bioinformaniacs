@@ -90,6 +90,18 @@ public class TreeBuilder {
 		}
 	}
 
+	private void set_go_tree_use_all_go_terms(boolean b) {
+		if (go_tree_status == Tree_status.None)
+			prepare_go_trees();
+		for (Tree t : get_go_trees())
+			if (go_tree_status == Tree_status.Built)
+				t.change_go_to_root(b);
+			else if (go_tree_status == Tree_status.Prepared) {
+				System.out.println("\tset_go_to root " + b);
+				t.set_go_to_root(b);;
+			}
+	}
+
 	private void compute_orthologues() {
 		all_orthologues = new ArrayList<>();
 		orthologues_own = new TreeMap<>();
@@ -153,7 +165,7 @@ public class TreeBuilder {
 		go_trees = new ArrayList<>();
 		for (Tissue t : leave_data.keySet()) {
 			go_trees.add(new Tree(leave_data.get(t), false));
-			go_trees.get(go_trees.size()-1).set_distance_measurement(Distance_measurement.GO_tissue_basic);
+			go_trees.get(go_trees.size() - 1).set_distance_measurement(Distance_measurement.GO_tissue_basic);
 		}
 		go_tree_status = Tree_status.Prepared;
 	}
@@ -217,17 +229,13 @@ public class TreeBuilder {
 
 	public static void main(String[] args) {
 		TreeBuilder b = new TreeBuilder(null, null, false);
-		System.out.println("view avg");
-		b.view(b.build_avg_sequence_id_of_orthologues_tree());
-		System.out.println("set_gf_o_only");
+//		System.out.println("view avg");
+//		b.view(b.build_avg_sequence_id_of_orthologues_tree());
+		b.set_go_tree_use_all_go_terms(true);
 		b.set_go_tree_gene_focus(Gene_focus.orthologues_only);
-		System.out.println("view go_trees");
 		b.view_go_trees();
-		System.out.println("set_gf_all_g");
-		b.set_go_tree_gene_focus(Gene_focus.All_genes);
-		System.out.println("view go_trees");
+		b.set_go_tree_gene_focus(Gene_focus.nonorthologues_only);
 		b.view_go_trees();
-		System.out.println("wait for close");
 		b.wait_for_close();
 
 	}
