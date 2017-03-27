@@ -72,17 +72,22 @@ public class CounterUtils {
 	public static void createAverageCountFile(Collection<String> countFiles, String outputFile) {
 		HashMap<String, Double[]> counts = new HashMap<>();
 		LinkedList<String> inputReihenfolge = new LinkedList<>();
+		int fileCount = 0;
+		String header = null;
 		for (String s : countFiles) {
 			try {
 				BufferedReader br = new BufferedReader(new FileReader(new File(s)));
 				String line = null;
 				String[] split = null;
-				br.readLine(); // skip header
+
+				header = br.readLine(); // skip header
 
 				while ((line = br.readLine()) != null) {
 					split = line.split("\t");
-					inputReihenfolge.add(split[0]);
 					Double[] countArr = counts.get(split[0]);
+					if (fileCount == 0) {
+						inputReihenfolge.add(split[0]);
+					}
 					if (countArr == null) {
 						countArr = parseCounts(split);
 						counts.put(split[0], countArr);
@@ -95,19 +100,20 @@ public class CounterUtils {
 				e.printStackTrace();
 				System.exit(1);
 			}
+			fileCount++;
 		}
 		for (Double[] countArr : counts.values()) {
 			divideArr(countArr, countFiles.size());
 		}
-		writeOutput(outputFile, counts, inputReihenfolge);
+		writeOutput(outputFile, counts, inputReihenfolge, header);
 	}
 
 	public static void writeOutput(String outputFile, HashMap<String, Double[]> counts,
-			LinkedList<String> inputReihenfolge) {
+			LinkedList<String> inputReihenfolge, String header) {
 		try {
 			File f = new File(outputFile);
 			BufferedWriter bw = new BufferedWriter(new FileWriter(f));
-			bw.write("geneId\tnonAmbigousAnyPcr\tnonAmbigousPcr0\tambigousWeightedAnyPcr\tambigousWeightedPcr0\n");
+			bw.write(header + "\n");
 			for (String s : inputReihenfolge) {
 				Double[] countArr = counts.get(s);
 				bw.write(s + "\t" + countArr[0].intValue() + "\t" + countArr[1].intValue() + "\t" + countArr[2] + "\t"

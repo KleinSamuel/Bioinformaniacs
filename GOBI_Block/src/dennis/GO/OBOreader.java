@@ -47,6 +47,7 @@ public class OBOreader {
 		String[] split = null;
 		TermNode t = null;
 		boolean newNode = false;
+		LinkedList<String> altIds = new LinkedList<>();
 		for (String s : term) {
 			split = s.split(": ", 2);
 			switch (split[0]) {
@@ -71,6 +72,9 @@ public class OBOreader {
 					t.setObsolete();
 				}
 				break;
+			case "alt_id":
+				altIds.add(split[1]);
+				break;
 			case "is_a":
 				String id = split[1].split(" ! ")[0];
 				TermNode n = oboGraph.getNode(id);
@@ -84,6 +88,12 @@ public class OBOreader {
 		}
 		if (t != null && newNode)
 			oboGraph.addNode(t);
+		if (t != null) {
+			for (String alt_id : altIds) {
+				t.addAltId(alt_id);
+				oboGraph.addAltNode(alt_id, t);
+			}
+		}
 	}
 
 }
