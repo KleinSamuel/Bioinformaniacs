@@ -21,6 +21,7 @@ public class FPKM_Single implements Sample_Data {
 	private String exp_number;
 	private HashMap<String, Double> gene_data = new HashMap<>();
 	private Point_Info pi;
+	private String filter;
 
 	private long start;
 
@@ -36,8 +37,9 @@ public class FPKM_Single implements Sample_Data {
 		gene_data = fpkm;
 	}
 
-	public FPKM_Single(Species species, String tissue, String exp_number, String fpkm_file) {
+	public FPKM_Single(Species species, String tissue, String exp_number, String fpkm_file, String filter) {
 		this(species, tissue, exp_number);
+		this.filter = filter;
 		gene_data = CounterUtils.readCountFile(fpkm_file, false, false, false, false);
 	}
 

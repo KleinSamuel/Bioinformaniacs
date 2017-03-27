@@ -2,6 +2,7 @@ package andi.analysis.go.total;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -31,7 +32,7 @@ public class Total_Organism implements Node_Data {
 	private HashMap<String, Double> counts;
 	private TreeMap<String, Integer> go_counts;
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
-	private int go_comparison_top = 10;
+	private int go_comparison_top = 100;
 
 	public Total_Organism(int id, String name, Species org) {
 		this.id = id;
@@ -39,7 +40,6 @@ public class Total_Organism implements Node_Data {
 		this.org = org;
 		init();
 	}
-	
 
 	public Total_Organism(int id, String name, Species org, String tissue, String count_file, Distance_measurement dm) {
 		this.id = id;
@@ -69,12 +69,16 @@ public class Total_Organism implements Node_Data {
 
 	private void count_gos() {
 		for (String gene : counts.keySet()) {
-			for (String go_term : GOHandler.getMappedGOterms(this.get_Species(), gene)) {
-				int count = counts.get(gene).intValue();
-				if (go_counts.containsKey(go_term))
-					count += go_counts.get(go_term);
-				go_counts.put(go_term, count);
-			}
+			TreeSet<String> goterms = GOHandler.getMappedGOterms(this.get_Species(), gene);
+			HashMap<String,LinkedList<String>> go_terms = GOHandler.getAllMappedGOs(this.get_Species(), gene);
+//			TODO all go terms
+			if (goterms != null)
+				for (String go_term : goterms) {
+					int count = counts.get(gene).intValue();
+					if (go_counts.containsKey(go_term))
+						count += go_counts.get(go_term);
+					go_counts.put(go_term, count);
+				}
 		}
 	}
 
@@ -93,24 +97,24 @@ public class Total_Organism implements Node_Data {
 	public void set_orthologue_genes(Vector<String> genes) {
 		this.orthologue_genes = genes;
 	}
-	
-	public Vector<String> get_top_x_gos(int top){
+
+	public Vector<String> get_top_x_gos(int top) {
 		Vector<String> top_x = new Vector<>();
 		TreeSet<String> rest = new TreeSet<>();
 		rest.addAll(go_counts.keySet());
-		
-		while(top_x.size()<top&&!top_x.isEmpty()) {
+
+		while (top_x.size() < top && !rest.isEmpty()) {
 			int max = 0;
 			String term = "";
-			for(String go_term:rest) {
-				if(max<go_counts.get(go_term)) {
+			for (String go_term : rest) {
+				if (max < go_counts.get(go_term)) {
 					max = go_counts.get(go_term);
 					term = go_term;
 				}
 			}
 			top_x.add(term);
 			rest.remove(term);
-		}		
+		}
 		return top_x;
 	}
 
@@ -125,7 +129,8 @@ public class Total_Organism implements Node_Data {
 	public void set_distance_measurement(Distance_measurement dm) {
 		this.dm = dm;
 	}
-	public TreeMap<String,Integer> get_go_counts(){
+
+	public TreeMap<String, Integer> get_go_counts() {
 		return go_counts;
 	}
 
@@ -149,8 +154,8 @@ public class Total_Organism implements Node_Data {
 			}
 			return 1 - (sim_score / count);
 		case GO_tissue_basic:
-				
-			return evaluate(this.get_top_x_gos(go_comparison_top),other.get_top_x_gos(go_comparison_top),other);
+
+			return evaluate(this.get_top_x_gos(go_comparison_top), other.get_top_x_gos(go_comparison_top), other);
 
 		case GO_tissue_xgsa:
 
@@ -174,22 +179,22 @@ public class Total_Organism implements Node_Data {
 		double dist = 0;
 		Iterator<String> it_this = this_top.iterator();
 		Iterator<String> it_other = other_top.iterator();
-		while(it_this.hasNext()&&it_other.hasNext()) {
+		while (it_this.hasNext() && it_other.hasNext()) {
 			String this_term = it_this.next();
 			String other_term = it_other.next();
-			if(!this_term.equals(other_term)) {
-				if(other_top.contains(this_term))
-				dist+=go_comparison_top/5;
-				else dist+=go_comparison_top/2;
-				if(this_top.contains(other_term))
-					dist+=go_comparison_top/5;
+			if (!this_term.equals(other_term)) {
+				if (other_top.contains(this_term))
+					dist += 0.5;
 				else
-					dist+=go_comparison_top/2;
+					dist += 2;
+				if (this_top.contains(other_term))
+					dist += 0.5;
+				else
+					dist += 2;
 			}
 		}
 		return dist;
 	}
-
 
 	public Species get_Species() {
 		return org;
@@ -247,9 +252,9 @@ public class Total_Organism implements Node_Data {
 		case Avg_seq_id_all:
 			return "1 - Average Sequence Identity";
 		case GO_tissue_basic:
-			return "GSE-Difference Top "+go_comparison_top+" terms";
+			return "GSE-Difference Top " + go_comparison_top + " terms";
 		case GO_tissue_xgsa:
-			return "GSE_Difference using XGSA Top "+go_comparison_top+" terms";
+			return "GSE_Difference using XGSA Top " + go_comparison_top + " terms";
 		default:
 			return "1 - Average Sequence Identity";
 		}

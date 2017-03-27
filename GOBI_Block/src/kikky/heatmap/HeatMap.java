@@ -66,15 +66,16 @@ public class HeatMap {
 		labels.add("c(" + label.substring(1) + ")");
 	}
 
-	public void plot() {
+	public void plot(String file) {
 		try {
 			File r_script = File.createTempFile("R_script_", ".R");
+			r_script.deleteOnExit();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
 			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1) + ",z = m, type = \"heatmap\");\n");
 			bw.write("json <- plotly_json(p, FALSE);");
-			bw.write("write(json, \"/home/a/adamowicz/GoBi/json.txt\");");
+			bw.write("write(json, \"" + file + "\");");
 			bw.close();
 			System.out.println(R_path + " " + r_script.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
@@ -83,5 +84,4 @@ public class HeatMap {
 			e.printStackTrace();
 		}
 	}
-
 }
