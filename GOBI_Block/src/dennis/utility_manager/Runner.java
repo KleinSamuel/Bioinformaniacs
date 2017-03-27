@@ -1,9 +1,10 @@
 package dennis.utility_manager;
 
-import dennis.analysis.BipartitMapping;
-import dennis.analysis.ScoringFunction;
-import dennis.analysis.ScoringMatrix;
-import dennis.similarities.NxMmapping;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import dennis.counter.CounterUtils;
+import dennis.tissues.Tissue;
 
 public class Runner {
 
@@ -12,14 +13,16 @@ public class Runner {
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		for (NxMmapping m : UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
-				UtilityManager.getSpecies(9544))) {
-			for (ScoringMatrix sm : new BipartitMapping(m,
-					new ScoringFunction(UtilityManager.getSpecies(9031), UtilityManager.getSpecies(9544)))
-							.getScoringMatrix()) {
-				System.out.println(sm.toString());
-			}
-		}
+		// for (NxMmapping m :
+		// UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
+		// UtilityManager.getSpecies(9544))) {
+		// for (ScoringMatrix sm : new BipartitMapping(m,
+		// new ScoringFunction(UtilityManager.getSpecies(9031),
+		// UtilityManager.getSpecies(9544)))
+		// .getScoringMatrix()) {
+		// System.out.println(sm.toString());
+		// }
+		// }
 
 		// Fuzzy fuz = new Fuzzy(3d, 0.1d);
 		// for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
@@ -33,56 +36,46 @@ public class Runner {
 		// n.getNamespace());
 		// }
 
-		// for (Iterator<Species> s = UtilityManager.speciesIterator();
-		// s.hasNext();) {
-		// Species sp = s.next();
-		// for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(sp);
-		// tissueIt.hasNext();) {
-		// Tissue t = tissueIt.next();
-		// for (String m : UtilityManager.mapperList()) {
-		// LinkedList<String> tissueAvg = new LinkedList<>();
-		// for (Experiment e : t.getExperiments()) {
-		// String fileName = UtilityManager.getConfig("output_directory") +
-		// sp.getId() + "/" + t.getName()
-		// + "/" + e.getName() + "/" + m + "/gene.counts";
-		// if (new File(fileName).exists()) {
-		// tissueAvg.add(fileName);
-		// }
-		// }
-		// CounterUtils.createAverageCountFile(tissueAvg,
-		// UtilityManager.getConfig("output_directory")
-		// + sp.getId() + "/" + t.getName() + "/" + m +
-		// "_tissue_average.counts");
-		// }
-		// }
-		// }
+		for (Iterator<Species> s = UtilityManager.speciesIterator(); s.hasNext();) {
+			Species sp = s.next();
+			for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(sp); tissueIt.hasNext();) {
+				Tissue t = tissueIt.next();
+				for (String m : UtilityManager.mapperList()) {
+					LinkedList<String> tissueAvg = new LinkedList<>();
+					for (Experiment e : t.getExperiments()) {
+						if (!UtilityManager.getExperimentNamesWithMissingBams().contains(e.getName())) {
+							String fileName = UtilityManager.getConfig("output_directory") + sp.getId() + "/"
+									+ t.getName() + "/" + e.getName() + "/" + m + "/gene.counts";
+							tissueAvg.add(fileName);
+						}
+					}
+					CounterUtils.createAverageCountFile(tissueAvg, UtilityManager.getConfig("output_directory")
+							+ sp.getId() + "/" + t.getName() + "/" + m + "_tissue_average.counts");
+				}
+			}
+		}
 
-		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
-		// speciesIt.hasNext();) {
-		// EBUtils.runEBForAllTissuePairsAndMappers(speciesIt.next());
-		// }
-
-		// int i = 1, toDo = Integer.parseInt(args[0]);
-		//
 		// for (Iterator<Species> speciesIt = UtilityManager.speciesIterator();
 		// speciesIt.hasNext();) {
 		// Species s = speciesIt.next();
-		// for (Iterator<Tissue> tissueIt = UtilityManager.tissueIterator(s);
-		// tissueIt.hasNext();) {
-		// Tissue t = tissueIt.next();
-		// for (Experiment experiment : t.getExperiments()) {
-		// for (Iterator<String> mapperIt = UtilityManager.mapperIterator();
-		// mapperIt.hasNext();) {
-		// if (i == toDo) {
-		// BamFileReader bfr = new BamFileReader(s, t.getName(), experiment,
-		// mapperIt.next());
-		// bfr.readBAMFile();
-		// return;
-		// } else {
-		// mapperIt.next();
-		// i++;
-		// }
-		// }
+		// for (TissuePair tissuePair : TissueHandler.tissuePairIterator(s)) {
+		// for (String mapper : UtilityManager.mapperList()) {
+		// LinkedList<String> fileCond1 = new LinkedList<>(), fileCond2 = new
+		// LinkedList<>();
+		// fileCond1.add(UtilityManager.getConfig("output_directory") +
+		// s.getId() + "/"
+		// + tissuePair.getKey().getName() + "/" + mapper +
+		// "_tissue_average.counts");
+		// fileCond2.add(UtilityManager.getConfig("output_directory") +
+		// s.getId() + "/"
+		// + tissuePair.getValue().getName() + "/" + mapper +
+		// "_tissue_average.counts");
+		// EBUtils.runEnrichment(fileCond1, fileCond2,
+		// UtilityManager.getConfig("enrichment_output") + s.getId() +
+		// "/tissue_mix/"
+		// + tissuePair.getKey() + "_" + tissuePair.getValue() + "/" + mapper +
+		// "/",
+		// tissuePair.getKey() + "_" + tissuePair.getValue(), false);
 		// }
 		// }
 		// }

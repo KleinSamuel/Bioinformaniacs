@@ -94,6 +94,7 @@ public class UtilityManager {
 			experimentsWithMissingBam.add("SRR594522");
 			experimentsWithMissingBam.add("SRR594461");
 			experimentsWithMissingBam.add("SRR306816");
+			experimentsWithMissingBam.add("SRR594445");
 		}
 		return experimentsWithMissingBam;
 	}
