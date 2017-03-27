@@ -1,5 +1,7 @@
 package andi.analysis.go.total;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -14,15 +16,19 @@ import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
-public class Total_Organism implements Node_Data {
+public class Organism_Data implements Node_Data {
 
 	public enum Distance_measurement {
 		Avg_seq_id_max, Avg_seq_id_all, GO_tissue_basic, GO_tissue_xgsa;
 	};
 
-	private Vector<String> all_orthologues;
-	private Vector<String> self_genes;
-	private Vector<String> orthologue_genes;
+	public enum Gene_focus {
+		All_genes, orthologues_only, nonorthologues_only;
+	};
+
+	private ArrayList<String> all_orthologues;
+	private TreeSet<String> orthologues_self;
+	private TreeSet<String> orthologues_paired;
 	private String org_name;
 	private int id;
 	private Vector<Boolean> shared;
@@ -32,16 +38,18 @@ public class Total_Organism implements Node_Data {
 	private HashMap<String, Double> counts;
 	private TreeMap<String, Integer> go_counts;
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
+	private Gene_focus gf = Gene_focus.All_genes;
 	private int go_comparison_top = 100;
+	private boolean all_gos_to_root = false;
 
-	public Total_Organism(int id, String name, Species org) {
+	public Organism_Data(int id, String name, Species org) {
 		this.id = id;
 		this.org_name = name;
 		this.org = org;
 		init();
 	}
 
-	public Total_Organism(int id, String name, Species org, String tissue, String count_file, Distance_measurement dm) {
+	public Organism_Data(int id, String name, Species org, String tissue, String count_file, Distance_measurement dm) {
 		this.id = id;
 		this.org_name = name;
 		this.org = org;
@@ -52,11 +60,14 @@ public class Total_Organism implements Node_Data {
 	}
 
 	private void init() {
+		init_dm();
+
+	}
+
+	private void init_dm() {
 		switch (dm) {
 		case GO_tissue_basic:
 			counts = CounterUtils.readCountFile(count_file, false, false, true, true);
-			go_counts = new TreeMap<>();
-			count_gos();
 			break;
 		case GO_tissue_xgsa:
 
@@ -64,41 +75,77 @@ public class Total_Organism implements Node_Data {
 		default:
 			break;
 		}
-
 	}
 
 	private void count_gos() {
+		go_counts = new TreeMap<>();
 		for (String gene : counts.keySet()) {
-			TreeSet<String> goterms = GOHandler.getMappedGOterms(this.get_Species(), gene);
-			HashMap<String,LinkedList<String>> go_terms = GOHandler.getAllMappedGOs(this.get_Species(), gene);
-//			TODO all go terms
-			if (goterms != null)
-				for (String go_term : goterms) {
-					int count = counts.get(gene).intValue();
-					if (go_counts.containsKey(go_term))
-						count += go_counts.get(go_term);
-					go_counts.put(go_term, count);
-				}
+			if (!is_relevant_gene(gene))
+				continue;
+			if (!all_gos_to_root) {
+				TreeSet<String> goterms = GOHandler.getMappedGOterms(this.get_Species(), gene);
+
+				// TODO all go terms
+				if (goterms != null)
+					for (String go_term : goterms) {
+						int count = counts.get(gene).intValue();
+						if (go_counts.containsKey(go_term))
+							count += go_counts.get(go_term);
+						go_counts.put(go_term, count);
+					}
+			} else {
+				HashMap<String, LinkedList<String>> go_terms = GOHandler.getAllMappedGOs(this.get_Species(), gene);
+				if (go_terms != null)
+					for (String go_term : go_terms.keySet()) {
+						for (String terms : go_terms.get(go_term)) {
+							int count = counts.get(gene).intValue();
+							if (go_counts.containsKey(terms))
+								count += go_counts.get(terms);
+							go_counts.put(terms, count);
+						}
+					}
+
+			}
 		}
 	}
 
-	public void set_all_orthologues(Vector<String> all) {
-		all_orthologues = all;
-		Iterator<String> it_all = all.iterator();
-		shared = new Vector<>();
-		for (String g = ""; it_all.hasNext(); g = it_all.next())
-			shared.add(self_genes.contains(g) | orthologue_genes.contains(g));
+	public void set_all_orthologues(Collection<String> all) {
+		all_orthologues = new ArrayList<>();
+		all_orthologues.addAll(all);
 	}
 
-	public void set_self_genes(Vector<String> genes) {
-		this.self_genes = genes;
+	public boolean is_relevant_gene(String g) {
+		switch (gf) {
+		case orthologues_only:
+			if (!orthologues_self.contains(g))
+				return false;
+			return true;
+		case nonorthologues_only:
+			if (orthologues_self.contains(g))
+				return false;
+			return true;
+		default:
+			return true;
+		}
 	}
 
-	public void set_orthologue_genes(Vector<String> genes) {
-		this.orthologue_genes = genes;
+	public void set_own_genes(Collection<String> genes) {
+		orthologues_self = new TreeSet<>();
+		orthologues_self.addAll(genes);
+	}
+
+	public void set_orthologue_genes(Collection<String> genes) {
+		orthologues_paired = new TreeSet<>();
+		orthologues_paired.addAll(genes);
+	}
+
+	public void set_shared_vector(Vector<Boolean> shared) {
+		this.shared = shared;
 	}
 
 	public Vector<String> get_top_x_gos(int top) {
+		if (go_counts == null)
+			count_gos();
 		Vector<String> top_x = new Vector<>();
 		TreeSet<String> rest = new TreeSet<>();
 		rest.addAll(go_counts.keySet());
@@ -120,14 +167,24 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public int compareTo(Node_Data o) {
-		if (!(o instanceof Total_Organism))
+		if (!(o instanceof Organism_Data))
 			return -1;
-		Total_Organism other = (Total_Organism) o;
+		Organism_Data other = (Organism_Data) o;
 		return this.id - other.id;
 	}
 
 	public void set_distance_measurement(Distance_measurement dm) {
-		this.dm = dm;
+		if (this.dm != dm) {
+			this.dm = dm;
+			init_dm();
+		} else
+			this.dm = dm;
+	}
+
+	public void set_gene_focus(Gene_focus gf) {
+		if (gf != this.gf)
+			go_counts = null;
+		this.gf = gf;
 	}
 
 	public TreeMap<String, Integer> get_go_counts() {
@@ -136,9 +193,9 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public double compute_distance(Node_Data nd) {
-		if (nd == null || !(nd instanceof Total_Organism))
+		if (nd == null || !(nd instanceof Organism_Data))
 			return Double.MAX_VALUE;
-		Total_Organism other = (Total_Organism) nd;
+		Organism_Data other = (Organism_Data) nd;
 		double sim_score = 0;
 		double count = 0;
 		switch (dm) {
@@ -175,25 +232,26 @@ public class Total_Organism implements Node_Data {
 		}
 	}
 
-	private double evaluate(Vector<String> this_top, Vector<String> other_top, Total_Organism other) {
+	private double evaluate(Vector<String> this_top, Vector<String> other_top, Organism_Data other) {
 		double dist = 0;
+
 		Iterator<String> it_this = this_top.iterator();
 		Iterator<String> it_other = other_top.iterator();
 		while (it_this.hasNext() && it_other.hasNext()) {
 			String this_term = it_this.next();
 			String other_term = it_other.next();
-			if (!this_term.equals(other_term)) {
-				if (other_top.contains(this_term))
-					dist += 0.5;
-				else
-					dist += 2;
-				if (this_top.contains(other_term))
-					dist += 0.5;
-				else
-					dist += 2;
-			}
+			// if (!this_term.equals(other_term)) {
+			if (!other_top.contains(this_term))
+				dist += 1;
+			// else
+			// dist += 2;
+			if (!this_top.contains(other_term))
+				dist += 1;
+			// else
+			// dist += 2;
+			// }
 		}
-		return dist;
+		return dist / (go_comparison_top * 2);
 	}
 
 	public Species get_Species() {
@@ -207,13 +265,25 @@ public class Total_Organism implements Node_Data {
 
 	@Override
 	public String data_title() {
+		String gene_foc = " of ";
+		switch (gf) {
+		case nonorthologues_only:
+			gene_foc += "all Non-Orthologues";
+			break;
+		case orthologues_only:
+			gene_foc += "all Orthologues";
+			break;
+		default:
+			gene_foc += "all Genes";
+			break;
+		}
 		switch (dm) {
 		case Avg_seq_id_all:
 			return "All possible Orthologue Pairs";
 		case GO_tissue_basic:
-			return "GO similarity in " + tissue;
+			return "GO similarity in " + tissue + gene_foc;
 		case GO_tissue_xgsa:
-			return "GO similarity in " + tissue;
+			return "GO similarity in " + tissue + gene_foc;
 		default:
 			return "Highest identity Othologue Pairs";
 		}

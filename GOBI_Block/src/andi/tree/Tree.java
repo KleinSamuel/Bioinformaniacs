@@ -7,8 +7,9 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import andi.analysis.go.total.Total_Organism;
-import andi.analysis.go.total.Total_Organism.Distance_measurement;
+import andi.analysis.go.total.Organism_Data;
+import andi.analysis.go.total.Organism_Data.Distance_measurement;
+import andi.analysis.go.total.Organism_Data.Gene_focus;
 
 public class Tree /*
 					 * extends AbstractTreeModel<Node> implements
@@ -23,45 +24,98 @@ public class Tree /*
 	private Node root;
 	private TreeMap<Node, Node_Data> leaves;
 	private TreeSet<Node> inner;
-	private HashSet<Node_Data> nds;
+	private TreeSet<Node_Data> nds;
 	private Cluster_method cm = Cluster_method.UPGMA;
+	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
+	private Gene_focus gf = Gene_focus.All_genes;
 	private int round_val = 2;
-
-	public Tree() {
-		// super(super_root);
-		init();
-		nds = new HashSet<>();
-	}
 
 	public Tree(Collection<Node_Data> nds) {
 		// super(super_root);
 		init();
-		this.nds = new HashSet<>();
+		this.nds = new TreeSet<>();
 		this.nds.addAll(nds);
 		build();
+	}
+
+	public Tree(Collection<Node_Data> nds, boolean build) {
+		// super(super_root);
+		init();
+		this.nds = new TreeSet<>();
+		this.nds.addAll(nds);
+		if (build)
+			build();
 	}
 
 	// #Boa Constructor
 	public Tree(Collection<Node_Data> nds, Cluster_method cm) {
 		// super(super_root);
 		init();
-		this.change_cluster_method(cm);
-		this.nds = new HashSet<>();
+		this.nds = new TreeSet<>();
 		this.nds.addAll(nds);
 		build();
 	}
-	
 
-	public void change_distance_measurement(Distance_measurement dm) {
-		for (Node_Data nd : leaves.values()) {
-			if (nd instanceof Total_Organism) {
-				Total_Organism org = (Total_Organism) nd;
+	public Tree() {
+		// super(super_root);
+		init();
+	}
+
+	public Tree add_Node_Data(Collection<Node_Data> nds) {
+		this.nds = new TreeSet<>();
+		this.nds.addAll(nds);
+		build();
+		return this;
+	}
+
+	public void construct(Distance_measurement dm, Gene_focus gf) {
+		System.out.println("\tconstruct with "+dm+" and "+gf);
+		for (Node_Data nd : nds) {
+			if (nd instanceof Organism_Data) {
+				Organism_Data org = (Organism_Data) nd;
+				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 			}
 		}
-		rebuild();
 	}
-	
+
+	public void set_cluster_method(Cluster_method cm) {
+		this.cm = cm;
+	}
+
+	public Tree change_cluster_method(Cluster_method cm) {
+		if (this.cm == cm)
+			return this;
+		this.cm = cm;
+		this.rebuild();
+		return this;
+	}
+
+	public void set_distance_measurement(Distance_measurement dm) {
+		this.dm = dm;
+	}
+
+	public void set_gene_focus(Gene_focus gf) {
+		this.gf = gf;
+		
+	}
+
+	public Tree change_distance_measurement(Distance_measurement dm) {
+		if (this.dm == dm)
+			return this;
+		this.dm = dm;
+		rebuild();
+		return this;
+	}
+
+	public Tree change_gene_focus(Gene_focus gf) {
+		if (this.gf == gf)
+			return this;
+		this.gf = gf;
+		rebuild();
+		return this;
+	}
+
 	public String get_distance_measurement() {
 		return leaves.values().iterator().next().get_distance_measurement();
 	}
@@ -74,11 +128,6 @@ public class Tree /*
 		inner = new TreeSet<>();
 		nodes = new TreeMap<>();
 		// inner_node(root);
-	}
-
-	public void change_cluster_method(Cluster_method cm) {
-		this.cm = cm;
-		this.rebuild();
 	}
 
 	private void inner_node(Node i) {
@@ -124,7 +173,9 @@ public class Tree /*
 		return last;
 	}
 
-	private void build() {
+	public Tree build() {
+		if (this.nds.first() instanceof Organism_Data)
+			construct(dm, gf);
 		switch (cm) {
 		case WPGMA:
 			build_wpgma();
@@ -135,7 +186,7 @@ public class Tree /*
 		default:
 			break;
 		}
-
+		return this;
 	}
 
 	public int get_round_val() {
