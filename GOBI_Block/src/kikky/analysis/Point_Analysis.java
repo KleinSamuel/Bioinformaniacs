@@ -74,8 +74,8 @@ public class Point_Analysis {
 				bw.write("\n#tt");
 			else
 				bw.write("\n#tat");
-			// Point_Info pInfo = sd_query.get_point_info();
-			// bw.write(pInfo.get_point_info_text());
+			 Point_Info pInfo = sd_query.get_point_info();
+			 bw.write(pInfo.get_point_info_text());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

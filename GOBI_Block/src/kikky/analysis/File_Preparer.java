@@ -51,7 +51,7 @@ public class File_Preparer {
 					matrix_row[j++] = value;
 					bw.write(value + "\n");
 				}
-				if (line.startsWith("#Scatterplot")) {
+				if (line.startsWith("+Scatterplot")) {
 					Scatterplot sp = new Scatterplot("FPKM distribution", sample_1, sample_2);
 					sp.set_values(br.readLine().substring(3), br.readLine().substring(3));
 					sp.set_log(true, true);

@@ -69,6 +69,7 @@ public class HeatMap {
 	public void plot(String file) {
 		try {
 			File r_script = File.createTempFile("R_script_", ".R");
+			r_script.deleteOnExit();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
