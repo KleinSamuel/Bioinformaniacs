@@ -8,7 +8,6 @@ import java.io.IOException;
 
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
-import kikky.heatmap.Sample_Data;
 
 public class Point_Analysis {
 	private long start;
@@ -17,13 +16,23 @@ public class Point_Analysis {
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		long real_start = System.currentTimeMillis();
-
+		String go = "", type = "";
+		int end = 0;
+		if (args.length < 5) {
+			go = args[3];
+			type = args[2];
+			end = Integer.parseInt(args[1]);
+		} else {
+			go = args[4];
+			type = args[3];
+			end = Integer.parseInt(args[2]);
+		}
 		bw = new BufferedWriter(
-				new FileWriter(path + "files/" + (Integer.parseInt(args[0]) - 7000) + "-" + args[4] + "FPKM.txt"));
-		bw.write("### used go: " + args[4] + " ###");
-		for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[2]); i++) {
+				new FileWriter(path + "files/" + (Integer.parseInt(args[0]) - 7000) + "-" + go + "FPKM.txt"));
+		bw.write("### used go: " + go + " ###");
+		for (int i = Integer.parseInt(args[1]); i <= end; i++) {
 			bw.write("\n#Pair " + (Integer.parseInt(args[0]) - 7000) + "-" + (i - 7000));
-			new Point_Analysis(args[0], i + "", args[3], args[4]);
+			new Point_Analysis(args[0], i + "", type, go);
 		}
 		bw.close();
 		String out = "[";
@@ -36,13 +45,30 @@ public class Point_Analysis {
 
 	public Point_Analysis(String first, String secound, String type, String filter) {
 		if (type.equals("FPKM"))
-			FPKM(first, secound, filter);
+			FPKM(first, secound, filter, false);
 		else if (type.equals("DEP")) {
 		}
 
 	}
 
-	public void FPKM(String first, String secound, String filter) {
+	public Point_Analysis(String first, String secound, String type, String filter, boolean clicked) {
+		if (type.equals("FPKM")) {
+			try {
+				bw = new BufferedWriter(
+						new FileWriter(path + "files/" + (Integer.parseInt(first) - 7000) + "-" + filter + "FPKM.txt"));
+				bw.write("### used go: " + filter + " ###");
+				bw.write("\n#Pair " + (Integer.parseInt(first) - 7000) + "-" + (Integer.parseInt(secound) - 7000));
+				FPKM(first, secound, filter, true);
+				bw.close();
+			} catch (NumberFormatException | IOException e) {
+				e.printStackTrace();
+			}
+		} else if (type.equals("DEP")) {
+		}
+
+	}
+
+	public void FPKM(String first, String secound, String filter, boolean clicked) {
 		try {
 			start = System.currentTimeMillis();
 			System.out.println(systemInfoString() + "Starting to generate partners");
@@ -51,8 +77,8 @@ public class Point_Analysis {
 			String data_path = UtilityManager.getConfig("output_directory");
 			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/fpkm.info"));
 			String line;
-			Sample_Data sd_query = null;
-			Sample_Data sd_target = null;
+			FPKM_Single sd_query = null;
+			FPKM_Single sd_target = null;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith((Integer.parseInt(first) - 7000) + "#")) {
 					sd_query = generate_Sample(line, data_path, filter);
@@ -64,6 +90,10 @@ public class Point_Analysis {
 					break;
 			}
 			br.close();
+			if (clicked) {
+				sd_query.set_info(true);
+				sd_target.set_info(true);
+			}
 			System.out.println(systemInfoString() + "Starting to calculate values to partner");
 			System.out.println(systemInfoString() + sd_query.get_name() + " vs " + sd_target.get_name());
 			String temp = sd_query.get_value(sd_target) + "";
@@ -74,8 +104,12 @@ public class Point_Analysis {
 				bw.write("\n#tt");
 			else
 				bw.write("\n#tat");
-			 Point_Info pInfo = sd_query.get_point_info();
-			 bw.write(pInfo.get_point_info_text());
+			if (((FPKM_Single) sd_query).get_organism_ID() == ((FPKM_Single) sd_target).get_organism_ID())
+				bw.write("\n#oo");
+			else
+				bw.write("\n#oao");
+			Point_Info pInfo = sd_query.get_point_info();
+			bw.write(pInfo.get_point_info_text());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

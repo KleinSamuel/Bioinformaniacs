@@ -73,7 +73,8 @@ public class HeatMap {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
 			bw.write("library(plotly);\n");
 			bw.write(matrix + ";\n");
-			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1) + ",z = m, type = \"heatmap\");\n");
+			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1)
+					+ ",z = m, type = \"heatmap\",xaxis = {categoryorder = \"array\"}, yaxis = {categoryorder = \"array\"});\n");
 			bw.write("json <- plotly_json(p, FALSE);");
 			bw.write("write(json, \"" + file + "\");");
 			bw.close();
