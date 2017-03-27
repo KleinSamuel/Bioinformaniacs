@@ -186,6 +186,8 @@ public class Tree /*
 	}
 
 	public Tree build() {
+		if(nds.size()<1)
+			return this;
 		if (this.nds.first() instanceof Organism_Data)
 			construct(dm, gf,go_terms_to_root);
 		switch (cm) {

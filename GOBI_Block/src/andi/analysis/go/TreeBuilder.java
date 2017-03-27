@@ -2,6 +2,7 @@ package andi.analysis.go;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,7 +22,7 @@ import dennis.utility_manager.UtilityManager;
 
 public class TreeBuilder {
 	public enum Tree_status {
-		Prepared, Built, None;
+		Prepared, Built, None, Init;
 	};
 
 	public TreeMap<Species, TreeSet<Tissue>> species_tissues;
@@ -35,13 +36,15 @@ public class TreeBuilder {
 	public ArrayList<Process> open_viewers;
 	public ArrayList<Tree> go_trees;
 	public Tree_status go_tree_status = Tree_status.None;
+	public TreeSet<String> t_filter;
+	public TreeSet<String> s_filter;
 
-	public TreeBuilder(ArrayList<Species> species, ArrayList<Tissue> tissues, boolean um_initialized) {
+	public TreeBuilder(ArrayList<String> species, ArrayList<String> tissues, boolean um_initialized) {
 		if (!um_initialized)
 			init_um();
-		init(species, tissues);
-		compute_orthologues();
-		prepare_leaves();
+		set_species_filter(species);
+		set_tissue_filter(tissues);
+		init();
 
 	}
 
@@ -70,35 +73,42 @@ public class TreeBuilder {
 
 	}
 
-	private void init(ArrayList<Species> species, ArrayList<Tissue> tissues) {
+	private void init() {
 		this.species_tissues = new TreeMap<>();
 		this.open_viewers = new ArrayList<>();
+		go_tree_status = Tree_status.Init;
 		Iterator<Species> it_sp = UtilityManager.speciesIterator();
 		leave_data = new TreeMap<>();
 		while (it_sp.hasNext()) {
 			Species s = it_sp.next();
-			if (species == null || species.contains(s)) {
+			if (s_filter == null || s_filter.contains(s.getName())) {
 				this.species_tissues.put(s, new TreeSet<>());
 				Iterator<Tissue> it_ti = UtilityManager.tissueIterator(s);
 				while (it_ti.hasNext()) {
 					Tissue t = it_ti.next();
-					leave_data.put(t, new TreeSet<>());
-					if (tissues == null || tissues.contains(t))
+					if (t_filter == null || t_filter.contains(t.getName())) {
+						leave_data.put(t, new TreeSet<>());
 						this.species_tissues.get(s).add(t);
+					}
 				}
 			}
 		}
+		compute_orthologues();
+		prepare_leaves();
 	}
 
 	private void set_go_tree_use_all_go_terms(boolean b) {
 		if (go_tree_status == Tree_status.None)
+			init();
+		if (go_tree_status == Tree_status.Init)
 			prepare_go_trees();
 		for (Tree t : get_go_trees())
 			if (go_tree_status == Tree_status.Built)
 				t.change_go_to_root(b);
 			else if (go_tree_status == Tree_status.Prepared) {
 				System.out.println("\tset_go_to root " + b);
-				t.set_go_to_root(b);;
+				t.set_go_to_root(b);
+				;
 			}
 	}
 
@@ -182,13 +192,15 @@ public class TreeBuilder {
 
 	public ArrayList<Tree> get_go_trees() {
 		if (go_tree_status == Tree_status.None)
+			init();
+		if (go_tree_status == Tree_status.Init)
 			prepare_go_trees();
 		return go_trees;
 	}
 
 	public ArrayList<Tree> build_go_trees() {
 		if (go_tree_status == Tree_status.Prepared) {
-			for (Tree t : go_trees)
+			for (Tree t : get_go_trees())
 				t.build();
 			go_tree_status = Tree_status.Built;
 		}
@@ -201,7 +213,7 @@ public class TreeBuilder {
 				build_go_trees();
 			}
 			if (go_tree_status == Tree_status.Built)
-				for (Tree t : go_trees) {
+				for (Tree t : get_go_trees()) {
 					Process p = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
 					open_viewers.add(p);
 				}
@@ -217,9 +229,41 @@ public class TreeBuilder {
 			if (go_tree_status == Tree_status.Built)
 				t.change_gene_focus(gf);
 			else if (go_tree_status == Tree_status.Prepared) {
-				System.out.println("\tset_focus " + gf);
 				t.set_gene_focus(gf);
 			}
+	}
+
+	public void set_tissue_filter(Collection<String> tissues) {
+		if (tissues == null) {
+			t_filter = null;
+			return;
+		}
+		t_filter = new TreeSet<>();
+		t_filter.addAll(tissues);
+		go_tree_status = Tree_status.None;
+	}
+
+	public void set_species_filter(Collection<String> species) {
+		if (species == null) {
+			s_filter = null;
+			return;
+		}
+		s_filter = new TreeSet<>();
+		s_filter.addAll(species);
+		go_tree_status = Tree_status.None;
+	}
+
+	public void reset_species_filter() {
+		set_species_filter(null);
+	}
+
+	public void reset_tissue_filter() {
+		set_tissue_filter(null);
+	}
+
+	public void reset_filters() {
+		reset_species_filter();
+		reset_tissue_filter();
 	}
 
 	public Tree build_avg_sequence_id_of_orthologues_tree() {
@@ -228,9 +272,15 @@ public class TreeBuilder {
 	}
 
 	public static void main(String[] args) {
-		TreeBuilder b = new TreeBuilder(null, null, false);
-//		System.out.println("view avg");
-//		b.view(b.build_avg_sequence_id_of_orthologues_tree());
+
+		// System.out.println("view avg");
+		// b.view(b.build_avg_sequence_id_of_orthologues_tree());
+		ArrayList<String> tissues = new ArrayList<>(Arrays.asList(new String[] { "brain", "testis" }));
+		TreeBuilder b = new TreeBuilder(null, tissues, false);
+		b.set_go_tree_gene_focus(Gene_focus.orthologues_only);
+		b.view_go_trees();
+		b.set_go_tree_gene_focus(Gene_focus.nonorthologues_only);
+		b.view_go_trees();
 		b.set_go_tree_use_all_go_terms(true);
 		b.set_go_tree_gene_focus(Gene_focus.orthologues_only);
 		b.view_go_trees();
