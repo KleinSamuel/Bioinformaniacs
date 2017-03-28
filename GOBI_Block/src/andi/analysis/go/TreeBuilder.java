@@ -1,8 +1,8 @@
 package andi.analysis.go;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -74,6 +74,7 @@ public class TreeBuilder {
 		compute_orthologues();
 		prepare_leaves();
 	}
+
 	private void prepare_leaves() {
 		basic_leaves = new TreeSet<>();
 		for (Species s : species_tissues.keySet()) {
@@ -98,7 +99,6 @@ public class TreeBuilder {
 			}
 
 	}
-
 
 	private void set_go_tree_use_all_go_terms(boolean b) {
 		if (go_tree_status == Tree_status.None)
@@ -170,6 +170,7 @@ public class TreeBuilder {
 			e.printStackTrace();
 		}
 	}
+
 	public void wait_for_close() {
 		for (Process p : open_viewers)
 			try {
@@ -189,6 +190,7 @@ public class TreeBuilder {
 		}
 		go_tree_status = Tree_status.Prepared;
 	}
+
 	public void prepare_de_trees() {
 		System.out.println("\tprepare de trees");
 		de_trees = new ArrayList<>();
@@ -206,7 +208,7 @@ public class TreeBuilder {
 			prepare_go_trees();
 		return go_trees;
 	}
-	
+
 	public ArrayList<Tree> get_de_trees() {
 		if (de_tree_status == Tree_status.None)
 			init();
@@ -223,7 +225,7 @@ public class TreeBuilder {
 		}
 		return go_trees;
 	}
-	
+
 	public ArrayList<Tree> build_de_trees() {
 		if (de_tree_status == Tree_status.Prepared) {
 			for (Tree t : get_de_trees())
@@ -235,7 +237,7 @@ public class TreeBuilder {
 
 	public void view_go_trees() {
 		try {
-			if(go_tree_status == Tree_status.Init)
+			if (go_tree_status == Tree_status.Init)
 				prepare_go_trees();
 			if (go_tree_status == Tree_status.Prepared) {
 				build_go_trees();
@@ -249,11 +251,11 @@ public class TreeBuilder {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void view_de_trees() {
 		try {
 			System.out.println(de_tree_status);
-			if(de_tree_status == Tree_status.Init)
+			if (de_tree_status == Tree_status.Init)
 				prepare_de_trees();
 			if (de_tree_status == Tree_status.Prepared) {
 				build_de_trees();
@@ -278,7 +280,7 @@ public class TreeBuilder {
 				t.set_gene_focus(gf);
 			}
 	}
-	
+
 	public void set_de_tree_gene_focus(Gene_focus gf) {
 		if (de_tree_status == Tree_status.None)
 			prepare_de_trees();
@@ -289,11 +291,11 @@ public class TreeBuilder {
 				t.set_gene_focus(gf);
 			}
 	}
-	
+
 	public void de_pair_view(Gene_focus gf1, Gene_focus gf2) {
-		TreeMap<String,ArrayList<Tree>> pairs = new TreeMap<>();
+		TreeMap<String, ArrayList<Tree>> pairs = new TreeMap<>();
 		set_de_tree_gene_focus(gf1);
-		if(de_tree_status == Tree_status.Init)
+		if (de_tree_status == Tree_status.Init)
 			prepare_de_trees();
 		if (de_tree_status == Tree_status.Prepared) {
 			build_de_trees();
@@ -301,12 +303,12 @@ public class TreeBuilder {
 		if (de_tree_status == Tree_status.Built)
 			for (Tree t : get_de_trees()) {
 				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
-				if(!pairs.containsKey(tissue))
+				if (!pairs.containsKey(tissue))
 					pairs.put(tissue, new ArrayList<>());
 				pairs.get(tissue).add(t.clone());
 			}
 		set_de_tree_gene_focus(gf2);
-		if(de_tree_status == Tree_status.Init)
+		if (de_tree_status == Tree_status.Init)
 			prepare_de_trees();
 		if (de_tree_status == Tree_status.Prepared) {
 			build_de_trees();
@@ -314,14 +316,56 @@ public class TreeBuilder {
 		if (de_tree_status == Tree_status.Built)
 			for (Tree t : get_de_trees()) {
 				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
-				if(!pairs.containsKey(tissue))
+				if (!pairs.containsKey(tissue))
 					pairs.put(tissue, new ArrayList<>());
 				pairs.get(tissue).add(t.clone());
 			}
-		for(String tissue:pairs.keySet()) {
-			for(Tree t:pairs.get(tissue)) {
+		for (String tissue : pairs.keySet()) {
+			for (Tree t : pairs.get(tissue)) {
 				try {
-					Process e = Runtime.getRuntime().exec("display "+Plot.get_plot(t));
+					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
+					open_viewers.add(e);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			wait_for_close();
+		}
+	}
+
+	public void go_pair_view(Gene_focus gf1, Gene_focus gf2) {
+		TreeMap<String, ArrayList<Tree>> pairs = new TreeMap<>();
+		set_go_tree_gene_focus(gf1);
+		if (go_tree_status == Tree_status.Init)
+			prepare_go_trees();
+		if (go_tree_status == Tree_status.Prepared) {
+			build_go_trees();
+		}
+		if (go_tree_status == Tree_status.Built)
+			for (Tree t : get_go_trees()) {
+				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
+				if (!pairs.containsKey(tissue))
+					pairs.put(tissue, new ArrayList<>());
+				pairs.get(tissue).add(t.clone());
+			}
+		set_go_tree_gene_focus(gf2);
+		if (go_tree_status == Tree_status.Init)
+			prepare_go_trees();
+		if (go_tree_status == Tree_status.Prepared) {
+			build_go_trees();
+		}
+		if (go_tree_status == Tree_status.Built)
+			for (Tree t : get_go_trees()) {
+				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
+				if (!pairs.containsKey(tissue))
+					pairs.put(tissue, new ArrayList<>());
+				pairs.get(tissue).add(t.clone());
+			}
+		for (String tissue : pairs.keySet()) {
+			for (Tree t : pairs.get(tissue)) {
+				try {
+					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
 					open_viewers.add(e);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -374,26 +418,32 @@ public class TreeBuilder {
 
 	public static void main(String[] args) {
 
-		// System.out.println("view avg");
-//		ArrayList<String> tissues = new ArrayList<>(Arrays.asList(new String[] { "brain", "testis" }));
-		TreeBuilder b = new TreeBuilder(null, null, false);
-//		b.view(b.build_avg_sequence_id_of_orthologues_tree());
-		b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
-//		b.set_de_tree_gene_focus(Gene_focus.orthologues_only);
-//		b.view_de_trees();
-//		b.set_de_tree_gene_focus(Gene_focus.nonorthologues_only);
-//		b.view_de_trees();
-//		b.set_go_tree_gene_focus(Gene_focus.orthologues_only);
-//		b.view_go_trees();
-//		b.set_go_tree_gene_focus(Gene_focus.nonorthologues_only);
-//		b.view_go_trees();
-//		b.set_go_tree_use_all_go_terms(true);
-//		b.set_go_tree_gene_focus(Gene_focus.orthologues_only);
-//		b.view_go_trees();
-//		b.set_go_tree_gene_focus(Gene_focus.nonorthologues_only);
-//		b.view_go_trees();
-		b.wait_for_close();
+		boolean demo = true;
+		TreeBuilder b;
+		if (demo) {
+			ArrayList<String> tissues = new ArrayList<>(Arrays.asList(new String[] { "brain", "testis" }));
+			b = new TreeBuilder(null, tissues, false);
+			b.view(b.build_avg_sequence_id_of_orthologues_tree());
+			b.wait_for_close();
+			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
+			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.set_go_tree_use_all_go_terms(true);
+			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
+			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 
+		}
+		else{
+			b = new TreeBuilder(null, null, false);
+			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
+			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.set_go_tree_use_all_go_terms(true);
+			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
+			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
+			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
+		}
 	}
 
 }

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
+import andi.analysis.go.total.Organism_Data;
+import andi.analysis.go.total.Organism_Data.Distance_measurement;
+import andi.analysis.go.total.Organism_Data.Gene_focus;
+
 public class Plot {
 
 	private String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
@@ -29,6 +33,9 @@ public class Plot {
 	}
 
 	public File plot(Node n) throws Exception {
+		if (t.get_data_class() == Organism_Data.class && t.get_distance_measurement() == Distance_measurement.DE_count
+				&& t.get_gene_focus() == Gene_focus.orthologues_only)
+			t.set_round_val(3);
 		File plot;
 		File r_script;
 		File r_newick;
@@ -68,15 +75,16 @@ public class Plot {
 		bw.write("title(main=\"" + t.data_tile() + "\")");
 		bw.newLine();
 		ArrayList<Double> dists_rev = t.get_distances_rev(n);
-		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(dists_rev,false) + "),labels=c("
-				+ t.distances_to_String(t.get_distances(n),true) + "));");
+		bw.write("axis(1,pos=0.7,at=c(" + t.distances_to_String(dists_rev, false) + "),labels=c("
+				+ t.distances_to_String(t.get_distances(n), true) + "));");
 		bw.newLine();
-		for (int i = 1; i<dists_rev.size()-1;i++) {
+		for (int i = 1; i < dists_rev.size() - 1; i++) {
 			bw.write("abline(v=" + dists_rev.get(i) + ",lty=3,lwd=0.3);");
 			bw.newLine();
 		}
 		double leaves = n.count_leaves();
-		bw.write("mtext(\""+t.get_distance_measurement()+"(" + t.get_cluster_method() + ")\",side=1,line="+(leaves<5? 5.5*(leaves/(0.001+leaves)) : 0.5*(5.0+(leaves)/(leaves)))+",at="
+		bw.write("mtext(\"" + t.get_distance_measurement_String() + "(" + t.get_cluster_method() + ")\",side=1,line="
+				+ (leaves < 5 ? 5.5 * (leaves / (0.001 + leaves)) : 0.5 * (5.0 + (leaves) / (leaves))) + ",at="
 				+ ((n.get_total_dist() / 2.0) + t.get_root_offset(n)) + ");");
 		bw.newLine();
 		bw.write("dev.off();");
@@ -86,9 +94,11 @@ public class Plot {
 		return plot;
 	}
 
-
-
 	public static File get_plot(Tree tree, Node n) {
+		return get_plot_clone(tree.clone(), n.clone());
+	}
+
+	private static File get_plot_clone(Tree tree, Node n) {
 		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
@@ -104,7 +114,12 @@ public class Plot {
 		return paths.get(node_names).get(tree).get(n);
 	}
 
+	
 	public static File get_plot(Tree tree, Node n, String temp_dir) {
+		return get_plot_clone(tree.clone(),n.clone(),temp_dir);
+	}
+	
+	private static File get_plot_clone(Tree tree, Node n, String temp_dir) {
 		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
 		if (!paths.get(node_names).containsKey(tree))
@@ -121,38 +136,14 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree) {
-		return get_plot(tree,tree.get_root());
+		return get_plot(tree, tree.get_root());
 	}
-	
+
 	public static File get_plot(Tree tree, int id) {
-		if (!paths.containsKey(node_names))
-			paths.put(node_names, new HashMap<>());
-		if (!paths.get(node_names).containsKey(tree))
-			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(node_names).get(tree).containsKey(tree.get_Node(id))) {
-			Plot p = new Plot(tree);
-			try {
-				paths.get(node_names).get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id)));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return paths.get(node_names).get(tree).get(tree.get_Node(id));
+		return get_plot(tree,tree.get_Node(id));
 	}
 
 	public static File get_plot(Tree tree, int id, String temp_dir) {
-		if (!paths.containsKey(node_names))
-			paths.put(node_names, new HashMap<>());
-		if (!paths.get(node_names).containsKey(tree))
-			paths.get(node_names).put(tree, new TreeMap<>());
-		if (!paths.get(node_names).get(tree).containsKey(tree.get_Node(id))) {
-			Plot p = new Plot(tree);
-			try {
-				paths.get(node_names).get(tree).put(tree.get_Node(id), p.plot(tree.get_Node(id), temp_dir));
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return paths.get(node_names).get(tree).get(tree.get_Node(id));
+		return get_plot(tree,tree.get_Node(id),temp_dir);
 	}
 }
