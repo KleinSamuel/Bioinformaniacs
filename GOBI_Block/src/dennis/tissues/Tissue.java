@@ -71,4 +71,9 @@ public class Tissue implements Comparable<Tissue> {
 		return name.compareTo(o.getName());
 	}
 
+	public boolean equals(Tissue o) {
+		if (o.getName().equals(this.name) && o.getNumber() == this.number)
+			return true;
+		return false;
+	}
 }

@@ -22,6 +22,7 @@ public class File_Converter {
 			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
 					false);
 			String data_path = UtilityManager.getConfig("output_directory");
+			String data = UtilityManager.getConfig("old_output_directory");
 			for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 				Species organism = it_org.next();
 				for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
@@ -33,7 +34,7 @@ public class File_Converter {
 						try {
 							BufferedWriter bw = new BufferedWriter(new FileWriter(path + "/fpkm.counts"));
 							HashMap<String, Double> hm = Calculator.FPKM_generator(path + "/gene.counts",
-									data_path + "geneLengths/" + organism.getId() + ".geneLengths");
+									data + "geneLengths/" + organism.getId() + ".geneLengths");
 							bw.write("gene_id\tfpkm_value");
 							for (String key : hm.keySet())
 								bw.write("\n" + key + "\t" + hm.get(key));

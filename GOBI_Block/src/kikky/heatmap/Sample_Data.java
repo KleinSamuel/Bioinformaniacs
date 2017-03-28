@@ -8,8 +8,6 @@ public interface Sample_Data extends Comparable<Sample_Data> {
 
 	public double get_value(Sample_Data sd);
 	
-	public Point_Info get_point_info();
-	
 	public boolean equals(Object obj);
 	
 	public int hashCode();

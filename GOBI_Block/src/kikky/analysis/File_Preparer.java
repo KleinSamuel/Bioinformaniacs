@@ -8,14 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.Vector;
 
-import dennis.GO.GOHandler;
-import dennis.utility_manager.Species;
 import kikky.heatmap.Barplot;
 import kikky.heatmap.Sample_Data;
 import kikky.heatmap.Scatterplot;
