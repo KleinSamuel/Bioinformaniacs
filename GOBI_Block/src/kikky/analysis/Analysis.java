@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import dennis.similarities.SimilarityObject;
 import dennis.tissues.Tissue;
+import dennis.tissues.TissuePair;
 import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
@@ -145,6 +146,27 @@ public class Analysis {
 		}
 	}
 
+	private static void DEP(String phase, String filter){
+		ArrayList<Sample_Data> dep_samples = new ArrayList<>();
+		System.out.println(systemInfoString() + "Starting Utility Manager");
+		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+				false);
+		String data_path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/EB/";
+		System.out.println(systemInfoString() + "Starting to save gene count infos");
+		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
+			Species organism = it_org.next();
+			for (Iterator<TissuePair> it_tis = UtilityManager.tissuePairIterator(organism); it_tis.hasNext();) {
+				TissuePair tissue = it_tis.next();
+					String map = "star";
+					String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + exp.getName() + "/"
+							+ map + "/fpkm.counts";
+					FPKM_Single fs = new FPKM_Single(organism, tissue.getName(), exp.getName(), path, filter);
+					dep_samples.add(fs);
+			}
+		}
+		dep_samples.sort(new TissueComparator<>());
+	}
+	
 	private static void write_correlation(TreeMap<Double, Double> tt, TreeMap<Double, Double> tat, BufferedWriter bw)
 			throws IOException {
 		bw.write("#Correlation line plot\t");
@@ -171,7 +193,7 @@ public class Analysis {
 		sb_y.deleteCharAt(0);
 		mean2 /= tat.size();
 		text += "#mean of tat\t" + mean2 + "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
-		bw.write(Math.abs(mean1 - mean2) + "\n" + text); // TODO: not abs?
+		bw.write((mean1 - mean2) + "\n" + text); 
 	}
 
 	public static String systemInfoString() {
