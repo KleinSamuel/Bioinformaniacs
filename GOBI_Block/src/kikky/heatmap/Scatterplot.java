@@ -69,7 +69,8 @@ public class Scatterplot {
 			bw.println(String.format("title(main='%s', xlab='%s', ylab='%s');", title, xlab, ylab));
 			bw.close();
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + tmp.getAbsolutePath());
-		} catch (IOException e) {
+			plotting.waitFor();
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
