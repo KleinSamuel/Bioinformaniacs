@@ -10,8 +10,6 @@ import dennis.counter.CounterUtils;
 import dennis.forKikky.Clustering;
 import dennis.forKikky.KikkyNxMmapping;
 import dennis.forKikky.MatesScoring;
-import dennis.similarities.NxMmapping;
-import dennis.similarities.SimilarityObject;
 import dennis.utility_manager.Species;
 import kikky.heatmap.Sample_Data;
 
@@ -22,6 +20,7 @@ public class FPKM_Single implements Sample_Data {
 	private HashMap<String, Double> gene_data = new HashMap<>();
 	private Point_Info pi;
 	private String filter;
+	private boolean all_info = false;
 
 	private long start;
 
@@ -77,13 +76,15 @@ public class FPKM_Single implements Sample_Data {
 				+ tissue + "\t" + exp_number;
 	}
 
+	public void set_info(boolean info) {
+		this.all_info = info;
+	}
+
 	@Override
 	public double get_value(Sample_Data sd) {
 		start = System.currentTimeMillis();
 		FPKM_Single fs = (FPKM_Single) sd;
-		System.out.println(systemInfoString() + "Getting mates");
 		HashMap<String, String> mates = get_mates(fs);
-		System.out.println(systemInfoString() + "Calculate");
 		PearsonsCorrelation pc = new PearsonsCorrelation();
 		double[] x = new double[mates.size()];
 		double[] y = new double[mates.size()];
@@ -94,18 +95,20 @@ public class FPKM_Single implements Sample_Data {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = fs.gene_data.get(mates.get(gene_id_x));
-				x_asString.append(",").append(x[index]);
-				y_asString.append(",").append(y[index]);
-				x_genes.append(",").append(gene_id_x);
-				y_genes.append(",").append(mates.get(gene_id_x));
+				if (all_info) {
+					x_asString.append(",").append(x[index]);
+					y_asString.append(",").append(y[index]);
+					x_genes.append(",").append(gene_id_x);
+					y_genes.append(",").append(mates.get(gene_id_x));
+				}
 				index++;
 			}
-			System.out.println(systemInfoString() + "Save Infos");
 			pi = new Point_Info(mates, x, y);
-			pi.scatter_plot(x_asString.substring(1), y_asString.substring(1), x_genes.substring(1),
-					y_genes.substring(1));
-			pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
-			System.out.println(systemInfoString() + "Calculate correlation");
+			if (all_info) {
+				pi.scatter_plot(x_asString.substring(1), y_asString.substring(1), x_genes.substring(1),
+						y_genes.substring(1));
+				pi.percentage_mates_to_all(this.gene_data.size(), fs.gene_data.size());
+			}
 			return pc.correlation(x, y);
 		}
 		pi = new Point_Info(mates, x, y);

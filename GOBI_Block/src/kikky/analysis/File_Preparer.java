@@ -8,8 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -23,7 +23,7 @@ public class File_Preparer {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
 	public static Number[] read_file_fpkm(String file, ArrayList<Sample_Data> values,
-			HashMap<String, ArrayList<Double>> comp) {
+			HashMap<String, TreeMap<Double, Double>> comp, HashMap<String, TreeMap<Double, Double>> comp_spe) {
 		double value = 0;
 		String[] x_genes = null, y_genes = null;
 		Number[] matrix_row = new Number[values.size()];
@@ -38,7 +38,7 @@ public class File_Preparer {
 			int j = 0;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith("#Pair")) {
-					line = line.substring(5);
+					line = line.substring(6);
 					String[] samples = line.split("-");
 					bw.write(samples[0] + " " + sample_1 + "\n");
 					bw.write(samples[1] + " " + sample_2 + "\n");
@@ -47,15 +47,23 @@ public class File_Preparer {
 				}
 				if (line.startsWith("#Heatmap_value")) {
 					value = Double.parseDouble(br.readLine());
-					comp.get(br.readLine()).add(value);
+					String tissue_pair = br.readLine();
+					String species_pair = br.readLine();
+					double use_for_cor = round(value, 2);
+					if (!comp.get(tissue_pair).containsKey(use_for_cor))
+						comp.get(tissue_pair).put(use_for_cor, 0.0);
+					comp.get(tissue_pair).put(use_for_cor, comp.get(tissue_pair).get(use_for_cor) + 1);
+					if (!comp_spe.get(species_pair).containsKey(use_for_cor))
+						comp_spe.get(species_pair).put(use_for_cor, 0.0);
+					comp_spe.get(species_pair).put(use_for_cor, comp_spe.get(species_pair).get(use_for_cor) + 1);
 					matrix_row[j++] = value;
 					bw.write(value + "\n");
 				}
-				if (line.startsWith("+Scatterplot")) {
+				if (line.startsWith("#Scatterplot")) {
 					Scatterplot sp = new Scatterplot("FPKM distribution", sample_1, sample_2);
 					sp.set_values(br.readLine().substring(3), br.readLine().substring(3));
 					sp.set_log(true, true);
-					sp.plot(path + "info_files/FPKM/" + f.getName().replace("FPKM.txt", "DistFPKM.png"));
+					sp.plot(path + "plot/FPKM/" + f.getName().replace("FPKM.txt", "DistFPKM.png"));
 					x_genes = br.readLine().substring(9).split(",");
 					y_genes = br.readLine().substring(9).split(",");
 				}
@@ -129,7 +137,17 @@ public class File_Preparer {
 		vals.add(Double.parseDouble(split[1].split("[|]")[1]));
 		bp.set_values(vals);
 		bp.setnames("\"" + sample_1 + "\",\"both\",\"" + sample_2 + "\"", 3);
-		bp.plot(path + "info_files/" + type + "/" + f_name.replace(type + ".txt", "DistGenes.png"));
+		bp.plot(path + "plot/" + type + "/" + f_name.replace(type + ".txt", "DistGenes.png"));
+	}
+
+	public static double round(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
 	}
 
 }
