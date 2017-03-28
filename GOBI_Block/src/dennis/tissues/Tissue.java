@@ -57,6 +57,11 @@ public class Tissue implements Comparable<Tissue> {
 	}
 
 	@Override
+	public String toString() {
+		return name;
+	}
+
+	@Override
 	public int hashCode() {
 		return name.hashCode();
 	}

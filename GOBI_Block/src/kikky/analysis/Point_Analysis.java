@@ -16,23 +16,12 @@ public class Point_Analysis {
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		long real_start = System.currentTimeMillis();
-		String go = "", type = "";
-		int end = 0;
-		if (args.length < 5) {
-			go = args[3];
-			type = args[2];
-			end = Integer.parseInt(args[1]);
-		} else {
-			go = args[4];
-			type = args[3];
-			end = Integer.parseInt(args[2]);
-		}
 		bw = new BufferedWriter(
-				new FileWriter(path + "files/" + (Integer.parseInt(args[0]) - 7000) + "-" + go + "FPKM.txt"));
-		bw.write("### used go: " + go + " ###");
-		for (int i = Integer.parseInt(args[1]); i <= end; i++) {
+				new FileWriter(path + "files/" + (Integer.parseInt(args[0]) - 7000) + "-" + args[4] + "FPKM.txt"));
+		bw.write("### used go: " + args[4] + " ###");
+		for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[2]); i++) {
 			bw.write("\n#Pair " + (Integer.parseInt(args[0]) - 7000) + "-" + (i - 7000));
-			new Point_Analysis(args[0], i + "", type, go);
+			new Point_Analysis(args[0], i + "", args[3], args[4]);
 		}
 		bw.close();
 		String out = "[";
@@ -54,8 +43,8 @@ public class Point_Analysis {
 	public Point_Analysis(String first, String secound, String type, String filter, boolean clicked) {
 		if (type.equals("FPKM")) {
 			try {
-				bw = new BufferedWriter(
-						new FileWriter(path + "files/" + (Integer.parseInt(first) - 7000) + "-" + filter + "FPKM.txt"));
+				bw = new BufferedWriter(new FileWriter(path + "files/" + (Integer.parseInt(first) - 7000) + "-"
+						+ (Integer.parseInt(secound) - 7000) + "-" + filter + "FPKM.txt"));
 				bw.write("### used go: " + filter + " ###");
 				bw.write("\n#Pair " + (Integer.parseInt(first) - 7000) + "-" + (Integer.parseInt(secound) - 7000));
 				FPKM(first, secound, filter, true);

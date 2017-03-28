@@ -1,5 +1,6 @@
 package dennis.analysis;
 
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -116,6 +117,13 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 			}
 			sb.append("\n");
 		}
+
+		sb.append("\n");
+		for (Entry<GenePair, ScoringObject> gp : matches.entrySet()) {
+			sb.append(gp + "\t" + gp.getValue().getScore() + "\n");
+		}
+
+		sb.append("\n");
 
 		return sb.toString();
 	}

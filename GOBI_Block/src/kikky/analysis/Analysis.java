@@ -64,10 +64,9 @@ public class Analysis {
 				System.out.println(systemInfoString() + "Starting to generate values for HeatMap");
 				Process plotting;
 				int id = 7000;
-				plotting = Runtime.getRuntime()
-						.exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
-								+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-								+ (id + 1) + " " + (id + fpkm_samples.size()) + " FPKM " + filter);
+				plotting = Runtime.getRuntime().exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
+						+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
+						+ (id + 1) + " " + (id + fpkm_samples.size()) + " FPKM " + filter);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -92,11 +91,12 @@ public class Analysis {
 						comp, comp_spe);
 				for (int j = 0; j < matrix[i - 1].length; j++) {
 					sb.append(matrix[i - 1][j]).append(",");
+					// System.out.println(i +" "+j);
 					double val = (double) matrix[i - 1][j];
-					if (val > highest.getMaximumIdentityScore())
-						highest = new SimilarityObject(val, i + "", j + "");
+					if (val > highest.getMaximumIdentityScore() && val != 1.0)
+						highest = new SimilarityObject(val, (i + 7001) + "", (j + 7001) + "");
 					if (val > 0 && val < lowest.getMaximumIdentityScore())
-						lowest = new SimilarityObject(val, i + "", j + "");
+						lowest = new SimilarityObject(val, (i + 7001) + "", (j + 7001) + "");
 				}
 				sb.deleteCharAt(sb.length() - 1);
 				sb.append("\n");
@@ -129,16 +129,19 @@ public class Analysis {
 			sl1.setLegend("same species", "diff species");
 			sl1.plot(path + "plot/tt_vs_tat_" + filter + "_spe_fpkm.png");
 
-			new Point_Analysis((Integer.parseInt(lowest.getQuery_geneId()) + 7000) + "",
-					(Integer.parseInt(lowest.getTarget_geneId()) + 7000) + "", "FPKM", filter, true);
-			File_Preparer.read_file_fpkm("files/" + lowest.getQuery_geneId() + "-" + filter + "FPKM.txt", fpkm_samples,
-					comp, comp_spe);
-			System.out.println(lowest.getQuery_geneId()+" "+lowest.getTarget_geneId());
-			new Point_Analysis((Integer.parseInt(highest.getQuery_geneId()) + 7000) + "",
-					(Integer.parseInt(highest.getTarget_geneId()) + 7000) + "", "FPKM", filter, true);
-			File_Preparer.read_file_fpkm("files/" + highest.getQuery_geneId() + "-" + filter + "FPKM.txt", fpkm_samples,
-					comp, comp_spe);
-			System.out.println(highest.getQuery_geneId()+" "+highest.getTarget_geneId());
+			new Point_Analysis(lowest.getQuery_geneId(), lowest.getTarget_geneId() + "", "FPKM", filter, true);
+			File_Preparer.read_file_fpkm(
+					"files/" + (Integer.parseInt(lowest.getQuery_geneId()) - 7000) + "-"
+							+ (Integer.parseInt(lowest.getTarget_geneId()) - 7000) + "-" + filter + "FPKM.txt",
+					fpkm_samples, comp, comp_spe);
+			System.out.println(lowest.getQuery_geneId() + " " + lowest.getTarget_geneId());
+			new Point_Analysis(highest.getQuery_geneId(), highest.getTarget_geneId(), "FPKM", filter, true);
+			File_Preparer.read_file_fpkm(
+					"files/" + (Integer.parseInt(highest.getQuery_geneId()) - 7000) + "-"
+							+ (Integer.parseInt(highest.getTarget_geneId()) - 7000) + "-" + filter + "FPKM.txt",
+					fpkm_samples, comp, comp_spe);
+			System.out.println(highest.getQuery_geneId() + " " + highest.getTarget_geneId());
+			System.out.println(systemInfoString() + "Total Terminated");
 		}
 	}
 
@@ -168,7 +171,7 @@ public class Analysis {
 		sb_y.deleteCharAt(0);
 		mean2 /= tat.size();
 		text += "#mean of tat\t" + mean2 + "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
-		bw.write(Math.abs(mean1 - mean2) + "\n" + text);
+		bw.write(Math.abs(mean1 - mean2) + "\n" + text); // TODO: not abs?
 	}
 
 	public static String systemInfoString() {

@@ -19,15 +19,15 @@ public class GeneObject {
 			raw_pval = 1d;
 		} else {
 			raw_pval = Double.parseDouble(split[2]);
-			if(raw_pval == 0){
+			if (raw_pval == 0) {
 				raw_pval = Double.MIN_VALUE;
 			}
 		}
 		if (split[3].equals("NA")) {
 			adj_pval = 1d;
-		}else {
+		} else {
 			adj_pval = Double.parseDouble(split[3]);
-			if(adj_pval == 0){
+			if (adj_pval == 0) {
 				adj_pval = Double.MIN_VALUE;
 			}
 		}

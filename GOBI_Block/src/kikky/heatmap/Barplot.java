@@ -105,7 +105,8 @@ public class Barplot {
 			bw.close();
 			// System.out.println(R_path + " " + tmp.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + tmp.getAbsolutePath());
-		} catch (IOException e) {
+			plotting.waitFor();
+		} catch (IOException | InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
