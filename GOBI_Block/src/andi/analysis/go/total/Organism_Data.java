@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import andi.analysis.go.total.Organism_Data.Distance_measurement;
 import andi.tree.Node_Data;
 import dennis.GO.GOHandler;
 import dennis.counter.CounterUtils;
@@ -19,11 +20,11 @@ import dennis.utility_manager.UtilityManager;
 public class Organism_Data implements Node_Data {
 
 	public enum Distance_measurement {
-		Avg_seq_id_max, Avg_seq_id_all, GO_tissue_basic, GO_tissue_xgsa;
+		Avg_seq_id_max, Avg_seq_id_all, GO_tissue_basic, GO_tissue_xgsa, DE_count;
 	};
 
 	public enum Gene_focus {
-		All_genes, orthologues_only, nonorthologues_only;
+		All_genes, orthologues_only, nonorthologues_only, de_only, nonde_only;
 	};
 
 	private ArrayList<String> all_orthologues;
@@ -61,7 +62,6 @@ public class Organism_Data implements Node_Data {
 
 	private void init() {
 		init_dm();
-
 	}
 
 	private void init_dm() {
@@ -71,6 +71,9 @@ public class Organism_Data implements Node_Data {
 			break;
 		case GO_tissue_xgsa:
 
+			break;
+		case DE_count:
+			counts = CounterUtils.readCountFile(count_file, false, false, true, true);
 			break;
 		default:
 			break;
@@ -84,8 +87,6 @@ public class Organism_Data implements Node_Data {
 				continue;
 			if (!all_gos_to_root) {
 				TreeSet<String> goterms = GOHandler.getMappedGOterms(this.get_Species(), gene);
-
-				// TODO all go terms
 				if (goterms != null)
 					for (String go_term : goterms) {
 						int count = counts.get(gene).intValue();
@@ -219,10 +220,11 @@ public class Organism_Data implements Node_Data {
 		case GO_tissue_basic:
 
 			return evaluate(this.get_top_x_gos(go_comparison_top), other.get_top_x_gos(go_comparison_top), other);
-
 		case GO_tissue_xgsa:
 
 			return 0;
+		case DE_count:
+			return evaluate(this.get_counts(), other.get_counts(), other);
 		default:
 			for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
 					other.get_Species())) {
@@ -236,6 +238,29 @@ public class Organism_Data implements Node_Data {
 			}
 			return 1 - (sim_score / count);
 		}
+	}
+
+	private double evaluate(HashMap<String, Double> get_counts, HashMap<String, Double> get_counts2,
+			Organism_Data other) {
+		double dist = 0;
+		for(String this_g : get_counts.keySet())
+			if(!get_counts2.containsKey(this_g)&&is_relevant_gene(this_g)) {
+				dist+=1;
+			}
+		for(String other_g:get_counts2.keySet())
+			if(!get_counts.containsKey(other_g)&&other.is_relevant_gene(other_g))
+				dist+=1;
+		return dist /*(get_counts.size()+get_counts2.size())*/;
+	}
+
+	public HashMap<String, Double> get_counts() {
+		if (counts == null)
+			init();
+		return counts;
+	}
+	
+	public String get_tissue() {
+		return tissue;
 	}
 
 	private double evaluate(Vector<String> this_top, Vector<String> other_top, Organism_Data other) {
@@ -271,6 +296,10 @@ public class Organism_Data implements Node_Data {
 
 	@Override
 	public String data_title() {
+		return data_title(gf,dm);
+	}
+	
+	public String data_title(Gene_focus gf, Distance_measurement dm) {
 		String gene_foc = " of ";
 		switch (gf) {
 		case nonorthologues_only:
@@ -290,6 +319,8 @@ public class Organism_Data implements Node_Data {
 			return "GO similarity in " + tissue + gene_foc;
 		case GO_tissue_xgsa:
 			return "GO similarity in " + tissue + gene_foc;
+		case DE_count:
+			return "DE-Difference in " + tissue + gene_foc;
 		default:
 			return "Highest identity Othologue Pairs";
 		}
@@ -324,7 +355,11 @@ public class Organism_Data implements Node_Data {
 
 	@Override
 	public String get_distance_measurement() {
-		switch (dm) {
+		return get_distance_measurement(dm);
+	}
+
+	public String get_distance_measurement(Distance_measurement dm2) {
+		switch (dm2) {
 		case Avg_seq_id_all:
 			return "1 - Average Sequence Identity";
 		case GO_tissue_basic:
@@ -332,6 +367,8 @@ public class Organism_Data implements Node_Data {
 					+ " GO-Terms";
 		case GO_tissue_xgsa:
 			return "GSE_Difference using XGSA Top " + go_comparison_top + " terms";
+		case DE_count:
+			return "Count of Pairwise DE-Genes";
 		default:
 			return "1 - Average Sequence Identity";
 		}

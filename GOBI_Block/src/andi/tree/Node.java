@@ -18,6 +18,19 @@ public class Node implements Node_Data {
 		childs = new TreeMap<>();
 		this.parent = p;
 	}
+	
+	public Node(int id, TreeMap<Node,Double> childs, Node parent, double total_dist, Node_Data data, TreeMap<Node,Node_Data> leaves, Vector<Boolean> shared) {
+		this.id = id;
+		this.childs = (TreeMap<Node,Double>)childs.clone();
+		if(parent!=null)
+		this.parent = parent.clone();
+		this.total_dist = total_dist;
+		this.data = data;
+		if(leaves!=null)
+		this.leaves = (TreeMap<Node,Node_Data>)leaves.clone();
+		this.shared = shared;
+		
+	}
 
 	public Node(int id) {
 		this.id = id;
@@ -44,6 +57,10 @@ public class Node implements Node_Data {
 			childs.put(c, dist);
 		else
 			childs.put(c, dist - c.get_total_dist());
+	}
+	
+	public Node clone() {
+		return new Node(id,childs,parent,total_dist,data,leaves,shared);
 	}
 
 	public void set_parent(Node p) {
