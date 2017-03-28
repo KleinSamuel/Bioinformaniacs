@@ -125,11 +125,12 @@ public class GOHandler {
 		if (s == null) {
 			s = UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(geneId));
 		}
-		for (String mappedTerm : getMappedGOterms(s, geneId)) {
-			TermNode node = getGOgraph().getNode(mappedTerm);
-			System.out.println(mappedTerm);
-			ret.put(mappedTerm, getTermsToRoot(node));
-		}
+		TreeSet<String> terms = getMappedGOterms(s, geneId);
+		if (terms != null)
+			for (String mappedTerm : terms) {
+				TermNode node = getGOgraph().getNode(mappedTerm);
+				ret.put(mappedTerm, getTermsToRoot(node));
+			}
 		return ret;
 	}
 
