@@ -111,7 +111,6 @@ public class TreeBuilder {
 			else if (go_tree_status == Tree_status.Prepared) {
 				System.out.println("\tset_go_to root " + b);
 				t.set_go_to_root(b);
-				;
 			}
 	}
 
@@ -375,6 +374,47 @@ public class TreeBuilder {
 			wait_for_close();
 		}
 	}
+	
+	public void go_pair_view() {
+		TreeMap<String, ArrayList<Tree>> pairs = new TreeMap<>();
+		set_go_tree_use_all_go_terms(false);
+		if (go_tree_status == Tree_status.Init)
+			prepare_go_trees();
+		if (go_tree_status == Tree_status.Prepared) {
+			build_go_trees();
+		}
+		if (go_tree_status == Tree_status.Built)
+			for (Tree t : get_go_trees()) {
+				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
+				if (!pairs.containsKey(tissue))
+					pairs.put(tissue, new ArrayList<>());
+				pairs.get(tissue).add(t.clone());
+			}
+		set_go_tree_use_all_go_terms(true);
+		if (go_tree_status == Tree_status.Init)
+			prepare_go_trees();
+		if (go_tree_status == Tree_status.Prepared) {
+			build_go_trees();
+		}
+		if (go_tree_status == Tree_status.Built)
+			for (Tree t : get_go_trees()) {
+				String tissue = ((Organism_Data) t.get_node_data()).get_tissue();
+				if (!pairs.containsKey(tissue))
+					pairs.put(tissue, new ArrayList<>());
+				pairs.get(tissue).add(t.clone());
+			}
+		for (String tissue : pairs.keySet()) {
+			for (Tree t : pairs.get(tissue)) {
+				try {
+					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
+					open_viewers.add(e);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			wait_for_close();
+		}
+	}
 
 	public void set_tissue_filter(Collection<String> tissues) {
 		if (tissues == null) {
@@ -418,13 +458,14 @@ public class TreeBuilder {
 
 	public static void main(String[] args) {
 
-		boolean demo = true;
+		boolean demo = false;
 		TreeBuilder b;
 		if (demo) {
 			ArrayList<String> tissues = new ArrayList<>(Arrays.asList(new String[] { "brain", "testis" }));
 			b = new TreeBuilder(null, tissues, false);
 			b.view(b.build_avg_sequence_id_of_orthologues_tree());
 			b.wait_for_close();
+			b.go_pair_view();
 			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.set_go_tree_use_all_go_terms(true);
@@ -436,6 +477,7 @@ public class TreeBuilder {
 		}
 		else{
 			b = new TreeBuilder(null, null, false);
+			b.go_pair_view();
 			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.set_go_tree_use_all_go_terms(true);

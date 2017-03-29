@@ -40,7 +40,7 @@ public class Organism_Data implements Node_Data {
 	private TreeMap<String, Integer> go_counts;
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
 	private Gene_focus gf = Gene_focus.All_genes;
-	private int go_comparison_top = 100;
+	private int go_comparison_top = 20;
 	private boolean all_gos_to_root = false;
 
 	public Organism_Data(int id, String name, Species org) {
@@ -115,6 +115,10 @@ public class Organism_Data implements Node_Data {
 			go_counts = null;
 		all_gos_to_root = b;
 	}
+	
+	public boolean is_all_go_terms() {
+		return all_gos_to_root;
+	}
 
 	public void set_all_orthologues(Collection<String> all) {
 		all_orthologues = new ArrayList<>();
@@ -124,11 +128,11 @@ public class Organism_Data implements Node_Data {
 	public boolean is_relevant_gene(String g) {
 		switch (gf) {
 		case orthologues_only:
-			if (!orthologues_self.contains(g))
+			if (g.equals("")||!orthologues_self.contains(g))
 				return false;
 			return true;
 		case nonorthologues_only:
-			if (orthologues_self.contains(g))
+			if (!g.equals("")||orthologues_self.contains(g))
 				return false;
 			return true;
 		case de_only:
@@ -145,11 +149,8 @@ public class Organism_Data implements Node_Data {
 	}
 	
 	public String orthologue(String g, Species other) {
-		HashMap<String,SimilarityObject> sims = UtilityManager.getSimilarityHandler().getAllSimilarities(this.get_Species(), g);
-		for(String ortho:sims.keySet())
-			if(other.getId()==UtilityManager.getSpecies(UtilityManager.getSpeciesIDFromGeneID(ortho)).getId())
-				return ortho;
-		return "";
+		String ortho = UtilityManager.getSimilarityHandler().getSimilarities(this.get_Species(), other).getGeneWithHighestIdentity(g);
+		return ortho==null ? "" : ortho;
 	}
 
 	public void set_own_genes(Collection<String> genes) {
@@ -261,13 +262,13 @@ public class Organism_Data implements Node_Data {
 		double dist = 0;
 		for (String this_g : counts_this.keySet()) {
 			String orthologue = this.orthologue(this_g,other.get_Species());
-			if (!counts_other.containsKey(orthologue) && other.is_relevant_gene(orthologue)) {
+			if (!counts_other.containsKey(orthologue) & other.is_relevant_gene(orthologue)) {
 				dist += 1;
 			}
 		}
 		for (String other_g : counts_other.keySet()) {
 			String orthologue = other.orthologue(other_g,this.get_Species());
-			if (!counts_this.containsKey(orthologue) && this.is_relevant_gene(orthologue))
+			if (!counts_this.containsKey(orthologue) & this.is_relevant_gene(orthologue))
 				dist += 1;
 		}
 		return dist / (counts_this.size()+counts_other.size()) ;
@@ -381,6 +382,8 @@ public class Organism_Data implements Node_Data {
 	public String get_distance_measurement() {
 		return get_distance_measurement(dm);
 	}
+	
+	
 
 	public String get_distance_measurement(Distance_measurement dm2) {
 		switch (dm2) {

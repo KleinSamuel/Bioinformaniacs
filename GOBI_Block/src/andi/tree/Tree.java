@@ -162,7 +162,13 @@ public class Tree /*
 	public String get_distance_measurement_String() {
 		if (!(get_node_data() instanceof Organism_Data))
 			return get_node_data().get_distance_measurement();
-		return ((Organism_Data) get_node_data()).get_distance_measurement(dm);
+		Organism_Data org = ((Organism_Data) get_node_data());
+		if(org.is_all_go_terms()==go_terms_to_root)
+			return org.get_distance_measurement();
+		org.set_all_go_terms(go_terms_to_root);
+		String dist_m = org.get_distance_measurement();
+		org.set_all_go_terms(!go_terms_to_root);
+		return dist_m;
 	}
 
 	public Distance_measurement get_distance_measurement() {
