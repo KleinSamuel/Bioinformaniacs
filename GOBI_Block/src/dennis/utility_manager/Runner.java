@@ -1,7 +1,7 @@
 package dennis.utility_manager;
 
 import dennis.analysis.BipartitMapping;
-import dennis.analysis.ScoringFunction;
+import dennis.analysis.FuzzyCorrelation;
 import dennis.analysis.ScoringMatrix;
 import dennis.similarities.NxMmapping;
 
@@ -15,14 +15,14 @@ public class Runner {
 		for (NxMmapping m : UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
 				UtilityManager.getSpecies(9544))) {
 			int c = 0;
-			for (ScoringMatrix sm : new BipartitMapping(m,
-					new ScoringFunction(UtilityManager.getSpecies(9031), UtilityManager.getSpecies(9544)))
-							.getScoringMatrix()) {
-				System.out.println(sm.toString());
+			for (ScoringMatrix sm : new BipartitMapping(m, new FuzzyCorrelation(UtilityManager.getSpecies(9031),
+					UtilityManager.getSpecies(9544), "star", "DESeq")).getScoringMatrix()) {
+				System.out.println(sm.matrixToString());
 				c++;
 			}
-			if (c > 3)
+			if (c > 3) {
 				return;
+			}
 		}
 
 		// Fuzzy fuz = new Fuzzy(3d, 0.1d);

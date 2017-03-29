@@ -44,6 +44,7 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 				}
 			}
 		}
+		maxScore = matrix[maxX][maxY];
 		backtrack(maxX, maxY);
 	}
 
@@ -97,7 +98,7 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(UtilityManager.getSpeciesIDFromGeneID(geneIds1[0]) + " <-> "
-				+ UtilityManager.getSpeciesIDFromGeneID(geneIds2[0]) + "\n\n");
+				+ UtilityManager.getSpeciesIDFromGeneID(geneIds2[0]) + "\n" + "score: " + maxScore + "\n");
 
 		sb.append("\t");
 		for (String s : geneIds2) {
@@ -120,12 +121,28 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 
 		sb.append("\n");
 		for (Entry<GenePair, ScoringObject> gp : matches.entrySet()) {
-			sb.append(gp + "\t" + gp.getValue().getScore() + "\n");
+			sb.append(gp.getKey() + "\t" + gp.getValue().getScore() + "\n");
 		}
 
 		sb.append("\n");
 
 		return sb.toString();
+	}
+
+	public String[] getGeneIds1() {
+		return geneIds1;
+	}
+
+	public String[] getGeneIds2() {
+		return geneIds2;
+	}
+
+	public TreeMap<GenePair, ScoringObject> getMatches() {
+		return matches;
+	}
+
+	public TreeSet<String> getUnmatched() {
+		return unmatched;
 	}
 
 	@Override

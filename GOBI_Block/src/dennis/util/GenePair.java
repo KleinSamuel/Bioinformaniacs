@@ -17,6 +17,16 @@ public class GenePair implements Comparable<GenePair> {
 		return geneValue;
 	}
 
+	/**
+	 * like compareTo but ignores if keys and values are switched
+	 * 
+	 * @param gp
+	 * @return
+	 */
+	public boolean isSame(GenePair gp) {
+		return (this.compareTo(gp) == 0 || this.compareTo(new GenePair(gp.getValue(), gp.getKey())) == 0);
+	}
+
 	@Override
 	public String toString() {
 		return "gene_pair: " + geneKey + "->" + geneValue;

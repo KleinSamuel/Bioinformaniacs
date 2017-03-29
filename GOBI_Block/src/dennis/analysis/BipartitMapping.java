@@ -3,9 +3,12 @@ package dennis.analysis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import dennis.similarities.NxMmapping;
+import dennis.similarities.SimilarityObject;
+import dennis.util.GenePair;
 
 public class BipartitMapping {
 
@@ -14,11 +17,19 @@ public class BipartitMapping {
 	private TreeSet<ScoringMatrix> bestScore;
 	private ArrayList<String> geneIds1, geneIds2;
 
-	public BipartitMapping(NxMmapping input, ScoringFunction scoring) {
+	public BipartitMapping(NxMmapping input, ScoringFunction scoring, TreeMap<GenePair, SimilarityObject> matches) {
 		this.input = input;
 		this.scoring = scoring;
+		geneIds1 = new ArrayList<>(input.getGenesFromSpecies(true).size());
+		geneIds2 = new ArrayList<>(input.getGenesFromSpecies(false).size());
+		geneIds1.addAll(input.getGenesFromSpecies(true));
+		geneIds2.addAll(input.getGenesFromSpecies(false));
 		bestScore = new TreeSet<>();
-		calculateBestBipartitMatching();
+		if (matches == null) {
+			calculateBestBipartitMatching();
+		} else {
+
+		}
 	}
 
 	public void calculateBestBipartitMatching() {
@@ -80,6 +91,11 @@ public class BipartitMapping {
 			return;
 		}
 
+	}
+
+	public BipartitMappingDifferenceObject getDifference(ScoringFunction funct) {
+		BipartitMapping different = new BipartitMapping(input, funct);
+		return new BipartitMappingDifferenceObject(this, different);
 	}
 
 	public static void swap(String[] arr, int a, int b) {
