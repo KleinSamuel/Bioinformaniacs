@@ -39,6 +39,22 @@ public class Tree /*
 		build();
 	}
 
+	public Tree(TreeMap<Integer, Node> nodes, Node super_root, Node root, TreeMap<Node, Node_Data> leaves,
+			TreeSet<Node> inner, TreeSet<Node_Data> nds, Cluster_method cm, Distance_measurement dm, Gene_focus gf,
+			boolean go_terms_to_root) {
+		this.nodes = (TreeMap<Integer, Node>) nodes.clone();
+		this.super_root = super_root.clone();
+		this.root = root.clone();
+		this.leaves = (TreeMap<Node, Node_Data>) leaves.clone();
+		this.inner = (TreeSet<Node>) inner.clone();
+		this.nds = nds;
+		this.cm = cm;
+		this.dm = dm;
+		this.gf = gf;
+		this.go_terms_to_root = go_terms_to_root;
+
+	}
+
 	public Tree(Collection<Node_Data> nds, boolean build) {
 		// super(super_root);
 		init();
@@ -62,6 +78,10 @@ public class Tree /*
 		init();
 	}
 
+	public Tree clone() {
+		return new Tree(nodes, super_root, root, leaves, inner, nds, cm, dm, gf, go_terms_to_root);
+	}
+
 	public Tree add_Node_Data(Collection<Node_Data> nds) {
 		this.nds = new TreeSet<>();
 		this.nds.addAll(nds);
@@ -70,10 +90,15 @@ public class Tree /*
 	}
 
 	public void construct(Distance_measurement dm, Gene_focus gf, boolean go_terms) {
-		System.out.println("\tconstruct with "+dm+" and "+gf+ " and all_gos_"+go_terms);
+		boolean printed = false;
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
 				Organism_Data org = (Organism_Data) nd;
+				if (!printed) {
+					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
+							+ " and all_gos_" + go_terms);
+					printed = true;
+				}
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 				org.set_all_go_terms(go_terms);
@@ -84,17 +109,23 @@ public class Tree /*
 	public void set_cluster_method(Cluster_method cm) {
 		this.cm = cm;
 	}
-	
+
 	public void set_go_to_root(boolean b) {
 		this.go_terms_to_root = b;
 	}
+
 	public Tree change_go_to_root(boolean b) {
-		if(go_terms_to_root==b)
+		if (go_terms_to_root == b)
 			return this;
 		this.go_terms_to_root = b;
 		this.rebuild();
 		return this;
 	}
+
+	public void set_round_val(int i) {
+		round_val = i;
+	}
+
 	public Tree change_cluster_method(Cluster_method cm) {
 		if (this.cm == cm)
 			return this;
@@ -109,7 +140,7 @@ public class Tree /*
 
 	public void set_gene_focus(Gene_focus gf) {
 		this.gf = gf;
-		
+
 	}
 
 	public Tree change_distance_measurement(Distance_measurement dm) {
@@ -128,8 +159,28 @@ public class Tree /*
 		return this;
 	}
 
-	public String get_distance_measurement() {
-		return leaves.values().iterator().next().get_distance_measurement();
+	public String get_distance_measurement_String() {
+		if (!(get_node_data() instanceof Organism_Data))
+			return get_node_data().get_distance_measurement();
+		Organism_Data org = ((Organism_Data) get_node_data());
+		if(org.is_all_go_terms()==go_terms_to_root)
+			return org.get_distance_measurement();
+		org.set_all_go_terms(go_terms_to_root);
+		String dist_m = org.get_distance_measurement();
+		org.set_all_go_terms(!go_terms_to_root);
+		return dist_m;
+	}
+
+	public Distance_measurement get_distance_measurement() {
+		if ((get_node_data() instanceof Organism_Data))
+			return dm;
+		return null;
+	}
+
+	public Gene_focus get_gene_focus() {
+		if ((get_node_data() instanceof Organism_Data))
+			return gf;
+		return null;
 	}
 
 	private void init() {
@@ -186,10 +237,10 @@ public class Tree /*
 	}
 
 	public Tree build() {
-		if(nds.size()<1)
+		if (nds.size() < 1)
 			return this;
 		if (this.nds.first() instanceof Organism_Data)
-			construct(dm, gf,go_terms_to_root);
+			construct(dm, gf, go_terms_to_root);
 		switch (cm) {
 		case WPGMA:
 			build_wpgma();
@@ -505,6 +556,10 @@ public class Tree /*
 		return root;
 	}
 
+	public Class<? extends Node_Data> get_data_class() {
+		return get_node_data().getClass();
+	}
+
 	public ArrayList<Double> get_distances_rev(Node n) {
 		double self = n.get_total_dist();
 		TreeSet<Double> dists = n.get_distances();
@@ -563,7 +618,13 @@ public class Tree /*
 	}
 
 	public String data_tile() {
-		return leaves.values().iterator().next().data_title();
+		if (!(get_node_data() instanceof Organism_Data))
+			return get_node_data().data_title();
+		return ((Organism_Data) get_node_data()).data_title(gf, dm);
+	}
+
+	public Node_Data get_node_data() {
+		return leaves.values().iterator().next();
 	}
 
 	public double get_root_offset(Node current_root) {
@@ -616,7 +677,6 @@ public class Tree /*
 			return false;
 		return true;
 	}
-
 
 	// @Override
 	// public Node getChild(Node node, int index) {

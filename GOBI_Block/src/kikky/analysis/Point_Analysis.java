@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import dennis.tissues.Tissue;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
@@ -64,16 +65,16 @@ public class Point_Analysis {
 			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
 					false);
 			String data_path = UtilityManager.getConfig("output_directory");
-			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/fpkm.info"));
+			BufferedReader br = new BufferedReader(new FileReader("/home/a/adamowicz/GoBi/Block/results/FPKM.info"));
 			String line;
 			FPKM_Single sd_query = null;
 			FPKM_Single sd_target = null;
 			while ((line = br.readLine()) != null) {
 				if (line.startsWith((Integer.parseInt(first) - 7000) + "#")) {
-					sd_query = generate_Sample(line, data_path, filter);
+					sd_query = generate_FPKM_Sample(line, data_path, filter);
 				}
 				if (line.startsWith((Integer.parseInt(secound) - 7000) + "#")) {
-					sd_target = generate_Sample(line, data_path, filter);
+					sd_target = generate_FPKM_Sample(line, data_path, filter);
 				}
 				if (sd_query != null && sd_target != null)
 					break;
@@ -89,11 +90,11 @@ public class Point_Analysis {
 			System.out.println(temp);
 
 			bw.write("\n#Heatmap_value\n" + temp);
-			if (((FPKM_Single) sd_query).get_tissue().equals(((FPKM_Single) sd_target).get_tissue()))
+			if (sd_query.get_tissue().getName().equals(sd_target.get_tissue().getName()))
 				bw.write("\n#tt");
 			else
 				bw.write("\n#tat");
-			if (((FPKM_Single) sd_query).get_organism_ID() == ((FPKM_Single) sd_target).get_organism_ID())
+			if (sd_query.get_species_ID() == sd_target.get_species_ID())
 				bw.write("\n#oo");
 			else
 				bw.write("\n#oao");
@@ -105,7 +106,7 @@ public class Point_Analysis {
 		System.out.println(systemInfoString() + "Terminated");
 	}
 
-	public FPKM_Single generate_Sample(String line, String data_path, String filter) {
+	public FPKM_Single generate_FPKM_Sample(String line, String data_path, String filter) {
 		String[] split = line.split("\t");
 		int organism_id = Integer.parseInt(split[1]);
 		Species s = new Species(organism_id, split[2], split[3], split[4], null);
@@ -113,7 +114,7 @@ public class Point_Analysis {
 		String exp = split[6];
 		String map = "star";
 		String path = data_path + organism_id + "/" + tissue + "/" + exp + "/" + map + "/fpkm.counts";
-		return new FPKM_Single(s, tissue, exp, path, filter);
+		return new FPKM_Single(s, new Tissue(tissue), exp, path, filter);
 	}
 
 	public String systemInfoString() {
