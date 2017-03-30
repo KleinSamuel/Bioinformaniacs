@@ -38,19 +38,21 @@ public class Tree /*
 		this.nds.addAll(nds);
 		build();
 	}
-	
-	public Tree(TreeMap<Integer,Node> nodes, Node super_root, Node root,TreeMap<Node,Node_Data> leaves, TreeSet<Node> inner, TreeSet<Node_Data> nds, Cluster_method cm, Distance_measurement dm, Gene_focus gf,boolean go_terms_to_root) {
-		this.nodes=(TreeMap<Integer,Node>)nodes.clone();
+
+	public Tree(TreeMap<Integer, Node> nodes, Node super_root, Node root, TreeMap<Node, Node_Data> leaves,
+			TreeSet<Node> inner, TreeSet<Node_Data> nds, Cluster_method cm, Distance_measurement dm, Gene_focus gf,
+			boolean go_terms_to_root) {
+		this.nodes = (TreeMap<Integer, Node>) nodes.clone();
 		this.super_root = super_root.clone();
 		this.root = root.clone();
-		this.leaves = (TreeMap<Node,Node_Data>)leaves.clone();
-		this.inner = (TreeSet<Node>)inner.clone();
+		this.leaves = (TreeMap<Node, Node_Data>) leaves.clone();
+		this.inner = (TreeSet<Node>) inner.clone();
 		this.nds = nds;
 		this.cm = cm;
 		this.dm = dm;
 		this.gf = gf;
 		this.go_terms_to_root = go_terms_to_root;
-		
+
 	}
 
 	public Tree(Collection<Node_Data> nds, boolean build) {
@@ -75,9 +77,9 @@ public class Tree /*
 		// super(super_root);
 		init();
 	}
-	
+
 	public Tree clone() {
-		return new Tree(nodes,super_root,root,leaves,inner,nds,cm,dm,gf,go_terms_to_root);
+		return new Tree(nodes, super_root, root, leaves, inner, nds, cm, dm, gf, go_terms_to_root);
 	}
 
 	public Tree add_Node_Data(Collection<Node_Data> nds) {
@@ -88,10 +90,15 @@ public class Tree /*
 	}
 
 	public void construct(Distance_measurement dm, Gene_focus gf, boolean go_terms) {
-		System.out.println("\tconstruct with " + dm + " and " + gf + " and all_gos_" + go_terms);
+		boolean printed = false;
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
 				Organism_Data org = (Organism_Data) nd;
+				if (!printed) {
+					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
+							+ " and all_gos_" + go_terms);
+					printed = true;
+				}
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 				org.set_all_go_terms(go_terms);
@@ -113,6 +120,10 @@ public class Tree /*
 		this.go_terms_to_root = b;
 		this.rebuild();
 		return this;
+	}
+
+	public void set_round_val(int i) {
+		round_val = i;
 	}
 
 	public Tree change_cluster_method(Cluster_method cm) {
@@ -148,10 +159,28 @@ public class Tree /*
 		return this;
 	}
 
-	public String get_distance_measurement() {
-		if(!(get_node_data() instanceof Organism_Data))
-		return get_node_data().get_distance_measurement();
-		return ((Organism_Data) get_node_data()).get_distance_measurement(dm);
+	public String get_distance_measurement_String() {
+		if (!(get_node_data() instanceof Organism_Data))
+			return get_node_data().get_distance_measurement();
+		Organism_Data org = ((Organism_Data) get_node_data());
+		if(org.is_all_go_terms()==go_terms_to_root)
+			return org.get_distance_measurement();
+		org.set_all_go_terms(go_terms_to_root);
+		String dist_m = org.get_distance_measurement();
+		org.set_all_go_terms(!go_terms_to_root);
+		return dist_m;
+	}
+
+	public Distance_measurement get_distance_measurement() {
+		if ((get_node_data() instanceof Organism_Data))
+			return dm;
+		return null;
+	}
+
+	public Gene_focus get_gene_focus() {
+		if ((get_node_data() instanceof Organism_Data))
+			return gf;
+		return null;
 	}
 
 	private void init() {
@@ -527,6 +556,10 @@ public class Tree /*
 		return root;
 	}
 
+	public Class<? extends Node_Data> get_data_class() {
+		return get_node_data().getClass();
+	}
+
 	public ArrayList<Double> get_distances_rev(Node n) {
 		double self = n.get_total_dist();
 		TreeSet<Double> dists = n.get_distances();
@@ -585,9 +618,9 @@ public class Tree /*
 	}
 
 	public String data_tile() {
-		if(!(get_node_data() instanceof Organism_Data))
-		return get_node_data().data_title();
-		return ((Organism_Data)get_node_data()).data_title(gf,dm);
+		if (!(get_node_data() instanceof Organism_Data))
+			return get_node_data().data_title();
+		return ((Organism_Data) get_node_data()).data_title(gf, dm);
 	}
 
 	public Node_Data get_node_data() {
