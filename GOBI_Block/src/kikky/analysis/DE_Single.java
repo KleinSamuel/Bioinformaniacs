@@ -69,10 +69,5 @@ public class DE_Single implements Sample_Data {
 		return result;
 	}
 
-	@Override
-	public Point_Info get_point_info() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 }
