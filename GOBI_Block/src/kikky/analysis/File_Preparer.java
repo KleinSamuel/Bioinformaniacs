@@ -18,15 +18,16 @@ import kikky.heatmap.Scatterplot;
 public class File_Preparer {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
-	public static Number[] read_file_fpkm(String file, ArrayList<Sample_Data> values,
-			HashMap<String, TreeMap<Double, Double>> comp, HashMap<String, TreeMap<Double, Double>> comp_spe) {
+	public static Number[] read_file(String file, ArrayList<Sample_Data> values,
+			HashMap<String, TreeMap<Double, Double>> comp, HashMap<String, TreeMap<Double, Double>> comp_spe,
+			String type, HashMap<String, Integer> gos) {
 		double value = 0;
 		String[] x_genes = null, y_genes = null;
 		Number[] matrix_row = new Number[values.size()];
 		try {
 			File f = new File(path + file);
 			BufferedReader br = new BufferedReader(new FileReader(f));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "info_files/FPKM/" + f.getName()));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "info_files/" + type + "/" + f.getName()));
 			bw.write("#Point_info\n");
 			String sample_1 = "";
 			String sample_2 = "";
@@ -56,10 +57,10 @@ public class File_Preparer {
 					bw.write(value + "\n");
 				}
 				if (line.startsWith("#Scatterplot")) {
-					Scatterplot sp = new Scatterplot("FPKM distribution", sample_1, sample_2);
+					Scatterplot sp = new Scatterplot(type + " distribution", sample_1, sample_2);
 					sp.set_values(br.readLine().substring(3), br.readLine().substring(3));
 					sp.set_log(true, true);
-					sp.plot(path + "plot/FPKM/" + f.getName().replace("FPKM.txt", "DistFPKM.png"));
+					sp.plot(path + "plot/" + type + "/" + f.getName().replace(type + ".txt", "Dist" + type + ".png"));
 					x_genes = br.readLine().substring(9).split(",");
 					y_genes = br.readLine().substring(9).split(",");
 				}
@@ -69,8 +70,17 @@ public class File_Preparer {
 					bw.write(used);
 					create_boxplot(sample_1, sample_2, used, f.getName(), "FPKM");
 				}
+				if (line.startsWith("#GOs")) {
+					line = br.readLine();
+					if (line != null && line.length() > 0)
+						for (String s : line.split(",")) {
+							if (!gos.containsKey(s))
+								gos.put(s, 0);
+							gos.put(s, gos.get(s) + 1);
+						}
+				}
 			}
-			
+
 			br.close();
 			bw.close();
 		} catch (IOException e) {

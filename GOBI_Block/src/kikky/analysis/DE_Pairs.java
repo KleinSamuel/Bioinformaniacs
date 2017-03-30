@@ -35,16 +35,21 @@ public class DE_Pairs extends Sample implements Sample_Data {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line = br.readLine();
 			while ((line = br.readLine()) != null) {
+				;
 				String[] split = line.split("\t");
-				if (Double.parseDouble(split[3]) < 0.05) {
-					gene_data.put(split[0], Double.parseDouble(split[1]));
-				}
+				if (!split[3].equals("NA"))
+					if (Double.parseDouble(split[3]) < 0.05)
+						gene_data.put(split[0], Double.parseDouble(split[1]));
 			}
 			br.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return gene_data;
+	}
+
+	public TissuePair get_tissuepair() {
+		return tissues;
 	}
 
 	@Override

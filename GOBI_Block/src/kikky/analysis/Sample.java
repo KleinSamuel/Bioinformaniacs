@@ -3,9 +3,11 @@ package kikky.analysis;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
+import dennis.GO.GOHandler;
 import dennis.forKikky.Clustering;
 import dennis.forKikky.KikkyNxMmapping;
 import dennis.forKikky.MatesScoring;
@@ -16,6 +18,7 @@ public class Sample {
 	private HashMap<String, Double> gene_data = new HashMap<>();
 	private Point_Info pi;
 	private String filter;
+	private HashSet<String> goterms = new HashSet<String>();
 
 	private boolean all_info = false;
 
@@ -49,6 +52,15 @@ public class Sample {
 		all_info = info;
 	}
 
+	public String gos_asString() {
+		if (goterms.size() < 1)
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for (String go : goterms)
+			sb.append(",").append(go);
+		return sb.substring(1);
+	}
+
 	public String get_species_info() {
 		return species.getId() + "\t" + species.getName() + "\t" + species.getGtf() + "\t" + species.getChrs();
 	}
@@ -64,6 +76,14 @@ public class Sample {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = partner.get(mates.get(gene_id_x));
+				HashMap<String, LinkedList<String>> cur_gos = GOHandler.getAllMappedGOs(null, gene_id_x);
+				for (String direct_mapped : cur_gos.keySet()) {
+					goterms.addAll(cur_gos.get(direct_mapped));
+				}
+				cur_gos = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
+				for (String direct_mapped : cur_gos.keySet()) {
+					goterms.addAll(cur_gos.get(direct_mapped));
+				}
 				if (all_info) {
 					x_asString.append(",").append(x[index]);
 					y_asString.append(",").append(y[index]);
