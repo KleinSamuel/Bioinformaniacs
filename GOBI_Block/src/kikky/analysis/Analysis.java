@@ -30,7 +30,6 @@ public class Analysis {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
 	public static void main(String[] args) throws IOException {
-		start = System.currentTimeMillis();
 		if (args[1].equals("FPKM"))
 			FPKM(args[0], args[2]);
 		else if (args[1].equals("DEP")) {
@@ -39,6 +38,7 @@ public class Analysis {
 	}
 
 	public static void FPKM(String phase, String filter) throws IOException {
+		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
@@ -74,12 +74,13 @@ public class Analysis {
 				}
 				bw.close();
 				Process plotting;
-				int id = 7000;
+
 				plotting = Runtime.getRuntime()
-						.exec("qsub -b Y -t " + (id + 1) + "-" + (id + fpkm_samples.size())
-								+ " -N FPKM -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-								+ (id + 1) + " " + (id + fpkm_samples.size()) + " FPKM " + filter);
-			} catch (IOException e) {
+						.exec("qsub -b Y -t 1-" + fpkm_samples.size()
+								+ " -N FPKM -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
+								+ fpkm_samples.size() + " FPKM " + filter);
+				plotting.waitFor();
+			} catch (IOException | InterruptedException e) {
 				e.printStackTrace();
 			}
 			System.out.println(systemInfoString() + "Terminated");
@@ -89,6 +90,7 @@ public class Analysis {
 	}
 
 	public static void DEP(String phase, String filter) throws IOException {
+		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> dep_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
@@ -106,7 +108,7 @@ public class Analysis {
 				dep_samples.add(fs);
 			}
 		}
-		dep_samples.sort(new TissueComparator<>());
+		dep_samples.sort(new TissuepairComparator<>());
 		if (phase.equals("phaseone")) {
 			try {
 				System.out.println(systemInfoString() + "Starting phase one!");
@@ -118,11 +120,10 @@ public class Analysis {
 				}
 				bw.close();
 				Process plotting;
-				int id = 7000;
 				plotting = Runtime.getRuntime()
-						.exec("qsub -b Y -t " + (id + 1) + "-" + (id + dep_samples.size())
-								+ " -N DEP -P short_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" "
-								+ (id + 1) + " " + (id + dep_samples.size()) + " DEP " + filter);
+						.exec("qsub -b Y -t 1-" + dep_samples.size()
+								+ " -N DEP -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
+								+ dep_samples.size() + " DEP " + filter);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -153,23 +154,24 @@ public class Analysis {
 					comp_spe, type, gos);
 			for (int j = 0; j < matrix[i - 1].length; j++) {
 				sb.append(matrix[i - 1][j]).append(",");
-				// System.out.println(i +" "+j);
+//				System.out.println(i +" "+j);
 				double val = (double) matrix[i - 1][j];
 				if (val > highest.getMaximumIdentityScore() && val != 1.0)
-					highest = new SimilarityObject(val, (i + 7001) + "", (j + 7001) + "");
+					highest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
 				if (type.equals("FPKM")) {
 					if (val > 0 && val < lowest.getMaximumIdentityScore())
-						lowest = new SimilarityObject(val, (i + 7001) + "", (j + 7001) + "");
+						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
 				} else if (type.equals("DEP"))
 					if (Math.abs(val) < lowest.getMaximumIdentityScore())
-						lowest = new SimilarityObject(val, (i + 7001) + "", (j + 7001) + "");
+						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
 			}
 			sb.deleteCharAt(sb.length() - 1);
 			sb.append("\n");
 		}
 		bw.write(sb.toString());
 		bw.flush();
-		write_correlation(comp.get("#tt"), comp.get("#tat"), bw);
+		write_correlation(comp.get("#tt"), comp.get("#tat"), bw, "tissue");
+		write_correlation(comp_spe.get("#oo"), comp_spe.get("#oao"), bw, "species");
 		bw.close();
 		if (filter.equals("all")) {
 			bw = new BufferedWriter(new FileWriter(path + "plot/go_vals_" + filter + "_" + type + ".txt"));
@@ -204,29 +206,25 @@ public class Analysis {
 					"Correlation Number", "Number of spots");
 			sl1.set_values(comp_spe.get("#oo"), comp_spe.get("#oao"));
 			sl1.setLegend("same species", "diff species");
-			sl1.plot(path + "plot/tt_vs_tat_" + filter + "_spe_" + type + ".png");
+			sl1.plot(path + "plot/oo_vs_oao_" + filter + type + ".png");
 
 			new Point_Analysis(lowest.getQuery_geneId(), lowest.getTarget_geneId() + "", type, filter, true);
-			File_Preparer.read_file(
-					"files/" + (Integer.parseInt(lowest.getQuery_geneId()) - 7000) + "-"
-							+ (Integer.parseInt(lowest.getTarget_geneId()) - 7000) + "-" + filter + type + ".txt",
-					samples, comp, comp_spe, type, gos);
+			File_Preparer.read_file("files/" + lowest.getQuery_geneId() + "-" + lowest.getTarget_geneId() + "-" + filter
+					+ type + ".txt", samples, comp, comp_spe, type, gos);
 			System.out.println(lowest.getQuery_geneId() + " " + lowest.getTarget_geneId() + " "
 					+ lowest.getMaximumIdentityScore());
 			new Point_Analysis(highest.getQuery_geneId(), highest.getTarget_geneId(), type, filter, true);
-			File_Preparer.read_file(
-					"files/" + (Integer.parseInt(highest.getQuery_geneId()) - 7000) + "-"
-							+ (Integer.parseInt(highest.getTarget_geneId()) - 7000) + "-" + filter + type + ".txt",
-					samples, comp, comp_spe, type, gos);
+			File_Preparer.read_file("files/" + highest.getQuery_geneId() + "-" + highest.getTarget_geneId() + "-"
+					+ filter + type + ".txt", samples, comp, comp_spe, type, gos);
 			System.out.println(highest.getQuery_geneId() + " " + highest.getTarget_geneId() + " "
 					+ highest.getMaximumIdentityScore());
 		}
 		System.out.println(systemInfoString() + "Total Terminated");
 	}
 
-	private static void write_correlation(TreeMap<Double, Double> tt, TreeMap<Double, Double> tat, BufferedWriter bw)
-			throws IOException {
-		bw.write("#Correlation line plot\t");
+	private static void write_correlation(TreeMap<Double, Double> tt, TreeMap<Double, Double> tat, BufferedWriter bw,
+			String key_word) throws IOException {
+		bw.write("#Correlation " + key_word + "\t");
 		StringBuilder sb_x = new StringBuilder(), sb_y = new StringBuilder();
 		String text = "";
 		double mean1 = 0.0, mean2 = 0.0, size = 0.0;

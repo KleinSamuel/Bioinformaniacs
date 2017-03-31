@@ -18,11 +18,10 @@ public class Point_Analysis {
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
 		long real_start = System.currentTimeMillis();
-		bw = new BufferedWriter(new FileWriter(
-				path + "files/" + (Integer.parseInt(args[0]) - 7000) + "-" + args[4] + args[3] + ".txt"));
+		bw = new BufferedWriter(new FileWriter(path + "files/" + args[0] + "-" + args[4] + args[3] + ".txt"));
 		bw.write("### used go: " + args[4] + " ###");
 		for (int i = Integer.parseInt(args[1]); i <= Integer.parseInt(args[2]); i++) {
-			bw.write("\n#Pair " + (Integer.parseInt(args[0]) - 7000) + "-" + (i - 7000));
+			bw.write("\n#Pair " + args[0] + "-" + i);
 			new Point_Analysis(args[0], i + "", args[3], args[4], false);
 		}
 		bw.close();
@@ -37,10 +36,10 @@ public class Point_Analysis {
 	public Point_Analysis(String first, String secound, String type, String filter, boolean clicked) {
 		if (clicked) {
 			try {
-				bw = new BufferedWriter(new FileWriter(path + "files/" + (Integer.parseInt(first) - 7000) + "-"
-						+ (Integer.parseInt(secound) - 7000) + "-" + filter + type + ".txt"));
+				bw = new BufferedWriter(
+						new FileWriter(path + "files/" + first + "-" + secound + "-" + filter + type + ".txt"));
 				bw.write("### used go: " + filter + " ###");
-				bw.write("\n#Pair " + (Integer.parseInt(first) - 7000) + "-" + (Integer.parseInt(secound) - 7000));
+				bw.write("\n#Pair " + first + "-" + secound);
 				analyse(first, secound, filter, clicked, type);
 				bw.close();
 			} catch (NumberFormatException | IOException e) {
@@ -64,13 +63,13 @@ public class Point_Analysis {
 			Sample sd_query = null;
 			Sample sd_target = null;
 			while ((line = br.readLine()) != null) {
-				if (line.startsWith((Integer.parseInt(first) - 7000) + "#")) {
+				if (line.startsWith(first+ "#")) {
 					if (type.equals("FPKM"))
 						sd_query = generate_FPKM_Sample(line, data_path, filter);
 					if (type.equals("DEP"))
 						sd_query = generate_DEP_Sample(line, filter);
 				}
-				if (line.startsWith((Integer.parseInt(secound) - 7000) + "#")) {
+				if (line.startsWith(secound + "#")) {
 					if (type.equals("FPKM"))
 						sd_target = generate_FPKM_Sample(line, data_path, filter);
 					if (type.equals("DEP"))

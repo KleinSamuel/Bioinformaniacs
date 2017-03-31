@@ -11,6 +11,11 @@ public class SpeciesComparator<Sample_Data> implements Comparator<Sample_Data> {
 			FPKM_Single fs2 = (FPKM_Single) o2;
 			return fs1.get_species_ID() - fs2.get_species_ID();
 		}
+		if (o1.getClass() == DE_Pairs.class && o2.getClass() == DE_Pairs.class) {
+			DE_Pairs fs1 = (DE_Pairs) o1;
+			DE_Pairs fs2 = (DE_Pairs) o2;
+			return fs1.get_species_ID() - fs2.get_species_ID();
+		}
 		return 0;
 	}
 }
