@@ -14,7 +14,7 @@ import java.util.Vector;
 import kikky.heatmap.Barplot;
 import kikky.heatmap.Sample_Data;
 import kikky.heatmap.Scatterplot;
-
+ 
 public class File_Preparer {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 

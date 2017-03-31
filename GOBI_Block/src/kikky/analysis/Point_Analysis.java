@@ -114,8 +114,10 @@ public class Point_Analysis {
 				bw.write("\n#oo");
 			else
 				bw.write("\n#oao");
-			bw.write("\n#GOs");
-			bw.write("\n" + sd_query.gos_asString());
+			if (filter.equals("all")) {
+				bw.write("\n#GOs");
+				bw.write("\n" + sd_query.gos_asString());
+			}
 			Point_Info pInfo = sd_query.get_point_info();
 			bw.write(pInfo.get_point_info_text());
 		} catch (IOException e) {

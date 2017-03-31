@@ -3,7 +3,6 @@ package kikky.analysis;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
@@ -76,13 +75,15 @@ public class Sample {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = partner.get(mates.get(gene_id_x));
-				HashMap<String, LinkedList<String>> cur_gos = GOHandler.getAllMappedGOs(null, gene_id_x);
-				for (String direct_mapped : cur_gos.keySet()) {
-					goterms.addAll(cur_gos.get(direct_mapped));
-				}
-				cur_gos = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
-				for (String direct_mapped : cur_gos.keySet()) {
-					goterms.addAll(cur_gos.get(direct_mapped));
+				if (filter.equals("all")) {
+					HashMap<String, LinkedList<String>> cur_gos = GOHandler.getAllMappedGOs(null, gene_id_x);
+					for (String direct_mapped : cur_gos.keySet()) {
+						goterms.addAll(cur_gos.get(direct_mapped));
+					}
+					cur_gos = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
+					for (String direct_mapped : cur_gos.keySet()) {
+						goterms.addAll(cur_gos.get(direct_mapped));
+					}
 				}
 				if (all_info) {
 					x_asString.append(",").append(x[index]);
