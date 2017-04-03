@@ -18,21 +18,21 @@ public class Runner {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path + "plot/vals_" + type + ".txt"));
 			String line = br.readLine();
 			int usedlines = 0;
-			while ((line = br.readLine()) != null && ++usedlines < 2) {
+			while ((line = br.readLine()) != null && ++usedlines < 101) {
 				System.out.println(systemInfoString() + "current line: " + line);
 				String[] split = line.split("\t");
-				bw.write("###" + line + "###");
+				bw.write("###" + line + "###\n");
 				if (type.equals("FPKM")) {
 					Analysis.FPKM("phaseone", split[1]);
-					Process plotting;
-					plotting = Runtime.getRuntime().exec("bash /home/a/adamowicz/Gobi/Block/results/checkAnalysis.sh");
-					plotting.waitFor();
+					Thread.sleep(10000);
+					check_in_grid();
 					Analysis.FPKM("phasetwo", split[1]);
+					Thread.sleep(15000);
 				}
-				write_info(bw, path + "plot/plot_vals_" + split[1] + "_" + type + ".txt\n");
+				write_info(bw, path + "plot/plot_vals_" + split[1] + "_" + type + ".txt");
 				Process plotting;
-				plotting = Runtime.getRuntime().exec("bash /home/a/adamowicz/Gobi/Block/results/Delete.sh " + path
-						+ "plot/plot_vals_" + split[1] + "_" + type + ".txt\n");
+				plotting = Runtime.getRuntime().exec("bash /home/a/adamowicz/GoBi/Block/results/Delete.sh " + path
+						+ "plot/plot_vals_" + split[1] + "_" + type + ".txt");
 				plotting.waitFor();
 				bw.flush();
 			}
@@ -44,6 +44,12 @@ public class Runner {
 		}
 	}
 
+	private static void check_in_grid() throws InterruptedException, IOException {
+		Process plotting;
+		plotting = Runtime.getRuntime().exec("bash /home/a/adamowicz/GoBi/Block/results/checkAnalysis.sh");
+		plotting.waitFor();
+	}
+
 	private static void write_info(BufferedWriter bw, String file) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line;
@@ -51,8 +57,10 @@ public class Runner {
 			if (line.startsWith("#Correlation")) {
 				bw.write(line + "\n");
 				bw.write(br.readLine() + "\n");
+				bw.write(br.readLine() + "\n");
 				br.readLine();
 				br.readLine();
+				bw.write(br.readLine() + "\n");
 				bw.write(br.readLine() + "\n");
 			}
 		}

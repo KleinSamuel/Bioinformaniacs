@@ -138,7 +138,7 @@ public class Analysis {
 		int max = samples.size();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(path + "plot/plot_vals_" + filter + "_" + type + ".txt"));
 		Number[][] matrix = new Number[max][max];
-		HashMap<String, Integer> gos = new HashMap<>();
+		HashMap<String, Double> gos = new HashMap<>();
 		HashMap<String, TreeMap<Double, Double>> comp = new HashMap<>();
 		comp.put("#tt", new TreeMap<Double, Double>());
 		comp.put("#tat", new TreeMap<Double, Double>());
@@ -154,7 +154,7 @@ public class Analysis {
 					comp_spe, type, gos);
 			for (int j = 0; j < matrix[i - 1].length; j++) {
 				sb.append(matrix[i - 1][j]).append(",");
-//				System.out.println(i +" "+j);
+				// System.out.println(i +" "+j);
 				double val = (double) matrix[i - 1][j];
 				if (val > highest.getMaximumIdentityScore() && val != 1.0)
 					highest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
@@ -176,7 +176,7 @@ public class Analysis {
 		if (filter.equals("all")) {
 			bw = new BufferedWriter(new FileWriter(path + "plot/go_vals_" + filter + "_" + type + ".txt"));
 			bw.write("#Amount\tGo Terms");
-			Map<String, Integer> sorted_go = sortByValue(gos);
+			Map<String, Double> sorted_go = sortByValue(gos);
 			StringBuilder go_sb = new StringBuilder();
 			for (String go : sorted_go.keySet())
 				go_sb.append("\n").append(sorted_go.get(go)).append("\t").append(go);
@@ -227,30 +227,35 @@ public class Analysis {
 		bw.write("#Correlation " + key_word + "\t");
 		StringBuilder sb_x = new StringBuilder(), sb_y = new StringBuilder();
 		String text = "";
-		double mean1 = 0.0, mean2 = 0.0, size = 0.0;
+		double mean1 = 0.0, mean2 = 0.0, size = 0.0, zeros = 0.0;
 		for (double key : tt.keySet()) {
 			sb_x.append(",").append(key);
 			sb_y.append(",").append(tt.get(key));
 			mean1 += key * tt.get(key);
 			size += tt.get(key);
+			if (key == 0.0)
+				zeros += tt.get(key);
 		}
 		sb_x.deleteCharAt(0);
 		sb_y.deleteCharAt(0);
-		mean1 /= size;
-		text += "#mean of tt\t" + mean1 + "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		text += "#mean of tt\t" + (mean1 / size) + "\nhard mean of tt\t" + (mean1 / (size - zeros)) + "\n#x "
+				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
 		sb_x = new StringBuilder();
 		sb_y = new StringBuilder();
 		size = 0.0;
+		zeros = 0.0;
 		for (double key : tat.keySet()) {
 			sb_x.append(",").append(key);
 			sb_y.append(",").append(tat.get(key));
 			mean2 += key * tat.get(key);
 			size += tat.get(key);
+			if (key == 0.0)
+				zeros += tat.get(key);
 		}
 		sb_x.deleteCharAt(0);
 		sb_y.deleteCharAt(0);
-		mean2 /= size;
-		text += "#mean of tat\t" + mean2 + "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		text += "#mean of tat\t" + (mean2 / size) + "\nhard mean of tat\t" + (mean2 / (size - zeros)) + "\n#x "
+				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
 		bw.write((mean1 - mean2) + "\n" + text);
 	}
 

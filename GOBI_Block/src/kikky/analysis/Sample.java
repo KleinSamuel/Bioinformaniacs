@@ -3,6 +3,7 @@ package kikky.analysis;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
@@ -17,14 +18,28 @@ public class Sample {
 	private HashMap<String, Double> gene_data = new HashMap<>();
 	private Point_Info pi;
 	private String filter;
-	private HashSet<String> goterms = new HashSet<String>();
+	private HashMap<String, Double> goterms = new HashMap<String, Double>();
+	private int matessize = 0;
 
 	private boolean all_info = false;
 
 	public Sample(Species species, HashMap<String, Double> values, String filter) {
 		this.species = species;
-		this.gene_data = values;
+		if (filter.equals("all"))
+			this.gene_data = values;
+		else
+			this.gene_data = generate_vals(values, filter);
 		this.filter = filter;
+	}
+
+	private HashMap<String, Double> generate_vals(HashMap<String, Double> values, String filter) {
+		HashMap<String, Double> vals = new HashMap<>();
+		for (String key : values.keySet()) {
+			TreeSet<String> gos = GOHandler.getMappedGOterms(null, key);
+			if (gos != null && gos.contains(filter))
+				vals.put(key, values.get(key));
+		}
+		return vals;
 	}
 
 	public int get_species_ID() {
@@ -55,8 +70,8 @@ public class Sample {
 		if (goterms.size() < 1)
 			return "";
 		StringBuilder sb = new StringBuilder();
-		for (String go : goterms)
-			sb.append(",").append(go);
+		for (String go : goterms.keySet())
+			sb.append(",").append(go).append("\t").append(goterms.get(go) / matessize);
 		return sb.substring(1);
 	}
 
@@ -71,19 +86,26 @@ public class Sample {
 		int index = 0;
 		StringBuilder x_asString = new StringBuilder(), y_asString = new StringBuilder(), x_genes = new StringBuilder(),
 				y_genes = new StringBuilder();
+		matessize = mates.size();
 		if (mates.size() > 0) {
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = partner.get(mates.get(gene_id_x));
 				if (filter.equals("all")) {
-					HashMap<String, LinkedList<String>> cur_gos = GOHandler.getAllMappedGOs(null, gene_id_x);
-					for (String direct_mapped : cur_gos.keySet()) {
-						goterms.addAll(cur_gos.get(direct_mapped));
-					}
-					cur_gos = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
-					for (String direct_mapped : cur_gos.keySet()) {
-						goterms.addAll(cur_gos.get(direct_mapped));
-					}
+					TreeSet<String> cur_gos = GOHandler.getMappedGOterms(null, gene_id_x);
+					if (cur_gos != null)
+						for (String g : cur_gos) {
+							if (!goterms.containsKey(g))
+								goterms.put(g, 0.0);
+							goterms.put(g, goterms.get(g) + 1);
+						}
+					cur_gos = GOHandler.getMappedGOterms(null, mates.get(gene_id_x));
+					if (cur_gos != null)
+						for (String g : cur_gos) {
+							if (!goterms.containsKey(g))
+								goterms.put(g, 0.0);
+							goterms.put(g, goterms.get(g) + 1);
+						}
 				}
 				if (all_info) {
 					x_asString.append(",").append(x[index]);

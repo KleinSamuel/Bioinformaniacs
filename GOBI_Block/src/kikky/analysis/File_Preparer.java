@@ -14,15 +14,14 @@ import java.util.Vector;
 import kikky.heatmap.Barplot;
 import kikky.heatmap.Sample_Data;
 import kikky.heatmap.Scatterplot;
- 
+
 public class File_Preparer {
 	private final static String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 
 	public static Number[] read_file(String file, ArrayList<Sample_Data> values,
 			HashMap<String, TreeMap<Double, Double>> comp, HashMap<String, TreeMap<Double, Double>> comp_spe,
-			String type, HashMap<String, Integer> gos) {
+			String type, HashMap<String, Double> gos) {
 		double value = 0;
-		String[] x_genes = null, y_genes = null;
 		Number[] matrix_row = new Number[values.size()];
 		try {
 			File f = new File(path + file);
@@ -61,8 +60,6 @@ public class File_Preparer {
 					sp.set_values(br.readLine().substring(3), br.readLine().substring(3));
 					sp.set_log(true, true);
 					sp.plot(path + "plot/" + type + "/" + f.getName().replace(type + ".txt", "Dist" + type + ".png"));
-					x_genes = br.readLine().substring(9).split(",");
-					y_genes = br.readLine().substring(9).split(",");
 				}
 				if (line.startsWith("#Percentage_mate_all")) {
 					bw.write("#Percentage_mate_all\n");
@@ -74,9 +71,10 @@ public class File_Preparer {
 					line = br.readLine();
 					if (line != null && line.length() > 0)
 						for (String s : line.split(",")) {
-							if (!gos.containsKey(s))
-								gos.put(s, 0);
-							gos.put(s, gos.get(s) + 1);
+							String[] split = s.split("\t");
+							if (!gos.containsKey(split[0]))
+								gos.put(split[0], 0.0);
+							gos.put(split[0], gos.get(split[0]) + Double.parseDouble(split[1]));
 						}
 				}
 			}
