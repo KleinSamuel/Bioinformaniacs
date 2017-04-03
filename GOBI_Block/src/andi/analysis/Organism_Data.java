@@ -1,4 +1,4 @@
-package andi.analysis.go.total;
+package andi.analysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import andi.analysis.go.total.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Distance_measurement;
 import andi.tree.Node_Data;
 import dennis.GO.GOHandler;
 import dennis.counter.CounterUtils;

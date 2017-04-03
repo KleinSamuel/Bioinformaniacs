@@ -1,4 +1,4 @@
-package andi.analysis.go;
+package andi.analysis;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,9 +10,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import andi.analysis.go.total.Organism_Data;
-import andi.analysis.go.total.Organism_Data.Distance_measurement;
-import andi.analysis.go.total.Organism_Data.Gene_focus;
+import andi.analysis.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Gene_focus;
 import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
@@ -147,7 +146,7 @@ public class TreeBuilder {
 
 	public void init_um() {
 		UtilityManager um = new UtilityManager(
-				"/home/m/maieran/git/Bioinformaniacs/GOBI_Block/bin/andi/analysis/go/config.txt", false, true, false);
+				"/home/m/maieran/git/Bioinformaniacs/GOBI_Block/bin/andi/analysis/config.txt", false, true, false);
 	}
 
 	public void view(Tree t) {

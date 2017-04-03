@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import andi.analysis.go.total.Organism_Data;
-import andi.analysis.go.total.Organism_Data.Distance_measurement;
-import andi.analysis.go.total.Organism_Data.Gene_focus;
+import andi.analysis.Organism_Data;
+import andi.analysis.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Gene_focus;
 
 public class Tree /*
 					 * extends AbstractTreeModel<Node> implements
