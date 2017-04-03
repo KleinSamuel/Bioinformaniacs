@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import andi.analysis.go.total.Organism_Data;
-import andi.analysis.go.total.Organism_Data.Distance_measurement;
-import andi.analysis.go.total.Organism_Data.Gene_focus;
+import andi.analysis.Organism_Data;
+import andi.analysis.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Gene_focus;
 
 public class Plot {
 
