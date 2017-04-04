@@ -77,7 +77,8 @@ public class Analysis {
 
 				plotting = Runtime.getRuntime()
 						.exec("qsub -b Y -t 1-" + fpkm_samples.size()
-								+ " -N FPKM -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
+								+ " -N FPKM -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o " + path + "grid -e " + path
+								+ "grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
 								+ fpkm_samples.size() + " FPKM " + filter);
 				plotting.waitFor();
 			} catch (IOException | InterruptedException e) {
@@ -122,7 +123,8 @@ public class Analysis {
 				Process plotting;
 				plotting = Runtime.getRuntime()
 						.exec("qsub -b Y -t 1-" + dep_samples.size()
-								+ " -N DEP -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o $HOME/grid -e $HOME/grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
+								+ " -N DEP -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o " + path + "grid -e " + path
+								+ "grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
 								+ dep_samples.size() + " DEP " + filter);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -240,6 +242,7 @@ public class Analysis {
 		sb_y.deleteCharAt(0);
 		text += "#mean of tt\t" + (mean1 / size) + "\nhard mean of tt\t" + (mean1 / (size - zeros)) + "\n#x "
 				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		mean1 /= size;
 		sb_x = new StringBuilder();
 		sb_y = new StringBuilder();
 		size = 0.0;
@@ -256,6 +259,7 @@ public class Analysis {
 		sb_y.deleteCharAt(0);
 		text += "#mean of tat\t" + (mean2 / size) + "\nhard mean of tat\t" + (mean2 / (size - zeros)) + "\n#x "
 				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		mean2 /= size;
 		bw.write((mean1 - mean2) + "\n" + text);
 	}
 
