@@ -84,5 +84,10 @@ public class City implements Node_Data {
 		return null;
 	}
 
+	@Override
+	public String unique_name() {
+		return name;
+	}
+
 
 }

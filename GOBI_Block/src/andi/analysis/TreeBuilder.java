@@ -39,6 +39,7 @@ public class TreeBuilder {
 	private Tree_status go_tree_status = Tree_status.None;
 	private TreeSet<String> t_filter;
 	private TreeSet<String> s_filter;
+	private Tree orthologue_tree;
 
 	public TreeBuilder(ArrayList<String> species, ArrayList<String> tissues, boolean um_initialized) {
 		if (!um_initialized)
@@ -361,19 +362,34 @@ public class TreeBuilder {
 				pairs.get(tissue).add(t.clone());
 			}
 		for (String tissue : pairs.keySet()) {
+			Tree t1 = null;
+			Tree t2 = null;
+			double dist = 0;
 			for (Tree t : pairs.get(tissue)) {
-				try {
-					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
-					open_viewers.add(e);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				t.reconstruct();
+				if (t1 == null) {
+					System.out.println("Tree distance to orthologue:");
+					t1 = t;
+				} else
+					t2 = t;
+				dist = build_avg_sequence_id_of_orthologues_tree().compare_to(t);
+				if (dist > 1 || dist < 0.5) {
+					try {
+						Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
+						open_viewers.add(e);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
+				System.out.println(
+						t.get_node_data().data_title() + " - " + t.get_distance_measurement_String() + ":\t" + dist);
+				if (t1 != null && t2 != null)
+					System.out.println("Tree distance: " + t1.compare_to(t2));
 			}
 			wait_for_close();
 		}
 	}
-	
+
 	public void go_pair_view() {
 		TreeMap<String, ArrayList<Tree>> pairs = new TreeMap<>();
 		set_go_tree_use_all_go_terms(false);
@@ -403,12 +419,30 @@ public class TreeBuilder {
 				pairs.get(tissue).add(t.clone());
 			}
 		for (String tissue : pairs.keySet()) {
+			Tree t1 = null;
+			Tree t2 = null;
+			double dist = 0;
 			for (Tree t : pairs.get(tissue)) {
+				t.reconstruct();
+				if (t1 == null) {
+					System.out.println("Tree distance to orthologue:");
+					t1 = t;
+				} else
+					t2 = t;
+				dist = build_avg_sequence_id_of_orthologues_tree().compare_to(t);
+				
+				System.out.println(t.get_node_data().data_title() + " - " + t.get_distance_measurement_String() + ":\t"
+						+ dist);
+				if (dist > 1 || dist < 0.5) {
 				try {
 					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
 					open_viewers.add(e);
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
+				}
+				if (t1 != null && t2 != null) {
+					System.out.println("Tree distance: " + t1.compare_to(t2));
 				}
 			}
 			wait_for_close();
@@ -451,8 +485,9 @@ public class TreeBuilder {
 	}
 
 	public Tree build_avg_sequence_id_of_orthologues_tree() {
-
-		return new Tree(basic_leaves);
+		if (orthologue_tree == null)
+			orthologue_tree = new Tree(basic_leaves);
+		return orthologue_tree;
 	}
 
 	public static void main(String[] args) {
@@ -472,10 +507,13 @@ public class TreeBuilder {
 			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
-
-		}
-		else{
+		} else {
 			b = new TreeBuilder(null, null, false);
+			try {
+				Runtime.getRuntime().exec("display " + Plot.get_plot(b.build_avg_sequence_id_of_orthologues_tree()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			b.go_pair_view();
 			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);

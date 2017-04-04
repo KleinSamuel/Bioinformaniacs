@@ -401,4 +401,10 @@ public class Organism_Data implements Node_Data {
 		}
 	}
 
+	@Override
+	public String unique_name() {
+		return get_Species().getName();
+	}
+	
+
 }

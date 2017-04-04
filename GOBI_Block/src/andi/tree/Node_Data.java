@@ -36,6 +36,8 @@ public interface Node_Data extends Comparable<Node_Data>{
 	}
 	
 	public String get_distance_measurement();
+	
+	public String unique_name();
 
 	
 }
