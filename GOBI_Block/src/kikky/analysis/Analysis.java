@@ -228,7 +228,14 @@ public class Analysis {
 			String key_word) throws IOException {
 		bw.write("#Correlation " + key_word + "\t");
 		StringBuilder sb_x = new StringBuilder(), sb_y = new StringBuilder();
-		String text = "";
+		String text = "", same = "", notsame = "";
+		if (key_word.equals("tissue")) {
+			same = "tt";
+			notsame = "tat";
+		} else if (key_word.equals("species")) {
+			same = "oo";
+			notsame = "oao";
+		}
 		double mean1 = 0.0, mean2 = 0.0, size = 0.0, zeros = 0.0;
 		for (double key : tt.keySet()) {
 			sb_x.append(",").append(key);
@@ -240,8 +247,8 @@ public class Analysis {
 		}
 		sb_x.deleteCharAt(0);
 		sb_y.deleteCharAt(0);
-		text += "#mean of tt\t" + (mean1 / size) + "\nhard mean of tt\t" + (mean1 / (size - zeros)) + "\n#x "
-				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		text += "#mean of " + same + "\t" + (mean1 / size) + "\n#hard mean of " + same + "\t" + (mean1 / (size - zeros))
+				+ "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
 		mean1 /= size;
 		sb_x = new StringBuilder();
 		sb_y = new StringBuilder();
@@ -257,8 +264,8 @@ public class Analysis {
 		}
 		sb_x.deleteCharAt(0);
 		sb_y.deleteCharAt(0);
-		text += "#mean of tat\t" + (mean2 / size) + "\nhard mean of tat\t" + (mean2 / (size - zeros)) + "\n#x "
-				+ sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
+		text += "#mean of " + notsame + "\t" + (mean2 / size) + "\n#hard mean of " + notsame + "\t"
+				+ (mean2 / (size - zeros)) + "\n#x " + sb_x.toString() + "\n#y " + sb_y.toString() + "\n";
 		mean2 /= size;
 		bw.write((mean1 - mean2) + "\n" + text);
 	}

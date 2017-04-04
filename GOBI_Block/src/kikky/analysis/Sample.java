@@ -121,7 +121,10 @@ public class Sample {
 						y_genes.substring(1));
 				pi.percentage_mates_to_all(this.gene_data.size(), partner.size());
 			}
-			return pc.correlation(x, y);
+			if (x.length > 1)
+				return pc.correlation(x, y);
+			else
+				return ((x[0] + y[0]) / 2);
 		}
 		pi = new Point_Info(mates, x, y);
 		return 0;
