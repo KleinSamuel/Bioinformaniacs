@@ -15,6 +15,7 @@ import andi.analysis.Organism_Data.Gene_focus;
 import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
+import andi.tree.Tree.Cluster_method;
 import dennis.tissues.Tissue;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
@@ -40,6 +41,9 @@ public class TreeBuilder {
 	private TreeSet<String> t_filter;
 	private TreeSet<String> s_filter;
 	private Tree orthologue_tree;
+	private Distance_measurement orthologue_dm = Distance_measurement.Avg_seq_id_max;
+	private Distance_measurement de_dm = Distance_measurement.DE_count;
+	private Distance_measurement go_dm = Distance_measurement.GO_tissue_basic;
 
 	public TreeBuilder(ArrayList<String> species, ArrayList<String> tissues, boolean um_initialized) {
 		if (!um_initialized)
@@ -185,7 +189,7 @@ public class TreeBuilder {
 		go_trees = new ArrayList<>();
 		for (Tissue t : leave_data.keySet()) {
 			go_trees.add(new Tree(leave_data.get(t), false));
-			go_trees.get(go_trees.size() - 1).set_distance_measurement(Distance_measurement.GO_tissue_basic);
+			go_trees.get(go_trees.size() - 1).set_distance_measurement(go_dm);
 		}
 		go_tree_status = Tree_status.Prepared;
 	}
@@ -195,7 +199,7 @@ public class TreeBuilder {
 		de_trees = new ArrayList<>();
 		for (Tissue t : leave_data.keySet()) {
 			de_trees.add(new Tree(leave_data.get(t), false));
-			de_trees.get(de_trees.size() - 1).set_distance_measurement(Distance_measurement.DE_count);
+			de_trees.get(de_trees.size() - 1).set_distance_measurement(de_dm);
 		}
 		de_tree_status = Tree_status.Prepared;
 	}
@@ -373,13 +377,11 @@ public class TreeBuilder {
 				} else
 					t2 = t;
 				dist = build_avg_sequence_id_of_orthologues_tree().compare_to(t);
-				if (dist > 1 || dist < 0.5) {
-					try {
-						Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
-						open_viewers.add(e);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+				try {
+					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
+					open_viewers.add(e);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 				System.out.println(
 						t.get_node_data().data_title() + " - " + t.get_distance_measurement_String() + ":\t" + dist);
@@ -430,16 +432,14 @@ public class TreeBuilder {
 				} else
 					t2 = t;
 				dist = build_avg_sequence_id_of_orthologues_tree().compare_to(t);
-				
-				System.out.println(t.get_node_data().data_title() + " - " + t.get_distance_measurement_String() + ":\t"
-						+ dist);
-				if (dist > 1 || dist < 0.5) {
+
+				System.out.println(
+						t.get_node_data().data_title() + " - " + t.get_distance_measurement_String() + ":\t" + dist);
 				try {
 					Process e = Runtime.getRuntime().exec("display " + Plot.get_plot(t));
 					open_viewers.add(e);
 				} catch (IOException e) {
 					e.printStackTrace();
-				}
 				}
 				if (t1 != null && t2 != null) {
 					System.out.println("Tree distance: " + t1.compare_to(t2));
@@ -484,10 +484,117 @@ public class TreeBuilder {
 		reset_tissue_filter();
 	}
 
+	public void change_basic_leaves(Distance_measurement dm) {
+		if (((Organism_Data) basic_leaves.first()).get_dm() == dm)
+			return;
+
+	}
+
 	public Tree build_avg_sequence_id_of_orthologues_tree() {
 		if (orthologue_tree == null)
 			orthologue_tree = new Tree(basic_leaves);
 		return orthologue_tree;
+	}
+
+	public void set_gene_focus(Gene_focus gf) {
+		set_de_tree_gene_focus(gf);
+		set_go_tree_gene_focus(gf);
+	}
+
+	public ArrayList<Tree> get_trees(ArrayList<Gene_focus> gfs, ArrayList<Cluster_method> cms,
+			ArrayList<Distance_measurement> dms, ArrayList<String> tissue_filter, ArrayList<String> organism_filter) {
+		ArrayList<Tree> trees = new ArrayList<>();
+		set_species_filter(organism_filter);
+		set_tissue_filter(tissue_filter);
+		trees.add(build_avg_sequence_id_of_orthologues_tree());
+		if (gfs == null) {
+			gfs = new ArrayList<>();
+			gfs.add(Gene_focus.All_genes);
+			gfs.add(Gene_focus.de_only);
+			gfs.add(Gene_focus.nonde_only);
+			gfs.add(Gene_focus.nonorthologues_only);
+			gfs.add(Gene_focus.orthologues_only);
+		}
+//		if (cms == null) {
+//			cms = new ArrayList<>();
+//			cms.add(Cluster_method.UPGMA);
+//			cms.add(Cluster_method.WPGMA);
+//		}
+		if (dms == null) {
+			dms = new ArrayList<>();
+			dms.add(Distance_measurement.Avg_seq_id_all);
+			dms.add(Distance_measurement.Avg_seq_id_max);
+			dms.add(Distance_measurement.DE_count);
+			dms.add(Distance_measurement.GO_tissue_basic);
+		}
+		if (dms.contains(Distance_measurement.Avg_seq_id_all)) {
+			change_distance_measurement(Distance_measurement.Avg_seq_id_all);
+			trees.add(build_avg_sequence_id_of_orthologues_tree().clone());
+		}
+		if (dms.contains(Distance_measurement.Avg_seq_id_max)) {
+			change_distance_measurement(Distance_measurement.Avg_seq_id_max);
+			trees.add(build_avg_sequence_id_of_orthologues_tree().clone());
+		}
+		for (Gene_focus gf : gfs) {
+			set_gene_focus(gf);
+			for (Distance_measurement dm : dms) {
+				change_distance_measurement(dm);
+				ArrayList<Tree> out = get_trees(gf,dm);
+				for(Tree t:out) { 
+					System.out.println("\t"+gf+" - "+dm);
+					System.out.println("\t"+t.get_gene_focus()+" - "+t.get_distance_measurement());
+					System.out.println(((Organism_Data)t.get_node_data()).get_description(t.get_distance_measurement(), t.get_gene_focus()));
+					}
+				trees.addAll(out);
+			}
+		}
+		return trees;
+	}
+
+	private ArrayList<Tree> get_trees(Gene_focus gf, Distance_measurement dm) {
+		ArrayList<Tree> trees = new ArrayList<>();
+		if (dm == Distance_measurement.DE_count&&gf!=Gene_focus.nonde_only)
+			for(Tree t:get_de_trees())
+			trees.add(t.clone());
+		if (dm == Distance_measurement.GO_tissue_basic || dm == Distance_measurement.GO_tissue_xgsa)
+			for(Tree t:get_go_trees())
+			trees.add(t.clone());
+		return trees;
+	}
+
+	public void change_distance_measurement(Distance_measurement dm) {
+		if (dm == Distance_measurement.Avg_seq_id_all || dm == Distance_measurement.Avg_seq_id_max)
+			change_basic_dm(dm);
+		if (dm == Distance_measurement.DE_count)
+			change_de_dm(dm);
+		if (dm == Distance_measurement.GO_tissue_basic || dm == Distance_measurement.GO_tissue_xgsa)
+			change_go_dm(dm);
+	}
+
+	private void change_basic_dm(Distance_measurement dm) {
+		if (basic_leaves != null) {
+			if (orthologue_dm == dm)
+				return;
+			orthologue_dm = dm;
+			for (Node_Data nd : basic_leaves)
+				((Organism_Data) nd).set_distance_measurement(dm);
+			orthologue_tree = null;
+		}
+	}
+
+	private void change_de_dm(Distance_measurement dm) {
+		if (dm == de_dm)
+			return;
+		de_dm = dm;
+		de_tree_status = Tree_status.Init;
+
+	}
+
+	private void change_go_dm(Distance_measurement dm) {
+		if (dm == go_dm)
+			return;
+		go_dm = dm;
+		go_tree_status = Tree_status.Init;
 	}
 
 	public static void main(String[] args) {
@@ -509,20 +616,13 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
 			b = new TreeBuilder(null, null, false);
-			try {
-				Runtime.getRuntime().exec("display " + Plot.get_plot(b.build_avg_sequence_id_of_orthologues_tree()));
-			} catch (IOException e) {
-				e.printStackTrace();
+			ArrayList<Tree> trees = b.get_trees(null, null, null, null, null);
+			System.out.println(trees.size()+" Trees:");
+			for(Tree t:trees) { 
+			System.out.println("\t"+t.get_gene_focus()+" - "+t.get_distance_measurement());
+				System.out.println(((Organism_Data)t.get_node_data()).get_description(t.get_distance_measurement(), t.get_gene_focus()));
 			}
-			b.go_pair_view();
-			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
-			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
-			b.set_go_tree_use_all_go_terms(true);
-			b.go_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
-			b.go_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
-			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
-			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
-		}
+			}
 	}
 
 }
