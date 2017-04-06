@@ -13,6 +13,7 @@ import java.util.TreeSet;
 import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
+import javafx.util.Pair;
 
 /**
  * reads tissue mappings; loads into each species: paths to experiments per
@@ -103,6 +104,18 @@ public class TissueHandler {
 		ArrayList<String> sortedTissueNames = new ArrayList<>(tissueList.size());
 		sortedTissueNames.addAll(tissueList);
 		return sortedTissueNames;
+	}
+
+	public static LinkedList<Pair<String, String>> getAllPossibleTissuePairs() {
+		LinkedList<Pair<String, String>> tps = new LinkedList<>();
+		for (String s1 : getSortedTissueNames()) {
+			for (String s2 : getSortedTissueNames()) {
+				if (s1.compareTo(s2) < 0) {
+					tps.add(new Pair<String, String>(s1, s2));
+				}
+			}
+		}
+		return tps;
 	}
 
 	/**

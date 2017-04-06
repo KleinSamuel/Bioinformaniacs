@@ -2,7 +2,7 @@ package dennis.similarities;
 
 import java.util.HashMap;
 
-import dennis.analysis.ScoringObject;
+import dennis.analysis.scoring.ScoringObject;
 
 public class SimilarityObject extends ScoringObject {
 
