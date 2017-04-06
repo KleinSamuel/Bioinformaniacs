@@ -94,6 +94,12 @@ public class Car implements Node_Data{
 
 	@Override
 	public String get_distance_measurement() {
+		return null;
+	}
+
+
+	@Override
+	public String unique_name() {
 		// TODO Auto-generated method stub
 		return null;
 	}

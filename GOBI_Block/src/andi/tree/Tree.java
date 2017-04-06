@@ -20,7 +20,7 @@ public class Tree /*
 	};
 
 	private TreeMap<Integer, Node> nodes;
-	private static Node super_root = new Node(-1);
+	private static Node super_root = new Node(-1, null);
 	private Node root;
 	private TreeMap<Node, Node_Data> leaves;
 	private TreeSet<Node> inner;
@@ -30,6 +30,9 @@ public class Tree /*
 	private Gene_focus gf = Gene_focus.All_genes;
 	private int round_val = 2;
 	private boolean go_terms_to_root = false;
+	private TreeSet<String> node_data_u_names;
+	private TreeMap<String, Node_Data> node_data_name_map;
+	private TreeMap<String,Node> node_data_nodes_map;
 
 	public Tree(Collection<Node_Data> nds) {
 		// super(super_root);
@@ -77,6 +80,15 @@ public class Tree /*
 		// super(super_root);
 		init();
 	}
+	private void init() {
+		root = new Node(0, this);
+		super_root.reset();
+		super_root.add_child(root, 0);
+		leaves = new TreeMap<>();
+		inner = new TreeSet<>();
+		nodes = new TreeMap<>();
+		 inner_node(root);
+	}
 
 	public Tree clone() {
 		return new Tree(nodes, super_root, root, leaves, inner, nds, cm, dm, gf, go_terms_to_root);
@@ -104,6 +116,10 @@ public class Tree /*
 				org.set_all_go_terms(go_terms);
 			}
 		}
+	}
+	
+	public void reconstruct() {
+		construct(dm,gf,go_terms_to_root);
 	}
 
 	public void set_cluster_method(Cluster_method cm) {
@@ -163,7 +179,7 @@ public class Tree /*
 		if (!(get_node_data() instanceof Organism_Data))
 			return get_node_data().get_distance_measurement();
 		Organism_Data org = ((Organism_Data) get_node_data());
-		if(org.is_all_go_terms()==go_terms_to_root)
+		if (org.is_all_go_terms() == go_terms_to_root)
 			return org.get_distance_measurement();
 		org.set_all_go_terms(go_terms_to_root);
 		String dist_m = org.get_distance_measurement();
@@ -183,20 +199,12 @@ public class Tree /*
 		return null;
 	}
 
-	private void init() {
-		root = new Node(0);
-		super_root.reset();
-		super_root.add_child(root, 0);
-		leaves = new TreeMap<>();
-		inner = new TreeSet<>();
-		nodes = new TreeMap<>();
-		// inner_node(root);
-	}
 
 	private void inner_node(Node i) {
 		nodes.put(i.get_id(), i);
 		inner.add(i);
-		i.compute_shared();
+//		if(!i.is_root())
+//		i.compute_shared();
 	}
 
 	private void leaf_node(Node l, Node_Data nd) {
@@ -258,95 +266,12 @@ public class Tree /*
 		return round_val;
 	}
 
-	// private void build_nj() {
-	// ArrayList<Node> ns = new ArrayList<>();
-	// double[][] dists;
-	// leaves = new TreeMap<>();
-	// for (Node_Data nd : nds) {
-	// Node l = new Node(nodes.size());
-	// l.set_Data(nd);
-	// leaf_node(l, nd);
-	// ns.add(l);
-	// }
-	// dists = new double[ns.size()][ns.size()];
-	// for (int x = 0; x < ns.size(); x++) {
-	// for (int y = x; y < ns.size(); y++) {
-	// double dist = 0;
-	// if (x != y)
-	// dist =
-	// Math.abs(leaves.get(ns.get(x)).compute_distance(leaves.get(ns.get(y))));
-	// dists[x][y] = dists[y][x] = dist;
-	// }
-	// }
-	// nj(ns, dists);
-	// }
-
-	// private double sum_row(double[][] data, int row) {
-	// double out = 0;
-	// for (double d : data[row])
-	// out += d;
-	// return out;
-	//
-	// }
-	//
-	// private void nj(ArrayList<Node> ns, double[][] dists) {
-	// double[][] new_dists = new double[ns.size()][ns.size()];
-	// ArrayList<Node> new_nodes = new ArrayList<>();
-	// ArrayList<Double> netto_dist = new ArrayList<>();
-	// new_nodes.addAll(ns);
-	// double min_val = Double.MAX_VALUE;
-	// Node min_n1 = ns.get(0);
-	// Node min_n2 = ns.get(1);
-	// for (int row = 0; row < ns.size(); row++)
-	// netto_dist.add(sum_row(dists, row) / (ns.size() - 2));
-	// if (ns.size() > 2) {
-	// for (int row = 1; row < ns.size(); row++)
-	// for (int col = row + 1; col < ns.size(); col++) {
-	// double dist = dists[row][col] - (netto_dist.get(row) +
-	// netto_dist.get(col));
-	// // temp_mat[row][col]=dist;
-	// if (dist < min_val) {
-	// min_val = dist;
-	// min_n1 = ns.get(row);
-	// min_n2 = ns.get(col);
-	// }
-	// }
-	// }
-	// Node c = new Node(nodes.size());
-	// double dist_n1 = dists[ns.indexOf(min_n1)][ns.indexOf(min_n2)] +
-	// netto_dist.get(ns.indexOf(min_n1))
-	// - netto_dist.get(ns.indexOf(min_n2));
-	// double dist_n2 = dists[ns.indexOf(min_n1)][ns.indexOf(min_n2)] - dist_n1;
-	// c.add_child(min_n1, dist_n1);
-	// c.add_child(min_n2, dist_n2);
-	// if (ns.size() > 2) {
-	// new_nodes.remove(ns.indexOf(min_n1));
-	// new_nodes.remove(ns.indexOf(min_n2));
-	// new_nodes.add(c);
-	// inner_node(c);
-	// for (int row = 1; row < new_nodes.size(); row++) {
-	// for (int col = row + 1; col < new_nodes.size(); col++) {
-	// if(row<new_nodes.size()-1)
-	// new_dists[row][col] = row<new_nodes.size()-1 ?
-	// dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(new_nodes.get(col))]
-	// :dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(min_n1)]+dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(min_n2)]-dists[ns.indexOf(new_nodes.get(row))][ns.indexOf(new_nodes.get(col))];
-	// }
-	// }
-	// nj(new_nodes,new_dists);
-	//
-	// } else {
-	// root.add_child(ns.get(0), dist_n1);
-	// root.add_child(ns.get(1), dist_n2);
-	// }
-	//
-	// }
-
 	private void build_upgma() {
 		ArrayList<Node> ns = new ArrayList<>();
 		double[][] dists;
 		leaves = new TreeMap<>();
 		for (Node_Data nd : nds) {
-			Node l = new Node(nodes.size());
+			Node l = new Node(nodes.size(), this);
 			l.set_Data(nd);
 			leaf_node(l, nd);
 			ns.add(l);
@@ -407,7 +332,7 @@ public class Tree /*
 					dists[x][y] = dist;
 				}
 		if (ns.size() > 2) {
-			Node c = new Node(nodes.size());
+			Node c = new Node(nodes.size(), this);
 			double dist = min / 2;
 			c.set_total_dist(dist);
 			c.add_child(n_min_1, dist);
@@ -430,7 +355,7 @@ public class Tree /*
 		double[][] dists;
 		leaves = new TreeMap<>();
 		for (Node_Data nd : nds) {
-			Node l = new Node(nodes.size());
+			Node l = new Node(nodes.size(), this);
 			l.set_Data(nd);
 			leaf_node(l, nd);
 			ns.add(l);
@@ -491,7 +416,7 @@ public class Tree /*
 					dists[x][y] = dist;
 				}
 		if (ns.size() > 2) {
-			Node c = new Node(nodes.size());
+			Node c = new Node(nodes.size(), this);
 			double dist = min / 2;
 			c.set_total_dist(dist);
 			c.add_child(n_min_1, dist);
@@ -676,6 +601,72 @@ public class Tree /*
 		} else if (!leaves.equals(other.leaves))
 			return false;
 		return true;
+	}
+
+	public double Node_Data_Dist(Node_Data nd1, Node_Data nd2) {
+		double dist = 0;
+
+		return dist;
+	}
+
+	public double compare_to(Object o) {
+		if (!(o instanceof Tree))
+			return Double.MAX_VALUE;
+		double dist = 0;
+		Tree other = (Tree) o;
+		TreeSet<String> datas = new TreeSet<>();
+		datas.addAll(this.get_all_node_data_names());
+		datas.addAll(other.get_all_node_data_names());
+		ArrayList<String> n = new ArrayList<>();
+		n.addAll(datas);
+		int t1_data = this.leaves.size();
+		int t2_data = other.leaves.size();
+		int comparisons = 0;
+		for(int i1 = 0; i1<datas.size();i1++) {
+			Node t1_n1 = this.get_node_of_nd(n.get(i1));
+			Node t2_n1 = other.get_node_of_nd(n.get(i1));
+			for(int i2 = i1+1;i2<datas.size();i2++) {
+				Node t1_n2 = this.get_node_of_nd(n.get(i2));
+				Node t2_n2 = other.get_node_of_nd(n.get(i2));
+				if(t1_n1==null|t1_n2==null|t2_n1==null|t2_n2==null)
+					continue;
+				comparisons++;
+//				System.out.println("\t"+this.leaves.get(t1_n1).unique_name() + " - " +this.leaves.get(t1_n2).unique_name()+" : "+Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2)));
+				dist+=Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2));
+			}
+		}
+		return dist/(comparisons*2);
+	}
+
+	public TreeSet<Node_Data> get_all_node_data() {
+		return nds;
+	}
+
+	public TreeSet<String> get_all_node_data_names() {
+		if (node_data_u_names == null) {
+			node_data_u_names = new TreeSet<>();
+			for (Node_Data nd : get_all_node_data())
+				node_data_u_names.add(nd.unique_name());
+		}
+		return node_data_u_names;
+	}
+	
+	public Node get_node_of_nd(String u_name) {
+		if(node_data_nodes_map==null) {
+			node_data_nodes_map = new TreeMap<>();
+			for(Node n:leaves.keySet())
+				node_data_nodes_map.put(leaves.get(n).unique_name(), n);
+		}
+			return node_data_nodes_map.containsKey(u_name) ? node_data_nodes_map.get(u_name) :null;
+	}
+
+	public Node_Data get_nd(String u_name) {
+		if (node_data_name_map == null) {
+			node_data_name_map = new TreeMap<>();
+			for (Node_Data nd : get_all_node_data())
+				node_data_name_map.put(nd.unique_name(), nd);
+		}
+		return node_data_name_map.containsKey(u_name) ? node_data_name_map.get(u_name) : null;
 	}
 
 	// @Override

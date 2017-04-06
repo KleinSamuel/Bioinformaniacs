@@ -196,6 +196,10 @@ public class Organism_Data implements Node_Data {
 		Organism_Data other = (Organism_Data) o;
 		return this.id - other.id;
 	}
+	
+	public Distance_measurement get_dm() {
+		return dm;
+	}
 
 	public void set_distance_measurement(Distance_measurement dm) {
 		if (this.dm != dm) {
@@ -400,5 +404,15 @@ public class Organism_Data implements Node_Data {
 			return "1 - Average Sequence Identity";
 		}
 	}
+	
+	public String get_description(Distance_measurement dm, Gene_focus gf) {
+		return data_title(gf, dm)+" - "+get_distance_measurement(dm);
+	}
+
+	@Override
+	public String unique_name() {
+		return get_Species().getName();
+	}
+	
 
 }
