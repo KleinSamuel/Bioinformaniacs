@@ -1,4 +1,4 @@
-package andi.analysis.go.total;
+package andi.analysis;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import andi.analysis.go.total.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Distance_measurement;
 import andi.tree.Node_Data;
 import dennis.GO.GOHandler;
 import dennis.counter.CounterUtils;
@@ -195,6 +195,10 @@ public class Organism_Data implements Node_Data {
 			return -1;
 		Organism_Data other = (Organism_Data) o;
 		return this.id - other.id;
+	}
+	
+	public Distance_measurement get_dm() {
+		return dm;
 	}
 
 	public void set_distance_measurement(Distance_measurement dm) {
@@ -400,5 +404,15 @@ public class Organism_Data implements Node_Data {
 			return "1 - Average Sequence Identity";
 		}
 	}
+	
+	public String get_description(Distance_measurement dm, Gene_focus gf) {
+		return data_title(gf, dm)+" - "+get_distance_measurement(dm);
+	}
+
+	@Override
+	public String unique_name() {
+		return get_Species().getName();
+	}
+	
 
 }
