@@ -3,10 +3,12 @@ package kikky.analysis;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 import dennis.counter.CounterUtils;
+import dennis.enrichment.EBUtils;
 import dennis.tissues.Tissue;
 import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
@@ -43,6 +45,29 @@ public class File_Converter {
 							e.printStackTrace();
 						}
 					}
+				}
+			}
+		} else if (args[0].equals("DES")) {
+			new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+					false);
+			String data_path = UtilityManager.getConfig("output_directory");
+			for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
+				Species organism = it_org.next();
+				ArrayList<String> raw_dir = new ArrayList<>();
+				ArrayList<String> raw_files = new ArrayList<>();
+				for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
+					Tissue tissue = it_tis.next();
+					raw_files.add(data_path + organism.getId() + "/" + tissue.getName() + "/star_tissue_average.counts");
+					raw_dir.add(data_path + organism.getId() + "/" + tissue.getName() + "/");
+				}
+				String mix_path = data_path + organism.getId() + "/tissue_mix.count";
+				CounterUtils.createAverageCountFile(raw_files, mix_path);
+				for (String raw : raw_dir) {
+					ArrayList<String> a1 = new ArrayList<>();
+					a1.add(raw + "star_tissue_average.counts");
+					ArrayList<String> a2 = new ArrayList<>();
+					a2.add(mix_path);
+					EBUtils.runEnrichment(a1, a2, raw, "vsTissuemix", false);
 				}
 			}
 		}
