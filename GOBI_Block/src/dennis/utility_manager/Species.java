@@ -8,10 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import dennis.genomeAnnotation.GTFParser;
 import dennis.genomeAnnotation.Gene;
 import dennis.genomeAnnotation.GenomeAnnotation;
+import dennis.util.GeneIdReader;
 
 public class Species implements Comparable<Species> {
 
@@ -49,6 +51,10 @@ public class Species implements Comparable<Species> {
 	 */
 	public String getGtf() {
 		return gtf;
+	}
+
+	public LinkedList<String> getGeneIds() {
+		return GeneIdReader.get_gene_ids_in_GTF_order(this);
 	}
 
 	@Override

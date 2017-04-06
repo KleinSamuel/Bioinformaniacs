@@ -1,4 +1,4 @@
-package dennis.analysis;
+package dennis.analysis.scoring;
 
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -26,7 +26,6 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 	}
 
 	public void buildScoringMatrix(ScoringFunction scoring) {
-
 		matrix = new double[geneIds1.length + 1][geneIds2.length + 1];
 		for (int i = 0; i < matrix.length; i++) {
 			matrix[i][0] = 0;
@@ -37,7 +36,9 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 		for (int i = 1; i < matrix.length; i++) {
 			for (int j = 1; j < matrix[i].length; j++) {
 				double score = scoring.score(new GenePair(geneIds1[i - 1], geneIds2[j - 1]));
-				matrix[i][j] = Math.max(Math.max(matrix[i - 1][j], matrix[i][j - 1]), matrix[i - 1][j - 1] + score);
+				matrix[i][j] = Math.max(
+						Math.max(Math.max(matrix[i - 1][j], matrix[i][j - 1]), matrix[i - 1][j - 1] + score),
+						matrix[i - 1][j - 1] + 0d);
 				if (matrix[i][j] > matrix[maxX][maxY]) {
 					maxX = i;
 					maxY = j;
@@ -45,15 +46,16 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 			}
 		}
 		maxScore = matrix[maxX][maxY];
-		backtrack(maxX, maxY);
 	}
 
-	public TreeMap<GenePair, ScoringObject> backtrack(int x, int y) {
+	public TreeMap<GenePair, ScoringObject> backtrack() {
 		if (unmatched != null && matches != null) {
 			return matches;
 		}
 		unmatched = new TreeSet<>();
 		matches = new TreeMap<>();
+
+		int x = maxX, y = maxY;
 
 		while (x > 1 && y > 1 && matrix[x][y] > 0) {
 
@@ -73,7 +75,6 @@ public class ScoringMatrix implements Comparable<ScoringMatrix> {
 			}
 
 		}
-
 		return matches;
 	}
 

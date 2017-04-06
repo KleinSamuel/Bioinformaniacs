@@ -612,8 +612,10 @@ public class Tree /*
 	public double compare_to(Object o) {
 		if (!(o instanceof Tree))
 			return Double.MAX_VALUE;
-		double dist = 0;
 		Tree other = (Tree) o;
+		if(this==other)
+			return 0;
+		double dist = 0;
 		TreeSet<String> datas = new TreeSet<>();
 		datas.addAll(this.get_all_node_data_names());
 		datas.addAll(other.get_all_node_data_names());
@@ -635,7 +637,7 @@ public class Tree /*
 				dist+=Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2));
 			}
 		}
-		return dist/(comparisons*2);
+		return (dist+1)/(comparisons);
 	}
 
 	public TreeSet<Node_Data> get_all_node_data() {

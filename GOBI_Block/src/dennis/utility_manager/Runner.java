@@ -1,29 +1,28 @@
 package dennis.utility_manager;
 
-import dennis.analysis.BipartitMapping;
-import dennis.analysis.FuzzyCorrelation;
-import dennis.analysis.ScoringMatrix;
-import dennis.similarities.NxMmapping;
+import java.util.Iterator;
+
+import dennis.analysis.CheckGeneOccurences;
 
 public class Runner {
-
-	// GOgraph fixen
 
 	public static void main(String[] args) {
 		UtilityManager utils = new UtilityManager(UtilityManager.DefaultInputMapping, false, false, false);
 
-		for (NxMmapping m : UtilityManager.getSimilarityHandler().getNxMmappings(UtilityManager.getSpecies(9031),
-				UtilityManager.getSpecies(9544))) {
-			int c = 0;
-			for (ScoringMatrix sm : new BipartitMapping(m, new FuzzyCorrelation(UtilityManager.getSpecies(9031),
-					UtilityManager.getSpecies(9544), "star", "DESeq")).getScoringMatrix()) {
-				System.out.println(sm.matrixToString());
-				c++;
-			}
-			if (c > 3) {
-				return;
-			}
+		// Species query_species = UtilityManager.getSpecies(10090),
+		// target_species = UtilityManager.getSpecies(10116);
+		// new InputDataPreparator(query_species, target_species, "star",
+		// "limma", null, 1d);
+
+		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
+			Species sp = spIt.next();
+			new CheckGeneOccurences(sp, "star", "limma");
 		}
+
+		// Species query_species = UtilityManager.getSpecies(10090),
+		// target_species = UtilityManager.getSpecies(10116);
+		// new InputDataPreparator(query_species, target_species, "star",
+		// "limma");
 
 		// Fuzzy fuz = new Fuzzy(3d, 0.1d);
 		// for (double d : fuz.getFuzzyArray(1.8d, 0.3d)) {
