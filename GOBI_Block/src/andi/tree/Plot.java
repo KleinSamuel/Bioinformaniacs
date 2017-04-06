@@ -3,6 +3,7 @@ package andi.tree;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -13,7 +14,7 @@ import andi.analysis.Organism_Data.Gene_focus;
 
 public class Plot {
 
-	private String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
+	private static String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
 	private Tree t;
 	private static HashMap<Boolean, HashMap<Tree, TreeMap<Node, File>>> paths = new HashMap<>();
 	private String temp_dir = "";
@@ -114,11 +115,10 @@ public class Plot {
 		return paths.get(node_names).get(tree).get(n);
 	}
 
-	
 	public static File get_plot(Tree tree, Node n, String temp_dir) {
-		return get_plot_clone(tree.clone(),n.clone(),temp_dir);
+		return get_plot_clone(tree.clone(), n.clone(), temp_dir);
 	}
-	
+
 	private static File get_plot_clone(Tree tree, Node n, String temp_dir) {
 		if (!paths.containsKey(node_names))
 			paths.put(node_names, new HashMap<>());
@@ -140,10 +140,59 @@ public class Plot {
 	}
 
 	public static File get_plot(Tree tree, int id) {
-		return get_plot(tree,tree.get_Node(id));
+		return get_plot(tree, tree.get_Node(id));
 	}
 
 	public static File get_plot(Tree tree, int id, String temp_dir) {
-		return get_plot(tree,tree.get_Node(id),temp_dir);
+		return get_plot(tree, tree.get_Node(id), temp_dir);
+	}
+
+	public static File get_heatmap(ArrayList<Tree> trees) {
+		File heatmap_data = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.txt");
+		File heatmap = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.pdf");
+		try {
+			double[][] heatmap_dists = new double[trees.size()][trees.size()];
+			for (int x = 0; x < trees.size(); x++)
+				for (int y = x; y < trees.size(); y++)
+					if (x == y)
+						heatmap_dists[x][y] = heatmap_dists[y][x] = trees.get(x).compare_to(trees.get(y));
+
+			BufferedWriter bw_data = new BufferedWriter(new FileWriter(heatmap_data));
+			String header = "";
+			for (Tree t : trees)
+				header += ((Organism_Data) t.get_node_data())
+						.get_description(t.get_distance_measurement(), t.get_gene_focus()).replaceAll(" ", "_") + "\t";
+			header = header.substring(0, header.length() - 1);
+			bw_data.write(header);
+			bw_data.newLine();
+			for (double[] l : heatmap_dists) {
+				String line = "";
+				for (double d : l)
+					line += d + "\t";
+				bw_data.write(line.substring(0, line.length() - 1));
+				bw_data.newLine();
+			}
+			bw_data.close();
+
+			File heatmap_R = File.createTempFile("heatmap", ".R",
+					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
+			heatmap_R.deleteOnExit();
+			BufferedWriter bw_R = new BufferedWriter(new FileWriter(heatmap_R));
+			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width=" + (trees.size() / 4.5) + ",height="
+					+ (trees.size() / 2.5) + "\n");
+			bw_R.write("tab <- read.table(file=\"" + heatmap_data.getAbsolutePath() + "\",header=T, sep=\"\\t\")");
+			bw_R.newLine();
+			bw_R.write("heatmap(data.matrix(tab,rownames.force=NA),Rowv=NA)");
+			bw_R.newLine();
+			bw_R.write("dev.off()");
+			bw_R.close();
+			Process plotting = Runtime.getRuntime().exec(R_path + " " + heatmap_R.getAbsolutePath());
+			plotting.waitFor();
+
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		return heatmap;
 	}
 }

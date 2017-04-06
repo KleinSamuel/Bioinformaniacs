@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -506,7 +507,6 @@ public class TreeBuilder {
 		ArrayList<Tree> trees = new ArrayList<>();
 		set_species_filter(organism_filter);
 		set_tissue_filter(tissue_filter);
-		trees.add(build_avg_sequence_id_of_orthologues_tree());
 		if (gfs == null) {
 			gfs = new ArrayList<>();
 			gfs.add(Gene_focus.All_genes);
@@ -515,11 +515,11 @@ public class TreeBuilder {
 			gfs.add(Gene_focus.nonorthologues_only);
 			gfs.add(Gene_focus.orthologues_only);
 		}
-//		if (cms == null) {
-//			cms = new ArrayList<>();
-//			cms.add(Cluster_method.UPGMA);
-//			cms.add(Cluster_method.WPGMA);
-//		}
+		// if (cms == null) {
+		// cms = new ArrayList<>();
+		// cms.add(Cluster_method.UPGMA);
+		// cms.add(Cluster_method.WPGMA);
+		// }
 		if (dms == null) {
 			dms = new ArrayList<>();
 			dms.add(Distance_measurement.Avg_seq_id_all);
@@ -527,25 +527,17 @@ public class TreeBuilder {
 			dms.add(Distance_measurement.DE_count);
 			dms.add(Distance_measurement.GO_tissue_basic);
 		}
-		if (dms.contains(Distance_measurement.Avg_seq_id_all)) {
-			change_distance_measurement(Distance_measurement.Avg_seq_id_all);
-			trees.add(build_avg_sequence_id_of_orthologues_tree().clone());
-		}
-		if (dms.contains(Distance_measurement.Avg_seq_id_max)) {
-			change_distance_measurement(Distance_measurement.Avg_seq_id_max);
-			trees.add(build_avg_sequence_id_of_orthologues_tree().clone());
-		}
+		if (dms.contains(Distance_measurement.Avg_seq_id_all))
+			trees.add(build_avg_sequence_id_of_orthologues_tree()
+					.change_distance_measurement(Distance_measurement.Avg_seq_id_all).clone());
+		if (dms.contains(Distance_measurement.Avg_seq_id_max))
+			trees.add(build_avg_sequence_id_of_orthologues_tree()
+					.change_distance_measurement(Distance_measurement.Avg_seq_id_max).clone());
 		for (Gene_focus gf : gfs) {
 			set_gene_focus(gf);
 			for (Distance_measurement dm : dms) {
 				change_distance_measurement(dm);
-				ArrayList<Tree> out = get_trees(gf,dm);
-				for(Tree t:out) { 
-					System.out.println("\t"+gf+" - "+dm);
-					System.out.println("\t"+t.get_gene_focus()+" - "+t.get_distance_measurement());
-					System.out.println(((Organism_Data)t.get_node_data()).get_description(t.get_distance_measurement(), t.get_gene_focus()));
-					}
-				trees.addAll(out);
+				trees.addAll(get_trees(gf, dm));
 			}
 		}
 		return trees;
@@ -553,12 +545,12 @@ public class TreeBuilder {
 
 	private ArrayList<Tree> get_trees(Gene_focus gf, Distance_measurement dm) {
 		ArrayList<Tree> trees = new ArrayList<>();
-		if (dm == Distance_measurement.DE_count&&gf!=Gene_focus.nonde_only)
-			for(Tree t:get_de_trees())
-			trees.add(t.clone());
+		if (dm == Distance_measurement.DE_count && gf != Gene_focus.nonde_only)
+			for (Tree t : build_de_trees())
+				trees.add(t.clone());
 		if (dm == Distance_measurement.GO_tissue_basic || dm == Distance_measurement.GO_tissue_xgsa)
-			for(Tree t:get_go_trees())
-			trees.add(t.clone());
+			for (Tree t : build_go_trees())
+				trees.add(t.clone());
 		return trees;
 	}
 
@@ -583,18 +575,25 @@ public class TreeBuilder {
 	}
 
 	private void change_de_dm(Distance_measurement dm) {
-		if (dm == de_dm)
-			return;
-		de_dm = dm;
-		de_tree_status = Tree_status.Init;
-
+		if (de_tree_status == Tree_status.None)
+			prepare_de_trees();
+		for (Tree t : get_de_trees())
+			if (de_tree_status == Tree_status.Built)
+				t.change_distance_measurement(dm);
+			else if (de_tree_status == Tree_status.Prepared) {
+				t.set_distance_measurement(dm);
+			}
 	}
 
 	private void change_go_dm(Distance_measurement dm) {
-		if (dm == go_dm)
-			return;
-		go_dm = dm;
-		go_tree_status = Tree_status.Init;
+		if (go_tree_status == Tree_status.None)
+			prepare_go_trees();
+		for (Tree t : get_go_trees())
+			if (go_tree_status == Tree_status.Built)
+				t.change_distance_measurement(dm);
+			else if (go_tree_status == Tree_status.Prepared) {
+				t.set_distance_measurement(dm);
+			}
 	}
 
 	public static void main(String[] args) {
@@ -617,12 +616,27 @@ public class TreeBuilder {
 		} else {
 			b = new TreeBuilder(null, null, false);
 			ArrayList<Tree> trees = b.get_trees(null, null, null, null, null);
-			System.out.println(trees.size()+" Trees:");
-			for(Tree t:trees) { 
-			System.out.println("\t"+t.get_gene_focus()+" - "+t.get_distance_measurement());
-				System.out.println(((Organism_Data)t.get_node_data()).get_description(t.get_distance_measurement(), t.get_gene_focus()));
+			try {
+				Runtime.getRuntime().exec("chromium " + Plot.get_heatmap(trees).getAbsolutePath());
+				Scanner s = new Scanner(System.in);
+				while (true) {
+					if (s.hasNext()) {
+						try {
+							if (s.hasNextInt()) {
+								int tree_nr = s.nextInt();
+								if (tree_nr < trees.size())
+									Runtime.getRuntime().exec("display " + Plot.get_plot(trees.get(tree_nr)));
+							} else if (s.next().equals("exit"))
+								break;
+						} catch (NumberFormatException e) {
+						}
+					}
+				}
+				s.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			}
+		}
 	}
 
 }
