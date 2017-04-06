@@ -92,20 +92,26 @@ public class Sample {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = partner.get(mates.get(gene_id_x));
 				if (filter.equals("all")) {
-					TreeSet<String> cur_gos = GOHandler.getMappedGOterms(null, gene_id_x);
-					if (cur_gos != null)
-						for (String g : cur_gos) {
-							if (!goterms.containsKey(g))
-								goterms.put(g, 0.0);
-							goterms.put(g, goterms.get(g) + 1);
-						}
-					cur_gos = GOHandler.getMappedGOterms(null, mates.get(gene_id_x));
-					if (cur_gos != null)
-						for (String g : cur_gos) {
-							if (!goterms.containsKey(g))
-								goterms.put(g, 0.0);
-							goterms.put(g, goterms.get(g) + 1);
-						}
+					HashMap<String, LinkedList<String>> all = GOHandler.getAllMappedGOs(null, gene_id_x);
+					// TreeSet<String> cur_gos =
+					// GOHandler.getMappedGOterms(null, gene_id_x);
+					if (all != null)
+						for (String key : all.keySet())
+							for (String g : all.get(key)) {
+								if (!goterms.containsKey(g))
+									goterms.put(g, 0.0);
+								goterms.put(g, goterms.get(g) + 1);
+							}
+					all = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
+					// cur_gos = GOHandler.getMappedGOterms(null,
+					// mates.get(gene_id_x));
+					if (all != null)
+						for (String key : all.keySet())
+							for (String g : all.get(key)) {
+								if (!goterms.containsKey(g))
+									goterms.put(g, 0.0);
+								goterms.put(g, goterms.get(g) + 1);
+							}
 				}
 				if (all_info) {
 					x_asString.append(",").append(x[index]);

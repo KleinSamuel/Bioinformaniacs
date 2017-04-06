@@ -19,9 +19,7 @@ public class Runner {
 				BufferedWriter bw = new BufferedWriter(new FileWriter(path + "plot/vals_" + type + ".txt"));
 				String line = br.readLine();
 				int usedlines = 0;
-				for (int i = 0; i < 10; i++)
-					br.readLine();
-				while ((line = br.readLine()) != null && ++usedlines < 91) {
+				while ((line = br.readLine()) != null && ++usedlines < 101) {
 					System.out.println(systemInfoString() + "current line: " + line);
 					String[] split = line.split("\t");
 					bw.write("###" + line + "###\n");
@@ -30,6 +28,12 @@ public class Runner {
 						Thread.sleep(10000);
 						check_in_grid();
 						Analysis.FPKM("phasetwo", split[1]);
+						Thread.sleep(15000);
+					} else if (type.equals("DEP")) {
+						Analysis.DEP("phaseone", split[1]);
+						Thread.sleep(10000);
+						check_in_grid();
+						Analysis.DEP("phasetwo", split[1]);
 						Thread.sleep(15000);
 					}
 					write_info(bw, path + "plot/plot_vals_" + split[1] + "_" + type + ".txt");

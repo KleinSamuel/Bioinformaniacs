@@ -88,7 +88,7 @@ public class Point_Analysis {
 				System.out.println(systemInfoString() + ((FPKM_Single) sd_query).get_name() + " vs "
 						+ ((FPKM_Single) sd_target).get_name());
 				String temp = ((FPKM_Single) sd_query).get_value(((FPKM_Single) sd_target)) + "";
-				System.out.println(temp);
+				System.out.println(temp); 
 
 				bw.write("\n#Heatmap_value\n" + temp);
 				if (((FPKM_Single) sd_query).get_tissue().getName()
