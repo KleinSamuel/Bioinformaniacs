@@ -10,6 +10,9 @@ import dennis.tissues.Tissue;
 import dennis.tissues.TissuePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
+import kikky.objects.DE_Pairs;
+import kikky.objects.FPKM_Single;
+import kikky.objects.Sample;
 
 public class Point_Analysis {
 	private long start;
@@ -88,7 +91,7 @@ public class Point_Analysis {
 				System.out.println(systemInfoString() + ((FPKM_Single) sd_query).get_name() + " vs "
 						+ ((FPKM_Single) sd_target).get_name());
 				String temp = ((FPKM_Single) sd_query).get_value(((FPKM_Single) sd_target)) + "";
-				System.out.println(temp);
+				System.out.println(temp); 
 
 				bw.write("\n#Heatmap_value\n" + temp);
 				if (((FPKM_Single) sd_query).get_tissue().getName()

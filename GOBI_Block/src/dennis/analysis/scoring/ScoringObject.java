@@ -1,4 +1,4 @@
-package dennis.analysis;
+package dennis.analysis.scoring;
 
 /**
  * class all other scorings should extend

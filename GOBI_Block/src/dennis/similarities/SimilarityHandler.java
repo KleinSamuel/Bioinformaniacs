@@ -270,7 +270,8 @@ public class SimilarityHandler {
 	 * @param gs1
 	 * @param gs2
 	 * @param startId
-	 * @return NxMmapping for the two species containing gene startId and the whole cluster mapped to it
+	 * @return NxMmapping for the two species containing gene startId and the
+	 *         whole cluster mapped to it
 	 */
 	public NxMmapping getNxMmapping(Species species1, Species species2, GeneSimilarities gs1, GeneSimilarities gs2,
 			String startId) {

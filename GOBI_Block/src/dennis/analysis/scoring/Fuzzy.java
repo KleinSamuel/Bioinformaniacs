@@ -1,4 +1,4 @@
-package dennis.fuzzy;
+package dennis.analysis.scoring;
 
 import java.util.ArrayList;
 

@@ -1,16 +1,15 @@
-package dennis.analysis;
+package dennis.analysis.scoring;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
-import dennis.enrichment.EnrichmentAnalysisUtils;
+import dennis.analysis.BipartiteMatching;
+import dennis.analysis.HungarianAlgorithm;
 import dennis.enrichment.GeneObject;
-import dennis.fuzzy.Fuzzy;
-import dennis.tissues.Tissue;
+import dennis.similarities.NxMmapping;
 import dennis.tissues.TissueHandler;
 import dennis.tissues.TissuePair;
 import dennis.util.GenePair;
@@ -20,74 +19,44 @@ import javafx.util.Pair;
 
 public class FuzzyCorrelation extends ScoringFunction {
 
-	public static void main(String[] args) {
-		LinkedList<TissuePair> s = new LinkedList<>(), t = new LinkedList<>();
-		Tissue a = new Tissue("a");
-		Tissue b = new Tissue("b");
-		Tissue c = new Tissue("c");
-		Tissue d = new Tissue("d");
-		Tissue e = new Tissue("e");
-
-		s.add(new TissuePair(a, b));
-		s.add(new TissuePair(a, c));
-		s.add(new TissuePair(a, d));
-		s.add(new TissuePair(a, b));
-		s.add(new TissuePair(b, c));
-		s.add(new TissuePair(b, d));
-		s.add(new TissuePair(c, d));
-		t.add(new TissuePair(a, b));
-		t.add(new TissuePair(a, c));
-		t.add(new TissuePair(e, d));
-		t.add(new TissuePair(e, b));
-		t.add(new TissuePair(b, c));
-		t.add(new TissuePair(b, d));
-		t.add(new TissuePair(c, d));
-
-		TreeSet<TissuePair> tree = new TreeSet<>(s);
-		tree.retainAll(t);
-
-		for (TissuePair st : tree)
-			System.out.println(st.getKey() + "\t" + st.getValue());
-	}
+	public static final String NAME = "fuzzy";
 
 	private TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesSpecies1 = null, deFilesSpecies2 = null;
 	private TreeSet<TissuePair> tissuePairs = null;
-	private String mapper, deMethod;
 	private Fuzzy fuzzyCalculator;
+	private PearsonsCorrelation ps;
 
-	public FuzzyCorrelation(Species query_species, Species target_species, String mapper, String deMethod) {
+	public FuzzyCorrelation(Species query_species, Species target_species,
+			TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesQuerySpecies,
+			TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesTargetSpecies) {
 		super(query_species, target_species);
-		this.mapper = mapper;
-		this.deMethod = deMethod;
 		fuzzyCalculator = new Fuzzy();
 		tissuePairs = new TreeSet<>(TissueHandler.tissuePairIterator(query_species));
 		tissuePairs.retainAll(TissueHandler.tissuePairIterator(target_species));
-		deFilesSpecies1 = new TreeMap<>();
-		deFilesSpecies2 = new TreeMap<>();
-		readDEfiles();
+		deFilesSpecies1 = deFilesQuerySpecies;
+		deFilesSpecies2 = deFilesTargetSpecies;
+		ps = new PearsonsCorrelation();
 	}
 
-	public void readDEfiles() {
-		for (TissuePair tp : tissuePairs) {
-			TreeMap<String, GeneObject> in = new TreeMap<>();
-			for (GeneObject go : EnrichmentAnalysisUtils
-					.readDEfile(UtilityManager.getConfig("enrichment_output") + getQuerySpecies().getId() + "/"
-							+ tp.toString() + "/" + mapper + "/" + tp.toString() + "." + deMethod)) {
-				in.put(go.getName(), go);
+	//
+	public BipartiteMatching calculateBestBipartiteMatching(NxMmapping inputCluster) {
+
+		System.out.println("fuzzy scoring");
+
+		String[] genes1 = inputCluster.getGenesFromSpecies(true)
+				.toArray(new String[inputCluster.getGenesFromSpecies(true).size()]),
+				genes2 = inputCluster.getGenesFromSpecies(false)
+						.toArray(new String[inputCluster.getGenesFromSpecies(false).size()]);
+
+		double[][] costMatrix = new double[genes1.length][genes2.length];
+		for (int i = 0; i < genes1.length; i++) {
+			for (int j = 0; j < genes2.length; j++) {
+				costMatrix[i][j] = score(new GenePair(genes1[i], genes2[j])) * -1d;
 			}
-
-			deFilesSpecies1.put(tp, in);
-
-			in = new TreeMap<>();
-
-			for (GeneObject go : EnrichmentAnalysisUtils
-					.readDEfile(UtilityManager.getConfig("enrichment_output") + getQuerySpecies().getId() + "/"
-							+ tp.toString() + "/" + mapper + "/" + tp.toString() + "." + deMethod)) {
-				in.put(go.getName(), go);
-			}
-
-			deFilesSpecies2.put(tp, in);
 		}
+
+		return new BipartiteMatching(inputCluster, new HungarianAlgorithm(costMatrix).execute(), costMatrix);
+
 	}
 
 	public double[] getFuzzyArr(TreeMap<TissuePair, TreeMap<String, GeneObject>> deFiles, TissuePair tp,
@@ -121,15 +90,23 @@ public class FuzzyCorrelation extends ScoringFunction {
 			}
 		}
 
-		PearsonsCorrelation ps = new PearsonsCorrelation();
-
 		double corr = ps.correlation(corrInputGene1, corrInputGene2);
 
 		return corr;
 	}
 
+	/**
+	 * scoring by de correlation
+	 * 
+	 * @param genePair
+	 * @return
+	 */
 	@Override
 	public double score(GenePair genePair) {
+		if (!UtilityManager.getSimilarityHandler().getSimilarities(query_species, target_species)
+				.isSimilar(genePair.getKey(), genePair.getValue())) {
+			return -2d;
+		}
 		return correlation(genePair);
 	}
 

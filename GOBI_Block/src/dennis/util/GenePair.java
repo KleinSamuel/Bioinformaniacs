@@ -28,6 +28,11 @@ public class GenePair implements Comparable<GenePair> {
 	}
 
 	@Override
+	public boolean equals(Object obj) {
+		return isSame((GenePair) obj);
+	}
+
+	@Override
 	public String toString() {
 		return "gene_pair: " + geneKey + "->" + geneValue;
 	}

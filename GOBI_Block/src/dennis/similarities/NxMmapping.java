@@ -1,11 +1,10 @@
 package dennis.similarities;
 
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import dennis.util.GenePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 
@@ -14,6 +13,7 @@ public class NxMmapping {
 	private Species species1, species2;
 	private TreeSet<String> geneIdsSpecies1, geneIdsSpecies2;
 	private TreeMap<String, TreeMap<String, SimilarityObject>> simsObjects;
+	private HashMap<String, Integer> indices;
 
 	public NxMmapping(Species sp1, Species sp2, TreeSet<String> idsSp1, TreeSet<String> idsSp2) {
 		species1 = sp1;
@@ -27,15 +27,14 @@ public class NxMmapping {
 	public void init() {
 		for (String s : geneIdsSpecies1) {
 			TreeMap<String, SimilarityObject> x = new TreeMap<>();
-			x.putAll(UtilityManager.getSimilarityHandler().getSimilarities(species1, species2).getSimilarities(s));
+			for (Entry<String, SimilarityObject> e : UtilityManager.getSimilarityHandler()
+					.getSimilarities(species1, species2).getSimilarities(s).entrySet()) {
+				if (geneIdsSpecies2.contains(e.getKey())) {
+					x.put(e.getKey(), e.getValue());
+				}
+			}
 			simsObjects.put(s, x);
 		}
-		for (String s : geneIdsSpecies2) {
-			TreeMap<String, SimilarityObject> x = new TreeMap<>();
-			x.putAll(UtilityManager.getSimilarityHandler().getSimilarities(species2, species1).getSimilarities(s));
-			simsObjects.put(s, x);
-		}
-
 	}
 
 	public TreeMap<String, TreeMap<String, SimilarityObject>> getSims() {
@@ -45,12 +44,18 @@ public class NxMmapping {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (String s : simsObjects.keySet()) {
-			sb.append(s + ":\n");
-			for (String e : simsObjects.get(s).keySet()) {
-				sb.append("\t" + e + "\n");
-			}
+		sb.append(geneIdsSpecies1.size() + "\t" + geneIdsSpecies2.size() + "\t");
+		for (String s : geneIdsSpecies1) {
+			sb.append(s + ",");
 		}
+
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append("\t");
+
+		for (String s : geneIdsSpecies2) {
+			sb.append(s + ",");
+		}
+		sb.deleteCharAt(sb.length() - 1);
 		return sb.toString();
 	}
 
@@ -66,62 +71,29 @@ public class NxMmapping {
 		return species2;
 	}
 
-	public TreeMap<GenePair, SimilarityObject> getGreedyMapping() {
-		TreeMap<GenePair, SimilarityObject> ret = new TreeMap<>();
+	public int getOverallSims() {
+		int i = 0;
 
-		TreeSet<SimilarityObject> objects = new TreeSet<>(new Comparator<SimilarityObject>() {
-
-			@Override
-			public int compare(SimilarityObject o1, SimilarityObject o2) {
-				double comp = o1.getMaximumIdentityScore() - o2.getMaximumIdentityScore();
-				if (comp < 0)
-					return -1;
-				if (comp > 0)
-					return 1;
-				return 0;
-			}
-		});
 		for (String s : simsObjects.keySet()) {
-			for (SimilarityObject so : simsObjects.get(s).values()) {
-				objects.add(so);
-			}
+			i += simsObjects.get(s).size();
 		}
 
-		TreeMap<String, TreeMap<String, SimilarityObject>> copySims = copySims();
-
-		boolean goOn = objects.size() > 0;
-		while (goOn) {
-			SimilarityObject highest = objects.first();
-			objects.remove(highest);
-			TreeMap<String, SimilarityObject> tree = copySims.get(highest.getQuery_geneId());
-			if (tree == null) {
-				continue;
-			} else {
-				if (!tree.containsKey(highest.getTarget_geneId())) {
-					continue;
-				} else {
-					ret.put(new GenePair(highest.getQuery_geneId(), highest.getTarget_geneId()), highest);
-					copySims.remove(highest.getQuery_geneId());
-					copySims.remove(highest.getTarget_geneId());
-				}
-			}
-			goOn = objects.size() > 0;
-		}
-
-		return ret;
-
+		return i;
 	}
 
-	public TreeMap<String, TreeMap<String, SimilarityObject>> copySims() {
-		TreeMap<String, TreeMap<String, SimilarityObject>> sims = new TreeMap<>();
-		for (String s : simsObjects.keySet()) {
-			TreeMap<String, SimilarityObject> sim = new TreeMap<>();
-			for (Entry<String, SimilarityObject> so : simsObjects.get(s).entrySet()) {
-				sim.put(so.getKey(), so.getValue());
+	public HashMap<String, Integer> getIndicesOfGenes() {
+		if (indices == null) {
+			indices = new HashMap<>();
+			int i = 0;
+			for (String geneId : geneIdsSpecies1) {
+				indices.put(geneId, i++);
 			}
-			sims.put(s, sim);
+			i = 0;
+			for (String geneId : geneIdsSpecies2) {
+				indices.put(geneId, i++);
+			}
 		}
-		return sims;
+		return indices;
 	}
 
 }
