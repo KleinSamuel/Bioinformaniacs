@@ -1,4 +1,4 @@
-package kikky.analysis;
+package kikky.objects;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +12,7 @@ import dennis.forKikky.Clustering;
 import dennis.forKikky.KikkyNxMmapping;
 import dennis.forKikky.MatesScoring;
 import dennis.utility_manager.Species;
+import kikky.analysis.Point_Info;
 
 public class Sample {
 	private Species species;

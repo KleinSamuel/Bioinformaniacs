@@ -1,4 +1,4 @@
-package kikky.analysis;
+package kikky.objects;
 
 import java.util.Comparator;
 

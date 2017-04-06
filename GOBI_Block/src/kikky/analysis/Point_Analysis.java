@@ -10,6 +10,9 @@ import dennis.tissues.Tissue;
 import dennis.tissues.TissuePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
+import kikky.objects.DE_Pairs;
+import kikky.objects.FPKM_Single;
+import kikky.objects.Sample;
 
 public class Point_Analysis {
 	private long start;

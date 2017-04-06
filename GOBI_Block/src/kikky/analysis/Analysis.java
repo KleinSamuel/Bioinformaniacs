@@ -24,6 +24,12 @@ import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.HeatMap;
 import kikky.heatmap.Sample_Data;
 import kikky.heatmap.SpecialLineplot;
+import kikky.objects.DE_Pairs;
+import kikky.objects.DE_Single;
+import kikky.objects.FPKM_Single;
+import kikky.objects.SpeciesComparator;
+import kikky.objects.TissueComparator;
+import kikky.objects.TissuepairComparator;
 
 public class Analysis {
 	private static long start;
@@ -34,6 +40,8 @@ public class Analysis {
 			FPKM(args[0], args[2]);
 		else if (args[1].equals("DEP")) {
 			DEP(args[0], args[2]);
+		}else if (args[1].equals("DES")) {
+			DES(args[0], args[2]);
 		}
 	}
 
@@ -135,6 +143,50 @@ public class Analysis {
 		}
 	}
 
+	public static void DES(String phase, String filter) throws IOException {
+		start = System.currentTimeMillis();
+		ArrayList<Sample_Data> des_samples = new ArrayList<>();
+		System.out.println(systemInfoString() + "Starting Utility Manager");
+		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
+				false);
+		String data_path = UtilityManager.getConfig("enrichment_output");
+		System.out.println(systemInfoString() + "Starting to save gene count infos");
+		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
+			Species organism = it_org.next();
+			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
+				Tissue tissue = it_tis.next();
+				String map = "star";
+				String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + map + "/"
+						+ tissue.toString() + ".DESeq";
+				DE_Single fs = new DE_Single(organism, tissue, path, filter);
+				des_samples.add(fs);
+			}
+		}
+		des_samples.sort(new TissueComparator<>());
+		if (phase.equals("phaseone")) {
+			try {
+				System.out.println(systemInfoString() + "Starting phase one!");
+				BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/DES.info"));
+				bw.write("Number\tOrganism_ID\tOrganism_name\tOrganism_gtf\tOrganism_chr\tTissue\tpath");
+				for (int i = 1; i <= des_samples.size(); i++) {
+					DE_Single ds = (DE_Single) des_samples.get(i - 1);
+					bw.write("\n" + i + "#\t" + ds.get_init_info());
+				}
+				bw.close();
+				Process plotting;
+				plotting = Runtime.getRuntime()
+						.exec("qsub -b Y -t 1-" + des_samples.size()
+								+ " -N DES -P prakt_proj -l vf=8000M,h_rt=1:00:00 -o " + path + "grid -e " + path
+								+ "grid \"/home/a/adamowicz/GoBi/Block/results/callAnalysis.sh\" 1 "
+								+ des_samples.size() + " DES " + filter);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println(systemInfoString() + "Terminated");
+		} else if (phase.equals("phasetwo")) {
+			phase_two(des_samples, filter, "DES");
+		}
+	}
 	private static void phase_two(ArrayList<Sample_Data> samples, String filter, String type) throws IOException {
 		System.out.println(systemInfoString() + "Starting phase two!");
 		int max = samples.size();
@@ -163,7 +215,7 @@ public class Analysis {
 				if (type.equals("FPKM")) {
 					if (val > 0 && val < lowest.getMaximumIdentityScore())
 						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
-				} else if (type.equals("DEP"))
+				} else if (type.equals("DEP")||type.equals("DES"))
 					if (Math.abs(val) < lowest.getMaximumIdentityScore())
 						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
 			}
