@@ -73,6 +73,7 @@ public class Runner {
 						br.readLine();
 					vals.put(header, tissue - spec);
 				}
+				br.close();
 				Map<String, Double> sorted = sortByValue(vals);
 				for (String key : sorted.keySet())
 					System.out.println(key + "\t" + sorted.get(key));
