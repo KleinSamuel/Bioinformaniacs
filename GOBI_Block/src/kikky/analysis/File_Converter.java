@@ -53,21 +53,27 @@ public class File_Converter {
 			String data_path = UtilityManager.getConfig("output_directory");
 			for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 				Species organism = it_org.next();
-				ArrayList<String> raw_dir = new ArrayList<>();
-				ArrayList<String> raw_files = new ArrayList<>();
+				HashMap<String, ArrayList<String>> exps = new HashMap<>();
 				for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
 					Tissue tissue = it_tis.next();
-					raw_files.add(data_path + organism.getId() + "/" + tissue.getName() + "/star_tissue_average.counts");
-					raw_dir.add(data_path + organism.getId() + "/" + tissue.getName() + "/");
+					exps.put(tissue.getName(), new ArrayList<>());
+					for (Experiment exp : tissue.getExperiments()) {
+						exps.get(tissue.getName()).add(data_path + organism.getId() + "/" + tissue + "/" + exp.getName()
+								+ "/star/gene.counts");
+					}
 				}
-				String mix_path = data_path + organism.getId() + "/tissue_mix.count";
-				CounterUtils.createAverageCountFile(raw_files, mix_path);
-				for (String raw : raw_dir) {
-					ArrayList<String> a1 = new ArrayList<>();
-					a1.add(raw + "star_tissue_average.counts");
-					ArrayList<String> a2 = new ArrayList<>();
-					a2.add(mix_path);
-					EBUtils.runEnrichment(a1, a2, raw, "vsTissuemix", false);
+				ArrayList<String> tms = new ArrayList<>();
+				for (int i = 1; i <= 3; i++) {
+					ArrayList<String> files = new ArrayList<>();
+					for (String tissue : exps.keySet()) {
+						files.add(exps.get(tissue).get(i % exps.get(tissue).size()));
+					}
+					CounterUtils.createAverageCountFile(files, data_path + organism.getId() + "/tm" + i + ".count");
+					tms.add(data_path + organism.getId() + "/tm" + i + ".count");
+				}
+				for (String tissue : exps.keySet()) {
+					EBUtils.runEnrichment(tms, exps.get(tissue), data_path + organism.getId() + "/" + tissue,
+							"vsTissuemix", false);
 				}
 			}
 		}
