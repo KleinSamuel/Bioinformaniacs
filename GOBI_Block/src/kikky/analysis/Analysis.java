@@ -150,15 +150,13 @@ public class Analysis {
 		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
 				false);
-		String data_path = UtilityManager.getConfig("enrichment_output");
+		String data_path = UtilityManager.getConfig("output_directory");
 		System.out.println(systemInfoString() + "Starting to save gene count infos");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
 			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
 				Tissue tissue = it_tis.next();
-				String map = "star";
-				String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + map + "/"
-						+ tissue.toString() + ".DESeq";
+				String path = data_path + organism.getId() + "/" + tissue.getName() + "/vsTissuemix.DESeq";
 				DE_Single fs = new DE_Single(organism, tissue, path, filter);
 				des_samples.add(fs);
 			}

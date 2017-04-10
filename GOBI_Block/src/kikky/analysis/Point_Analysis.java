@@ -11,6 +11,7 @@ import dennis.tissues.TissuePair;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.objects.DE_Pairs;
+import kikky.objects.DE_Single;
 import kikky.objects.FPKM_Single;
 import kikky.objects.Sample;
 
@@ -71,12 +72,16 @@ public class Point_Analysis {
 						sd_query = generate_FPKM_Sample(line, data_path, filter);
 					if (type.equals("DEP"))
 						sd_query = generate_DEP_Sample(line, filter);
+					if (type.equals("DES"))
+						sd_query = generate_DES_Sample(line, filter);
 				}
 				if (line.startsWith(secound + "#")) {
 					if (type.equals("FPKM"))
 						sd_target = generate_FPKM_Sample(line, data_path, filter);
 					if (type.equals("DEP"))
 						sd_target = generate_DEP_Sample(line, filter);
+					if (type.equals("DES"))
+						sd_target = generate_DES_Sample(line, filter);
 				}
 				if (sd_query != null && sd_target != null)
 					break;
@@ -91,7 +96,7 @@ public class Point_Analysis {
 				System.out.println(systemInfoString() + ((FPKM_Single) sd_query).get_name() + " vs "
 						+ ((FPKM_Single) sd_target).get_name());
 				String temp = ((FPKM_Single) sd_query).get_value(((FPKM_Single) sd_target)) + "";
-				System.out.println(temp); 
+				System.out.println(temp);  
 
 				bw.write("\n#Heatmap_value\n" + temp);
 				if (((FPKM_Single) sd_query).get_tissue().getName()
@@ -108,6 +113,18 @@ public class Point_Analysis {
 
 				bw.write("\n#Heatmap_value\n" + temp);
 				if (((DE_Pairs) sd_query).get_tissuepair().equals(((DE_Pairs) sd_target).get_tissuepair()))
+					bw.write("\n#tt");
+				else
+					bw.write("\n#tat");
+			} else if (type.equals("DES")) {
+				System.out.println(systemInfoString() + "Starting to calculate values to partner");
+				System.out.println(systemInfoString() + ((DE_Single) sd_query).get_name() + " vs "
+						+ ((DE_Single) sd_target).get_name());
+				String temp = ((DE_Single) sd_query).get_value(((DE_Single) sd_target)) + "";
+				System.out.println(temp);
+
+				bw.write("\n#Heatmap_value\n" + temp);
+				if (((DE_Single) sd_query).get_tissue().equals(((DE_Single) sd_target).get_tissue()))
 					bw.write("\n#tt");
 				else
 					bw.write("\n#tat");
@@ -146,6 +163,15 @@ public class Point_Analysis {
 		TissuePair tissues = new TissuePair(new Tissue(split[5]), new Tissue(split[6]));
 		String path = split[7];
 		return new DE_Pairs(s, tissues, path, filter);
+	}
+	
+	public DE_Single generate_DES_Sample(String line, String filter) {
+		String[] split = line.split("\t");
+		int organism_id = Integer.parseInt(split[1]);
+		Species s = new Species(organism_id, split[2], split[3], split[4], null);
+		Tissue tissue = new Tissue(split[5]);
+		String path = split[6];
+		return new DE_Single(s, tissue, path, filter);
 	}
 
 	public String systemInfoString() {
