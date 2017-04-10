@@ -14,6 +14,10 @@ public class TissueComparator<Sample_Data> implements Comparator<Sample_Data> {
 			FPKM_Single fs1 = (FPKM_Single) o1;
 			FPKM_Single fs2 = (FPKM_Single) o2;
 			return tissues.indexOf(fs1.get_tissue().getName()) - tissues.indexOf(fs2.get_tissue().getName());
+		} else if (o1.getClass() == DE_Single.class && o2.getClass() == DE_Single.class) {
+			DE_Single fs1 = (DE_Single) o1;
+			DE_Single fs2 = (DE_Single) o2;
+			return tissues.indexOf(fs1.get_tissue().getName()) - tissues.indexOf(fs2.get_tissue().getName());
 		}
 		return 0;
 	}

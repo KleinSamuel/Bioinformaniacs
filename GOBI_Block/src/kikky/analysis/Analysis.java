@@ -22,7 +22,6 @@ import dennis.utility_manager.Experiment;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import kikky.heatmap.HeatMap;
-import kikky.heatmap.RHeatMap;
 import kikky.heatmap.Sample_Data;
 import kikky.heatmap.SpecialLineplot;
 import kikky.objects.DE_Pairs;
@@ -119,7 +118,7 @@ public class Analysis {
 			}
 		}
 		dep_samples.sort(new TissuepairComparator<>());
-		if (phase.equals("phaseone")) {
+		if (phase.equals("phaseone")) { 
 			try {
 				System.out.println(systemInfoString() + "Starting phase one!");
 				BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/DEP.info"));
@@ -241,9 +240,6 @@ public class Analysis {
 			HeatMap hm = new HeatMap(type, samples, samples, matrix);
 			hm.plot(path + "plot/json_" + filter + "_" + type + ".txt");
 
-			RHeatMap rhm = new RHeatMap(type, samples, samples, matrix);
-			rhm.plot(path + "plot/" + filter + "_" + type + ".png");
-
 			ArrayList<Sample_Data> spe = new ArrayList<>();
 			spe.addAll(samples);
 			spe.sort(new SpeciesComparator<>());
@@ -253,9 +249,6 @@ public class Analysis {
 					matrix_spe[i][j] = matrix[samples.indexOf(spe.get(i))][samples.indexOf(spe.get(j))];
 			HeatMap hm_spe = new HeatMap(type, spe, spe, matrix_spe);
 			hm_spe.plot(path + "plot/json_" + filter + "_spe_" + type + ".txt");
-
-			RHeatMap rhm_spe = new RHeatMap(type, spe, spe, matrix_spe);
-			rhm_spe.plot(path + "plot/json_" + filter + "_spe_" + type + ".txt");
 
 			SpecialLineplot sl = new SpecialLineplot("Correlation curve for same and different tissue pairs",
 					"Correlation Number", "Number of spots");

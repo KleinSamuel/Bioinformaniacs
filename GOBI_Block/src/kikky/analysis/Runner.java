@@ -42,6 +42,12 @@ public class Runner {
 						check_in_grid();
 						Analysis.DEP("phasetwo", split[1], "false");
 						Thread.sleep(15000);
+					}else if (type.equals("DES")) {
+						Analysis.DES("phaseone", split[1], "false");
+						Thread.sleep(10000);
+						check_in_grid();
+						Analysis.DES("phasetwo", split[1], "false");
+						Thread.sleep(15000);
 					}
 					write_info(bw, path + "plot/plot_vals_" + split[1] + "_" + type + ".txt");
 					Process plotting;

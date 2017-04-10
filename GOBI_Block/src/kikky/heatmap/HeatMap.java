@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -72,11 +73,14 @@ public class HeatMap {
 			r_script.deleteOnExit();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
 			bw.write("library(plotly);\n");
+			bw.write("library(webshot);\n");
 			bw.write(matrix + ";\n");
 			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1)
 					+ ",z = m, type = \"heatmap\",xaxis = {categoryorder = \"array\"}, yaxis = {categoryorder = \"array\"});\n");
 			bw.write("json <- plotly_json(p, FALSE);");
-			bw.write("write(json, \"" + file + "\");");
+			bw.write("write(json, \"" + file + "\");\n");
+			file = file.replace("json", "png");
+			bw.write("export(p,file=\""+file+"\");");
 			bw.close();
 			System.out.println(R_path + " " + r_script.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
