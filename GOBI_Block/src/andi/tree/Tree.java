@@ -613,7 +613,7 @@ public class Tree /*
 		if (!(o instanceof Tree))
 			return Double.MAX_VALUE;
 		Tree other = (Tree) o;
-		if(this==other)
+		if(this.hashCode()==other.hashCode())
 			return 0;
 		double dist = 0;
 		TreeSet<String> datas = new TreeSet<>();
@@ -637,7 +637,7 @@ public class Tree /*
 				dist+=Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2));
 			}
 		}
-		return (dist+1)/(comparisons);
+		return (dist)/comparisons;
 	}
 
 	public TreeSet<Node_Data> get_all_node_data() {
