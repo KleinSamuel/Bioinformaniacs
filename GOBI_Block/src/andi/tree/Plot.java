@@ -154,7 +154,6 @@ public class Plot {
 			double[][] heatmap_dists = new double[trees.size()][trees.size()];
 			for (int x = 0; x < trees.size(); x++)
 				for (int y = x; y < trees.size(); y++)
-					if (x == y)
 						heatmap_dists[x][y] = heatmap_dists[y][x] = trees.get(x).compare_to(trees.get(y));
 
 			BufferedWriter bw_data = new BufferedWriter(new FileWriter(heatmap_data));
@@ -176,13 +175,18 @@ public class Plot {
 
 			File heatmap_R = File.createTempFile("heatmap", ".R",
 					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
-			heatmap_R.deleteOnExit();
+//			heatmap_R.deleteOnExit();
 			BufferedWriter bw_R = new BufferedWriter(new FileWriter(heatmap_R));
-			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width=" + (trees.size() / 4.5) + ",height="
-					+ (trees.size() / 2.5) + "\n");
+			bw_R.write("library(gplots)");
+			bw_R.newLine();
+			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width=" + (trees.size()*2/5) + ",height="
+					+ (trees.size() *3/5) + ")");
+			bw_R.newLine();
+			bw_R.write("mycolors <- colorRampPalette(c(\"black\",\"blue\",\"white\"))(n=300)");
+			bw_R.newLine();
 			bw_R.write("tab <- read.table(file=\"" + heatmap_data.getAbsolutePath() + "\",header=T, sep=\"\\t\")");
 			bw_R.newLine();
-			bw_R.write("heatmap(data.matrix(tab,rownames.force=NA),Rowv=NA)");
+			bw_R.write("heatmap.2(data.matrix(tab,rownames.force=NA),dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c(35,5))");
 			bw_R.newLine();
 			bw_R.write("dev.off()");
 			bw_R.close();
