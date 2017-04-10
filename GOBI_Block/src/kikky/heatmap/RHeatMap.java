@@ -4,13 +4,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 
-public class HeatMap {
+public class RHeatMap {
 	private String R_path = "/home/proj/biosoft/software/R/R-3.3.0/bin/Rscript";
-	private ArrayList<String> labels = new ArrayList<>();
-	private String file_path;
 	private String matrix;
 
 	/**
@@ -24,7 +21,7 @@ public class HeatMap {
 	 * @param row
 	 *            labels links (y)
 	 */
-	public HeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
+	public RHeatMap(String title, Collection<Sample_Data> col, Collection<Sample_Data> row) {
 		matrix = "m <- matrix(c(";
 		String temp = "";
 		for (Sample_Data sd1 : row) {
@@ -32,20 +29,20 @@ public class HeatMap {
 				temp += "," + sd2.get_value(sd1);
 			}
 		}
-		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
+		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ", dimnames=(";
 		String label = "";
 		for (Sample_Data sd2 : row) {
 			label += ",\"" + sd2.get_name() + "\"";
 		}
-		labels.add("c(" + label.substring(1) + ")");
+		matrix += ("c(" + label.substring(1) + "),");
 		label = "";
 		for (Sample_Data sd2 : col) {
 			label += ",\"" + sd2.get_name() + "\"";
 		}
-		labels.add("c(" + label.substring(1) + ")");
+		matrix += ("c(" + label.substring(1) + ")))");
 	}
 
-	public HeatMap(String title, Collection<Sample_Data> row, Collection<Sample_Data> col, Number[][] m) {
+	public RHeatMap(String title, Collection<Sample_Data> row, Collection<Sample_Data> col, Number[][] m) {
 		matrix = "m <- matrix(c(";
 		String temp = "";
 		for (int x = 0; x < row.size(); x++) {
@@ -53,30 +50,30 @@ public class HeatMap {
 				temp += "," + m[y][x];
 			}
 		}
-		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ")";
+		matrix = matrix + temp.substring(1) + "), nrow=" + row.size() + ", ncol=" + col.size() + ", dimnames=(";
 		String label = "";
 		for (Sample_Data sd2 : row) {
 			label += ",\"" + sd2.get_name() + "\"";
 		}
-		labels.add("c(" + label.substring(1) + ")");
+		matrix += ("c(" + label.substring(1) + "),");
 		label = "";
 		for (Sample_Data sd2 : col) {
 			label += ",\"" + sd2.get_name() + "\"";
 		}
-		labels.add("c(" + label.substring(1) + ")");
+		matrix += ("c(" + label.substring(1) + ")))");
 	}
 
 	public void plot(String file) {
 		try {
-			File r_script = File.createTempFile("heatmap", ".R");
-			r_script.deleteOnExit();
+			File r_script = File.createTempFile("rheatmap", ".R");
+			//r_script.deleteOnExit();
 			BufferedWriter bw = new BufferedWriter(new FileWriter(r_script));
-			bw.write("library(plotly);\n");
+			bw.write("library(ggplot2);\n");
+			bw.write("library(reshape2);\n");
+			bw.write("png(file=\"" + file + "\");");
 			bw.write(matrix + ";\n");
-			bw.write("p <- plot_ly(x = " + labels.get(0) + ", y = " + labels.get(1)
-					+ ",z = m, type = \"heatmap\",xaxis = {categoryorder = \"array\"}, yaxis = {categoryorder = \"array\"});\n");
-			bw.write("json <- plotly_json(p, FALSE);");
-			bw.write("write(json, \"" + file + "\");");
+			bw.write("m.melted<-melt(m)");
+			bw.write("ggplot(m.melted, aes(x = Var1, y = Var2, fill = value)) + geom_tile();\n");
 			bw.close();
 			System.out.println(R_path + " " + r_script.getAbsolutePath());
 			Process plotting = Runtime.getRuntime().exec(R_path + " " + r_script.getAbsolutePath());
