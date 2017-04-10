@@ -406,7 +406,45 @@ public class Organism_Data implements Node_Data {
 	}
 	
 	public String get_description(Distance_measurement dm, Gene_focus gf) {
-		return data_title(gf, dm)+" - "+get_distance_measurement(dm);
+		String gene_foc = "";
+		switch (dm) {
+		case Avg_seq_id_all:
+			gene_foc+= "All possible Orthologue Pairs";
+			break;
+		case GO_tissue_basic:
+			gene_foc+= "GO similarity in " + tissue;
+			break;
+		case GO_tissue_xgsa:
+			gene_foc+= "GO similarity in " + tissue;
+			break;
+		case DE_count:
+			gene_foc+= "DE-Difference in " + tissue;
+			break;
+		default:
+			gene_foc+= "Highest identity Othologue Pairs";
+			break;
+		}
+		gene_foc+=" | Filter=only ";
+		switch (gf) {
+		case nonorthologues_only:
+			gene_foc += "Non-Orthologues";
+			break;
+		case orthologues_only:
+			gene_foc += "Orthologues";
+			break;
+		case de_only:
+			gene_foc += "pairwise-DE-Genes";
+			break;
+		case nonde_only:
+			gene_foc += "pairwise-NonDE-Genes";
+			break;
+		default:
+			gene_foc += gene_foc.substring(0, gene_foc.length()-5)+"all";
+			break;
+		}
+		
+		
+		return gene_foc;
 	}
 
 	@Override

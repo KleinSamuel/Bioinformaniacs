@@ -638,6 +638,7 @@ public class Tree /*
 			}
 		}
 		return (dist)/comparisons;
+//		return dist;
 	}
 
 	public TreeSet<Node_Data> get_all_node_data() {

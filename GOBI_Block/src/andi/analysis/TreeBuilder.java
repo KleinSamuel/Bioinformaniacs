@@ -614,25 +614,30 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
+			ArrayList<Gene_focus> gf_filter = null;
+			ArrayList<Cluster_method> cm_filter = null;
+			ArrayList<Distance_measurement> dm_filter=null;
+			ArrayList<String> tissue_filter =null;
+			ArrayList<String> species_filter = null;
 			b = new TreeBuilder(null, null, false);
-			ArrayList<Tree> trees = b.get_trees(null, null, null, null, null);
+			ArrayList<Tree> trees = b.get_trees(gf_filter, cm_filter, dm_filter, tissue_filter, species_filter);
 			try {
 				Runtime.getRuntime().exec("chromium " + Plot.get_heatmap(trees).getAbsolutePath());
-				Scanner s = new Scanner(System.in);
-				while (true) {
-					if (s.hasNext()) {
-						try {
-							if (s.hasNextInt()) {
-								int tree_nr = s.nextInt();
-								if (tree_nr < trees.size())
-									Runtime.getRuntime().exec("display " + Plot.get_plot(trees.get(tree_nr)));
-							} else if (s.next().equals("exit"))
-								break;
-						} catch (NumberFormatException e) {
-						}
-					}
-				}
-				s.close();
+//				Scanner s = new Scanner(System.in);
+//				while (true) {
+//					if (s.hasNext()) {
+//						try {
+//							if (s.hasNextInt()) {
+//								int tree_nr = s.nextInt();
+//								if (tree_nr < trees.size())
+//									Runtime.getRuntime().exec("display " + Plot.get_plot(trees.get(tree_nr)));
+//							} else if (s.next().equals("exit"))
+//								break;
+//						} catch (NumberFormatException e) {
+//						}
+//					}
+//				}
+//				s.close();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
