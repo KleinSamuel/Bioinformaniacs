@@ -635,7 +635,7 @@ public class TreeBuilder {
 				out += "XGSA";
 				break;
 			}
-			out += ")";
+			out += ")_";
 
 		} else {
 			out += "GF(";
