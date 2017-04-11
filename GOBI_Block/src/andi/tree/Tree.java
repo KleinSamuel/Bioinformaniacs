@@ -107,11 +107,11 @@ public class Tree /*
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
 				Organism_Data org = (Organism_Data) nd;
-				if (!printed) {
-					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
-							+ " and all_gos_" + go_terms);
-					printed = true;
-				}
+//				if (!printed) {
+//					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
+//							+ " and all_gos_" + go_terms);
+//					printed = true;
+//				}
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 				org.set_all_go_terms(go_terms);

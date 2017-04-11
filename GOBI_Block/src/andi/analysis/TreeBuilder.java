@@ -187,7 +187,6 @@ public class TreeBuilder {
 	}
 
 	public void prepare_go_trees() {
-		System.out.println("\tprepare go trees");
 		go_trees = new ArrayList<>();
 		for (Tissue t : leave_data.keySet()) {
 			go_trees.add(new Tree(leave_data.get(t), false));
@@ -197,7 +196,6 @@ public class TreeBuilder {
 	}
 
 	public void prepare_de_trees() {
-		System.out.println("\tprepare de trees");
 		de_trees = new ArrayList<>();
 		for (Tissue t : leave_data.keySet()) {
 			de_trees.add(new Tree(leave_data.get(t), false));
@@ -259,7 +257,6 @@ public class TreeBuilder {
 
 	public void view_de_trees() {
 		try {
-			System.out.println(de_tree_status);
 			if (de_tree_status == Tree_status.Init)
 				prepare_de_trees();
 			if (de_tree_status == Tree_status.Prepared) {
