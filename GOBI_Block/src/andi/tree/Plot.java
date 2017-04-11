@@ -172,20 +172,23 @@ public class Plot {
 				bw_data.newLine();
 			}
 			bw_data.close();
-
+			double marg = 25.0/((double)trees.size()/90);
+			double size = 25.0*((double)trees.size()/90);
 			File heatmap_R = File.createTempFile("heatmap", ".R",
 					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
 			heatmap_R.deleteOnExit();
 			BufferedWriter bw_R = new BufferedWriter(new FileWriter(heatmap_R));
 			bw_R.write("library(gplots)");
 			bw_R.newLine();
-			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width=25,height=25)");
+			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width="+size+",height="+size+")");
 			bw_R.newLine();
-			bw_R.write("mycolors <- colorRampPalette(c(\"black\",\"blue\",\"white\"))(n=100)");
+			bw_R.write("mycolors <- colorRampPalette(c(\"black\",\"blue\",\"white\"))(n=150)");
 			bw_R.newLine();
 			bw_R.write("tab <- read.table(file=\"" + heatmap_data.getAbsolutePath() + "\",header=T, sep=\"\\t\", check.names=F)");
 			bw_R.newLine();
-			bw_R.write("heatmap.2(data.matrix(tab,rownames.force=NA),dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c(25,25))");
+			bw_R.write("rownames(tab) <- colnames(tab)");
+			bw_R.newLine();
+			bw_R.write("heatmap.2(data.matrix(tab),dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"))");
 			bw_R.newLine();
 			bw_R.write("dev.off()");
 			bw_R.close();
