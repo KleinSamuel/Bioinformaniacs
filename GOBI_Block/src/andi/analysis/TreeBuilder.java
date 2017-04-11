@@ -660,7 +660,7 @@ public class TreeBuilder {
 				out += "nonOrth";
 				break;
 			}
-			out += "compDM(";
+			out += ")_compDM(";
 			for (int i = 0; i < 2; i++) {
 				switch (dm_filter.get(i)) {
 				case DE_count:
@@ -675,9 +675,8 @@ public class TreeBuilder {
 				}
 				out += i == 0 ? "-" : ")_";
 			}
-			out += ")";
 		}
-		out += "_" + (avg ? "avg" : "tot") + "_" + (dist ? "dist" : "count");
+		out += (avg ? "avg" : "tot") + "_" + (dist ? "dist" : "count");
 
 		return out;
 	}
@@ -717,7 +716,7 @@ public class TreeBuilder {
 								System.out.println(
 										"Done with computation of " + this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees);
+								File map = Plot.get_heatmap(trees,this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -738,7 +737,7 @@ public class TreeBuilder {
 								System.out.println("Done with with computation of "
 										+ this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees);
+								File map = Plot.get_heatmap(trees,this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -781,7 +780,7 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
 			b = new TreeBuilder(null, null, false);
-			b.compute_all_interesting_heatmaps(true);
+			b.compute_all_interesting_heatmaps(false);
 		}
 	}
 
