@@ -148,8 +148,12 @@ public class Plot {
 	}
 
 	public static File get_heatmap(ArrayList<Tree> trees) {
+		return get_heatmap(trees,"heatmap");
+	}
+	
+	public static File get_heatmap(ArrayList<Tree> trees, String plot_name) {
 		File heatmap_data = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.txt");
-		File heatmap = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.pdf");
+		File heatmap = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/"+plot_name + (!plot_name.endsWith(".pdf") ? ".pdf" : ""));
 		try {
 			double[][] heatmap_dists = new double[trees.size()][trees.size()];
 			for (int x = 0; x < trees.size(); x++)
@@ -188,7 +192,7 @@ public class Plot {
 			bw_R.newLine();
 			bw_R.write("rownames(tab) <- colnames(tab)");
 			bw_R.newLine();
-			bw_R.write("heatmap.2(data.matrix(tab),dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"))");
+			bw_R.write("heatmap.2(data.matrix(tab),Rowv=F, Colv=F,dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"))");
 			bw_R.newLine();
 			bw_R.write("dev.off()");
 			bw_R.close();

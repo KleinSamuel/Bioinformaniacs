@@ -15,7 +15,7 @@ public class Node implements Node_Data {
 	private TreeMap<Node, Node_Data> leaves;
 	private Vector<Boolean> shared;
 	private Tree t;
-	private static boolean only_node_dist = true;
+	private static boolean dist = true;
 
 	public Node(int id, Node p, Tree t) {
 		this.id = id;
@@ -284,13 +284,13 @@ public class Node implements Node_Data {
 		return path;
 	}
 
-	public static void set_only_node_dist(boolean dist) {
-		Node.only_node_dist = dist;
+	public static void set_node_dist(boolean dist) {
+		Node.dist = dist;
 	}
 
 	public double get_dist(Node other) {
 		ArrayList<Node> path = get_path(other);
-		if (Node.only_node_dist)
+		if (!Node.dist)
 			return path.size() - 1;
 		double dist = 0;
 		for (int i = 0; i < path.size() - 1; i++)

@@ -1,18 +1,19 @@
 package andi.analysis;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
 
 import andi.analysis.Organism_Data.Distance_measurement;
 import andi.analysis.Organism_Data.Gene_focus;
+import andi.tree.Node;
 import andi.tree.Node_Data;
 import andi.tree.Plot;
 import andi.tree.Tree;
@@ -596,6 +597,171 @@ public class TreeBuilder {
 			}
 	}
 
+	public String get_heatmap_name(Cluster_method cm, ArrayList<Gene_focus> gf_filter,
+			ArrayList<Distance_measurement> dm_filter, boolean avg, boolean dist) {
+		String out = cm.name() + "_";
+		if (dm_filter.contains(Distance_measurement.Avg_seq_id_all))
+			dm_filter.remove(Distance_measurement.Avg_seq_id_all);
+		if (dm_filter.contains(Distance_measurement.Avg_seq_id_max))
+			dm_filter.remove(Distance_measurement.Avg_seq_id_max);
+		if (gf_filter.size() > 1) {
+			out += "compGF(";
+			for (int i = 0; i < 2; i++) {
+				switch (gf_filter.get(i)) {
+				case All_genes:
+					out += "all";
+					break;
+				case de_only:
+					out += "DE";
+					break;
+				case nonde_only:
+					out += "nonDE";
+					break;
+				case orthologues_only:
+					out += "Orth";
+					break;
+				case nonorthologues_only:
+					out += "nonOrth";
+					break;
+				}
+				out += i == 0 ? "-" : ")_";
+			}
+			out += "DM(";
+			switch (dm_filter.get(0)) {
+			case DE_count:
+				out += "DE";
+				break;
+			case GO_tissue_basic:
+				out += "GO";
+				break;
+			case GO_tissue_xgsa:
+				out += "XGSA";
+				break;
+			}
+			out += ")";
+
+		} else {
+			out += "GF(";
+
+			switch (gf_filter.get(0)) {
+			case All_genes:
+				out += "all";
+				break;
+			case de_only:
+				out += "DE";
+				break;
+			case nonde_only:
+				out += "nonDE";
+				break;
+			case orthologues_only:
+				out += "Orth";
+				break;
+			case nonorthologues_only:
+				out += "nonOrth";
+				break;
+			}
+			out += "compDM(";
+			for (int i = 0; i < 2; i++) {
+				switch (dm_filter.get(i)) {
+				case DE_count:
+					out += "DE";
+					break;
+				case GO_tissue_basic:
+					out += "GO";
+					break;
+				case GO_tissue_xgsa:
+					out += "XGSA";
+					break;
+				}
+				out += i == 0 ? "-" : ")_";
+			}
+			out += ")";
+		}
+		out += "_" + (avg ? "avg" : "tot") + "_" + (dist ? "dist" : "count");
+
+		return out;
+	}
+
+	public void compute_all_interesting_heatmaps() {
+		compute_all_interesting_heatmaps(false);
+	}
+
+	public void compute_all_interesting_heatmaps(boolean show_when_plotted) {
+		ArrayList<Gene_focus> gf_filter = new ArrayList<>(
+				Arrays.asList(new Gene_focus[] { Gene_focus.All_genes, Gene_focus.de_only, Gene_focus.nonde_only,
+						Gene_focus.nonorthologues_only, Gene_focus.orthologues_only }));
+		ArrayList<Cluster_method> cm_filter = new ArrayList<>(
+				Arrays.asList(new Cluster_method[] { Cluster_method.UPGMA }));
+		ArrayList<Distance_measurement> dm_filter = new ArrayList<>(Arrays.asList(
+				new Distance_measurement[] { Distance_measurement.GO_tissue_basic, Distance_measurement.DE_count }));
+		System.out.println("Computing Gene-Focus differences:");
+
+		System.out.println("Computing Distance-Measurement differences:");
+		ArrayList<Tree> trees;
+		for (Cluster_method cm : cm_filter) {
+			for (Boolean avg : new ArrayList<Boolean>(Arrays.asList(new Boolean[] { true, false }))) {
+				Tree.set_dist_avg(avg);
+				for (Boolean dist : new ArrayList<Boolean>(Arrays.asList(new Boolean[] { true, false }))) {
+					Node.set_node_dist(dist);
+					for (Distance_measurement dm : dm_filter) {
+						for (Gene_focus gf : gf_filter) {
+							for (Distance_measurement dm2 : dm_filter) {
+								if (dm_filter.indexOf(dm) >= dm_filter.indexOf(dm2))
+									continue;
+								ArrayList<Gene_focus> gfs = new ArrayList<Gene_focus>(
+										Arrays.asList(new Gene_focus[] { gf }));
+								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(
+										Arrays.asList(new Distance_measurement[] {Distance_measurement.Avg_seq_id_max, dm, dm2 }));
+								trees = this.get_trees(gfs,
+										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
+								System.out.println(
+										"Done with computation of " + this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								System.out.print("Plotting");
+								File map = Plot.get_heatmap(trees);
+								System.out.println(" finshed:\n" + map.getAbsolutePath());
+								if (show_when_plotted)
+									try {
+										Runtime.getRuntime().exec("chromium " + map.getAbsolutePath());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+							}
+							for (Gene_focus gf2 : gf_filter) {
+								if (gf_filter.indexOf(gf) >= gf_filter.indexOf(gf2))
+									continue;
+								ArrayList<Gene_focus> gfs = new ArrayList<Gene_focus>(
+										Arrays.asList(new Gene_focus[] { gf, gf2 }));
+								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(
+										Arrays.asList(new Distance_measurement[] {Distance_measurement.Avg_seq_id_max, dm }));
+								trees = this.get_trees(gfs,
+										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
+								System.out.println("Done with with computation of "
+										+ this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								System.out.print("Plotting");
+								File map = Plot.get_heatmap(trees);
+								System.out.println(" finshed:\n" + map.getAbsolutePath());
+								if (show_when_plotted)
+									try {
+										Runtime.getRuntime().exec("chromium " + map.getAbsolutePath());
+									} catch (IOException e) {
+										e.printStackTrace();
+									}
+							}
+
+						}
+					}
+				}
+			}
+
+		}
+
+	}
+
+	private ArrayList<Tree> get_trees(ArrayList<Gene_focus> gf_filter, ArrayList<Cluster_method> cm_filter,
+			ArrayList<Distance_measurement> dm_filter) {
+		return get_trees(gf_filter, cm_filter, dm_filter, null, null);
+	}
+
 	public static void main(String[] args) {
 
 		boolean demo = false;
@@ -614,38 +780,8 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
-			ArrayList<Gene_focus> gf_filter = new ArrayList<>(Arrays.asList(new Gene_focus[] { Gene_focus.All_genes }));
-			ArrayList<Cluster_method> cm_filter = null;
-			ArrayList<Distance_measurement> dm_filter = new ArrayList<>(Arrays.asList(new Distance_measurement[] {
-					Distance_measurement.GO_tissue_basic, Distance_measurement.DE_count }));
-			ArrayList<String> tissue_filter = null;
-			ArrayList<String> species_filter = null;
 			b = new TreeBuilder(null, null, false);
-//			gf_filter = null;
-//			dm_filter = null;
-			ArrayList<Tree> trees = b.get_trees(gf_filter, cm_filter, dm_filter, tissue_filter, species_filter);
-			try {
-				System.out.println("Display");
-				Runtime.getRuntime().exec("chromium " + Plot.get_heatmap(trees).getAbsolutePath());
-				// Scanner s = new Scanner(System.in);
-				// while (true) {
-				// if (s.hasNext()) {
-				// try {
-				// if (s.hasNextInt()) {
-				// int tree_nr = s.nextInt();
-				// if (tree_nr < trees.size())
-				// Runtime.getRuntime().exec("display " +
-				// Plot.get_plot(trees.get(tree_nr)));
-				// } else if (s.next().equals("exit"))
-				// break;
-				// } catch (NumberFormatException e) {
-				// }
-				// }
-				// }
-				// s.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			b.compute_all_interesting_heatmaps(true);
 		}
 	}
 
