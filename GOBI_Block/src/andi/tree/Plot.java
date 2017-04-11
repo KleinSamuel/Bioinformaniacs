@@ -172,8 +172,8 @@ public class Plot {
 				bw_data.newLine();
 			}
 			bw_data.close();
-			double marg = 25.0/((double)trees.size()/90);
-			double size = 25.0*((double)trees.size()/90);
+			double marg = 25.0/*+((double)trees.size()/90)*/;
+			double size = trees.size()<10 ? 7.0 : 27.0-(200.0/(double)trees.size());
 			File heatmap_R = File.createTempFile("heatmap", ".R",
 					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
 			heatmap_R.deleteOnExit();

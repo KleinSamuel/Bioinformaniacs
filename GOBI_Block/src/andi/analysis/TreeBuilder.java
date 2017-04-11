@@ -621,8 +621,8 @@ public class TreeBuilder {
 			ArrayList<String> tissue_filter = null;
 			ArrayList<String> species_filter = null;
 			b = new TreeBuilder(null, null, false);
-			gf_filter = null;
-			dm_filter = null;
+//			gf_filter = null;
+//			dm_filter = null;
 			ArrayList<Tree> trees = b.get_trees(gf_filter, cm_filter, dm_filter, tissue_filter, species_filter);
 			try {
 				System.out.println("Display");

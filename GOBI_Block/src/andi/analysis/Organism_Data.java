@@ -439,7 +439,7 @@ public class Organism_Data implements Node_Data {
 			gene_foc += "pairwise-NonDE-Genes";
 			break;
 		default:
-			gene_foc += gene_foc.substring(0, gene_foc.length()-5)+"all";
+			gene_foc = gene_foc.substring(0, gene_foc.length()-5)+"all";
 			break;
 		}
 		
