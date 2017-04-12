@@ -33,6 +33,7 @@ public class Tree /*
 	private TreeSet<String> node_data_u_names;
 	private TreeMap<String, Node_Data> node_data_name_map;
 	private TreeMap<String,Node> node_data_nodes_map;
+	private static boolean avg = true;
 
 	public Tree(Collection<Node_Data> nds) {
 		// super(super_root);
@@ -106,11 +107,11 @@ public class Tree /*
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
 				Organism_Data org = (Organism_Data) nd;
-				if (!printed) {
-					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
-							+ " and all_gos_" + go_terms);
-					printed = true;
-				}
+//				if (!printed) {
+//					System.out.println("\tconstruct " + org.get_characteristic() + " with " + dm + " and " + gf
+//							+ " and all_gos_" + go_terms);
+//					printed = true;
+//				}
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 				org.set_all_go_terms(go_terms);
@@ -633,12 +634,16 @@ public class Tree /*
 				if(t1_n1==null|t1_n2==null|t2_n1==null|t2_n2==null)
 					continue;
 				comparisons++;
-//				System.out.println("\t"+this.leaves.get(t1_n1).unique_name() + " - " +this.leaves.get(t1_n2).unique_name()+" : "+Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2)));
 				dist+=Math.abs(t1_n1.get_dist(t1_n2)-t2_n1.get_dist(t2_n2));
 			}
 		}
+		if(!Tree.avg)
+			return dist;
 		return (dist)/comparisons;
-//		return dist;
+	}
+	
+	public static void set_dist_avg(boolean total) {
+		Tree.avg=total;
 	}
 
 	public TreeSet<Node_Data> get_all_node_data() {
