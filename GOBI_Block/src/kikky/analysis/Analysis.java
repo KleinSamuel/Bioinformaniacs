@@ -118,7 +118,7 @@ public class Analysis {
 			}
 		}
 		dep_samples.sort(new TissuepairComparator<>());
-		if (phase.equals("phaseone")) { 
+		if (phase.equals("phaseone")) {
 			try {
 				System.out.println(systemInfoString() + "Starting phase one!");
 				BufferedWriter bw = new BufferedWriter(new FileWriter("/home/a/adamowicz/GoBi/Block/results/DEP.info"));
@@ -237,7 +237,8 @@ public class Analysis {
 			bw.write(go_sb.toString());
 			bw.close();
 
-			HeatMap hm = new HeatMap(type, samples, samples, matrix);
+			HeatMap hm = new HeatMap(type + ", tissue-sorted, filter: " + filter, samples, samples, matrix);
+			hm.set_margin(50, 200, 200, 50, 4);
 			hm.plot(path + "plot/json_" + filter + "_" + type + ".txt");
 
 			ArrayList<Sample_Data> spe = new ArrayList<>();
@@ -247,7 +248,8 @@ public class Analysis {
 			for (int i = 0; i < matrix.length; i++)
 				for (int j = 0; j < matrix[i].length; j++)
 					matrix_spe[i][j] = matrix[samples.indexOf(spe.get(i))][samples.indexOf(spe.get(j))];
-			HeatMap hm_spe = new HeatMap(type, spe, spe, matrix_spe);
+			HeatMap hm_spe = new HeatMap(type + ", species-sorted, filter: " + filter, spe, spe, matrix_spe);
+			hm_spe.set_margin(50, 200, 200, 50, 4);
 			hm_spe.plot(path + "plot/json_" + filter + "_spe_" + type + ".txt");
 
 			SpecialLineplot sl = new SpecialLineplot("Correlation curve for same and different tissue pairs",
