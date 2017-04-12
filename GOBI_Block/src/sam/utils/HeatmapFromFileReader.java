@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import sam.mapper_comparison.DEmethods;
 import sam.mapper_comparison.Heatmap;
 import sam.mapper_comparison.HeatmapFactory;
+import sam.mapper_comparison.HeatmapVisualizer;
 import sam.mapper_comparison.Mapper;
 import sam.mapper_comparison.MapperxMethodPair;
 
@@ -19,7 +20,7 @@ public class HeatmapFromFileReader {
 		
 		try {
 			
-			ExternalWriter extW = new ExternalWriter(csv);
+			ExternalWriter extW = new ExternalWriter(csv, false);
 			
 			ArrayList<String> tissuePairs = new ArrayList<>();
 			
@@ -45,10 +46,21 @@ public class HeatmapFromFileReader {
 				
 				String[] lineArray = line.split("\t");
 				
+				if(lineArray.length <= 1){
+					extW.write("\n");
+					counter++;
+					continue;
+				}
+				
 				extW.write("\""+tissuePairs.get(counter)+"\"");
 				
 				for (int i = 0; i < lineArray.length; i++) {
-					extW.write(","+lineArray[i]);
+					
+					if(lineArray[i].equals("NaN")){
+						extW.write(",1");
+					}else{
+						extW.write(","+lineArray[i]);
+					}
 				}
 				
 				extW.write("\n");				
@@ -113,21 +125,6 @@ public class HeatmapFromFileReader {
 		}
 		
 		return new Heatmap(mapper, method, tissuePairs, scores);
-	}
-	
-	
-	public static void main(String[] args) {
-		
-		HeatmapFromFileReader hr = new HeatmapFromFileReader();
-		
-		MapperxMethodPair pair = new MapperxMethodPair(Mapper.CONTEXTMAP, DEmethods.DESEQ);
-		
-		File heatmap = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.content");
-		File heatmapInfo = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.info");
-		File csv = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.csv");
-		
-		hr.readHeatmapIntoCSV(heatmap, heatmapInfo, csv);
-		
 	}
 	
 }
