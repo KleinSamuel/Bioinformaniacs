@@ -8,9 +8,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -27,20 +30,27 @@ import dennis.tissues.TissueHandler;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import sam.utils.ExternalWriter;
+import sam.utils.HeatmapFromFileReader;
 
 public class HeatmapFactory {
 
 	private ArrayList<MapperxMethodPair> mapperDePairList;
 
 	private final String PATH_TO_EB_FILES = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/EB/";
-	public static final String PATH_TO_HEATMAP_OUTPUT = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/sam/";
+	public static String PATH_TO_HEATMAP_OUTPUT = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/sam/";
+	public static final Double THRESHOLD_PVAL = 0.05;
 	
 	private ExternalWriter extBW_heatmapsInfo;
 	private ExternalWriter extBW_heatmapsContent;
+	private ExternalWriter extBW_size;
 
 	private HashMap<Species, HashMap<Species, HashSet<String>>> orthologeGenesPerSpecies;
 	private ArrayList<Species> speciesList;
 
+	public HeatmapFactory(boolean mastermap){
+		
+	}
+	
 	public HeatmapFactory() {
 		createMapperPairs();
 		orthologeGenesPerSpecies = new HashMap<>();
@@ -66,27 +76,35 @@ public class HeatmapFactory {
 	}
 
 	public void createHeatmapForEachMapperPair() {
+		
+		extBW_size = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+"size.info"), false);
 
 		for(MapperxMethodPair pair : this.mapperDePairList){
 		
+			extBW_heatmapsInfo = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.info"), false);
 			Pair<Vector<TissuePairCompare>, Vector<TreeSet<GeneObject>>> output = prepareHeatmapForMapperPair(pair);
+			extBW_size.write(pair.getMapper()+"_"+pair.getMethod()+":\t"+output.getValue().size()+"\n");
+			extBW_heatmapsInfo.closeWriter();
+			
 //			extBW_heatmapsContent = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.content"));
 //			Heatmap heatmap = computeHeatmap(output, pair.getMapper().getPathName(), pair.getMethod().getPathName());
 //			extBW_heatmapsContent.closeWriter();
 //			storeHeatmapToDisk(PATH_TO_HEATMAP_OUTPUT+"heatmap_"+pair.getMapper().getPathName()+"_"+pair.getMethod().getPathName()+".ser", heatmap);
 			
 		 }
+		
+		extBW_size.closeWriter();
 	}
 	
-	public void createHeatmapForMapperPair(MapperxMethodPair pair){
+	public void createHeatmapForMapperPair(MapperxMethodPair pair, int todo_line, boolean pval){
 		
-		extBW_heatmapsInfo = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.info"));
+		extBW_heatmapsInfo = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap_tmp.info"), false);
 		Pair<Vector<TissuePairCompare>, Vector<TreeSet<GeneObject>>> output = prepareHeatmapForMapperPair(pair);
 		extBW_heatmapsInfo.closeWriter();
 		
-//		extBW_heatmapsContent = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.content"));
-//		Heatmap heatmap = computeHeatmap(output, pair.getMapper().getPathName(), pair.getMethod().getPathName());
-//		extBW_heatmapsContent.closeWriter();
+		extBW_heatmapsContent = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap_tmp_"+todo_line+".content"), false);
+		Heatmap heatmap = computeHeatmap(output, pair.getMapper().getPathName(), pair.getMethod().getPathName(), todo_line, pval);
+		extBW_heatmapsContent.closeWriter();
 //		storeHeatmapToDisk(PATH_TO_HEATMAP_OUTPUT+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.ser", heatmap);
 	}
 
@@ -162,9 +180,9 @@ public class HeatmapFactory {
 		return new Pair<>(tissuePairs, geneObjects);
 	}
 
-	public Heatmap computeHeatmap(Pair<Vector<TissuePairCompare>, Vector<TreeSet<GeneObject>>> pair, String mapper, String method) {
+	public Heatmap computeHeatmap(Pair<Vector<TissuePairCompare>, Vector<TreeSet<GeneObject>>> pair, String mapper, String method, int todo_line, boolean pval) {
 
-		DebugMessageFactory.printInfoDebugMessage(true, "Compute HeatMap [TissuePairAmount: " + pair.getFirst().size() + " | GeneAmount: " + pair.getValue().size() + "]");
+		DebugMessageFactory.printInfoDebugMessage(true, "Compute HeatMap [TissuePairAmount: " + pair.getKey().size() + " | GeneAmount: " + pair.getValue().size() + "]");
 
 		ArrayList<String> tissuePairs = new ArrayList<>();
 		Double[][] scores = new Double[pair.getFirst().size()][pair.getFirst().size()];
@@ -176,55 +194,55 @@ public class HeatmapFactory {
 		Vector<TreeSet<GeneObject>> treeSets = pair.getValue();
 
 		PearsonsCorrelation pc = new PearsonsCorrelation();
+		
+		int counter = 1;
+		long all_time = 0;
+		long start;
+		long end;
 
-		for (int i = 0; i < treeSets.size(); i++) {
+//		for (int i = 0; i < treeSets.size(); i++) {
+			int i = todo_line;
+			
+			extBW_heatmapsContent.write(i+"\t");
 
 			Species a = pair.getFirst().get(i).getSpecies();
 
 			for (int j = 0; j < treeSets.size(); j++) {
 				
-				DebugMessageFactory.printInfoDebugMessage(true, "Progress:\t"+(i+1)*(j+1)+"/"+treeSets.size()*treeSets.size());
+				start = System.currentTimeMillis();
+				DebugMessageFactory.printInfoDebugMessage(true, "Progress:\t"+counter+"/"+treeSets.size());
 
 				TreeSet<GeneObject> geneSet_a = (TreeSet)treeSets.get(i).clone();
 
 				Species b = pair.getFirst().get(j).getSpecies();
 				TreeSet<GeneObject> geneSet_b = (TreeSet)treeSets.get(j).clone();
 
-				ArrayList<Double> valueList_tissue_a = new ArrayList<>();
-				ArrayList<Double> valueList_tissue_b = new ArrayList<>();
-
-				ArrayList<GeneObject> toRemove_a = new ArrayList<>();
+				List<Double> valueList_tissue_a = new LinkedList<>();
+				List<Double> valueList_tissue_b = new LinkedList<>();
 
 				/* get orthologe genes for tissue pair a */
 				for (GeneObject go : geneSet_a) {
 
 					String orthologeGeneID = getOrthologeGene(a, b, go.getName());
 
-					valueList_tissue_a.add(go.getAdj_pval());
-					toRemove_a.add(go);
-
-					if (orthologeGeneID == null) {
-						valueList_tissue_b.add(1.0);
-					} else {
+					if(orthologeGeneID != null){
+						
 						GeneObject tmp = getGeneObjectFromList(orthologeGeneID, geneSet_b);
-						if(tmp == null){
-							valueList_tissue_b.add(1.0);
+						
+						if(pval){
+							if(tmp != null && go.getAdj_pval() <= THRESHOLD_PVAL && tmp.getAdj_pval() <= THRESHOLD_PVAL){
+								valueList_tissue_a.add(go.getAdj_pval());
+								valueList_tissue_b.add(tmp.getAdj_pval());
+								geneSet_b.remove(tmp);
+							}
 						}else{
-							valueList_tissue_b.add(tmp.getAdj_pval());
-							geneSet_b.remove(tmp);
+							if(tmp != null && go.getAdj_pval() <= THRESHOLD_PVAL && tmp.getAdj_pval() <= THRESHOLD_PVAL){
+								valueList_tissue_a.add(go.getLog2fc());
+								valueList_tissue_b.add(tmp.getLog2fc());
+								geneSet_b.remove(tmp);
+							}
 						}
 					}
-				}
-
-				/* remove visited genes from tissue pair a */
-				for (GeneObject go : toRemove_a) {
-					geneSet_a.remove(go);
-				}
-
-				/* get orthologe genes for tissue pair b */
-				for (GeneObject go : geneSet_b) {
-					valueList_tissue_a.add(1.0);
-					valueList_tissue_b.add(go.getAdj_pval());
 				}
 
 				double[] tmp_a = new double[valueList_tissue_a.size()];
@@ -244,15 +262,26 @@ public class HeatmapFactory {
 				scores[i][j] = tmp_double;
 				
 				extBW_heatmapsContent.write(tmp_double+"\t");
+				
+				counter++;
+				
+				end = System.currentTimeMillis();
+				
+				all_time += end-start;
+				
+				DebugMessageFactory.printInfoDebugMessage(true, "Mean time needed for 1 tissue-pair:\t"+(all_time/counter)+" ms");
 
 			}
 			
 			extBW_heatmapsContent.write("\n");
 
+//		}
+
+		if(counter != treeSets.size()){
+			System.err.println("STOPPED AT "+counter);
 		}
 
 		Heatmap out = new Heatmap(mapper, method, tissuePairs, scores);
-		out.printHeatmap();
 		return out;
 	}
 
@@ -341,7 +370,7 @@ public class HeatmapFactory {
 		for (Iterator<Species> iterator = UtilityManager.speciesIterator(); iterator.hasNext();){
 			Species spec = iterator.next();
 			for(String s : tissuePairs){
-				out.add(s+"_"+spec.getName());
+				out.add(s.split("_")[0]+","+s.split("_")[1]+","+spec.getName()+","+spec.getId());
 			}
 		}
 		return out;
@@ -360,8 +389,13 @@ public class HeatmapFactory {
 		
 		MasterHeatmap masterHM = new MasterHeatmap(tissuePairsWithSpecies.size());
 		
+		ExternalWriter extInfo = new ExternalWriter(new File(PATH_TO_HEATMAP_OUTPUT+"masterHeatmap.info"), false);
+		extInfo.openWriter();
+		
 		int row = 0;
 		for(String tissuePair_row : tissuePairsWithSpecies){
+			
+			extInfo.write(tissuePair_row+"\n");
 			
 			int col = 0;
 			for(String tissuePair_col : tissuePairsWithSpecies){
@@ -381,6 +415,7 @@ public class HeatmapFactory {
 					boolean found_row = false;
 					boolean found_col = false;
 					for(String s : heatmap.getTissuePairs()){
+						
 						if(!found_row && s.equals(tissuePair_row)){
 							tmp_row = tmp_counter;
 							found_row = true;
@@ -396,10 +431,9 @@ public class HeatmapFactory {
 					}
 					
 					/* tissue pair was not found in current heatmap */
-					if(tmp_col >= 0 || tmp_row >= 0){
+					if(tmp_col >= 0 && tmp_row >= 0){
 						tmp_score = heatmap.getScores()[tmp_row][tmp_col];
 					}
-					
 					currentCellInfo.put(mapper+"_"+method, tmp_score);
 				}
 				
@@ -409,30 +443,93 @@ public class HeatmapFactory {
 			}
 			row++;
 		}
+		
+		extInfo.closeWriter();
 			  
 		return masterHM;
+	}
+	
+	public void createHeatmapPlot(Mapper mapper, DEmethods method, String path){
+		HeatmapFromFileReader hr = new HeatmapFromFileReader();
+		
+		MapperxMethodPair pair = new MapperxMethodPair(mapper, method);
+		
+		File heatmap = new File(path+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.content");
+		File heatmapInfo = new File(path+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.info");
+		File csv = new File(path+pair.getMapper()+"_"+pair.getMethod()+"_heatmap.csv");
+		
+		hr.readHeatmapIntoCSV(heatmap, heatmapInfo, csv);
+		
+		HeatmapVisualizer hv = new HeatmapVisualizer();
+		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
+		String outputDir = path+pair.getMapper()+"_"+pair.getMethod()+".png";
+		hv.createHeatmapWithR(script, csv, outputDir);
+	}
+	
+	public void createMasterHeatmapPlot(String path){
+		
+		HeatmapFromFileReader hr = new HeatmapFromFileReader();
+		
+		File heatmap = new File(path+"masterHeatmap.content");
+		File heatmapInfo = new File(path+"masterHeatmap.info");
+		File csv = new File(path+"masterHeatmap.csv");
+		
+		hr.readHeatmapIntoCSV(heatmap, heatmapInfo, csv);
+		
+		HeatmapVisualizer hv = new HeatmapVisualizer();
+		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
+		String output = path+"masterHeatmap.png";
+		hv.createHeatmapWithR(script, csv, output);
+		
 	}
 
 	public static void main(String[] args) {
 		
 //		Mapper mapper = Mapper.STAR.getMapperForString(args[0]);
 //		DEmethods method = DEmethods.DESEQ.getMethodForString(args[1]);
+//		int todo_line = Integer.parseInt(args[2])-1;
+//		boolean pval = Boolean.parseBoolean(args[3]);
+//		String outputPath = args[4];
+//		
+//		HeatmapFactory.PATH_TO_HEATMAP_OUTPUT = outputPath;
 //		
 //		if(mapper == null || method == null){
 //			System.err.println("WRONG ARGUMENTS! (mapper method)");
 //			System.exit(1);
 //		}
-//		
+//		MapperxMethodPair pair = new MapperxMethodPair(mapper, method);
 //		DebugMessageFactory.printInfoDebugMessage(true, "Creating heatmap for: "+mapper.toString()+"-"+method.toString());
-
+//
 		UtilityManager um = new UtilityManager("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/config.txt", false, false, false);
+//
+//		HeatmapFactory hmf = new HeatmapFactory();
+//		
+////		MapperxMethodPair pair = new MapperxMethodPair(Mapper.TOPHAT, DEmethods.LIMMA);
+////		int todo_line = 0;
+//		
+//		hmf.createHeatmapForMapperPair(pair, todo_line, pval);
+////		hmf.createHeatmapForEachMapperPair();
 
-		HeatmapFactory hmf = new HeatmapFactory();
-		MapperxMethodPair pair = new MapperxMethodPair(Mapper.CONTEXTMAP, DEmethods.DESEQ);
-		hmf.createHeatmapForMapperPair(pair);
+		HeatmapFromFileReader hr = new HeatmapFromFileReader();
+		HeatmapFactory hmf = new HeatmapFactory(true);
 		
-//		hmf.createHeatmapForEachMapperPair(true);
-
+		File cm_deseq_content = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_deseq_fc/CONTEXTMAP_DESEQ_heatmap.content");
+		File cm_deseq_info = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_deseq_fc/CONTEXTMAP_DESEQ_heatmap.info");
+		File th_deseq_content = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/tophat_deseq_fc/TOPHAT_DESEQ_heatmap.content");
+		File th_deseq_info = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/tophat_deseq_fc/TOPHAT_DESEQ_heatmap.info");
+		
+		Heatmap cm_deseq = hr.readHeatmapIntoObject(cm_deseq_content, cm_deseq_info);
+		Heatmap th_deseq = hr.readHeatmapIntoObject(th_deseq_content, th_deseq_info);
+		
+		ArrayList<Heatmap> heatmaps = new ArrayList<>();
+		heatmaps.add(cm_deseq);
+		heatmaps.add(th_deseq);
+		
+		MasterHeatmap masterHM = hmf.generateMasterHeatmap(heatmaps);
+		masterHM.writeToFile(new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"masterHeatmap.content"));
+		
+		hmf.createMasterHeatmapPlot(hmf.PATH_TO_HEATMAP_OUTPUT);
+		
 	}
 
 }

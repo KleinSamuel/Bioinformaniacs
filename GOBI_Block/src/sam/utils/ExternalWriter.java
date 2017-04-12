@@ -9,8 +9,9 @@ public class ExternalWriter {
 
 	private File outputFile;
 	private BufferedWriter bw;
+	private boolean append;
 	
-	public ExternalWriter(File outputFile){
+	public ExternalWriter(File outputFile, boolean append){
 		this.outputFile = outputFile;
 		openWriter();
 	}
@@ -18,7 +19,7 @@ public class ExternalWriter {
 	public void openWriter(){
 		try {
 			
-			bw = new BufferedWriter(new FileWriter(outputFile));
+			bw = new BufferedWriter(new FileWriter(outputFile, append));
 			
 		} catch (IOException e) {
 			e.printStackTrace();

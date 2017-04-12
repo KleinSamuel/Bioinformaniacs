@@ -11,11 +11,8 @@ import dennis.utility_manager.Species;
 import kikky.heatmap.Sample_Data;
 
 public class DE_Single extends Sample implements Sample_Data {
-	private int organism_ID;
-	private String organism_name;
 	private Tissue tissue;
-	private HashMap<String, Double> gene_data = new HashMap<>();
-
+	
 	public DE_Single(Species species, Tissue tissue, HashMap<String, Double> gene_fc, String filter) {
 		super(species, gene_fc, filter);
 		this.tissue = tissue;
@@ -92,9 +89,8 @@ public class DE_Single extends Sample implements Sample_Data {
 	}
 
 	public String get_file_path() {
-		//TODO: richtiger pfad
-		return "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/EB/" + get_species_ID() + "/"
-				+ tissue.toString() + "/star/" + tissue.toString() + ".DESeq";
+		return "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/data_update/" + get_species_ID() + "/"
+				+ tissue.getName() + "/vsTissuemix.DESeq";
 	}
 
 }

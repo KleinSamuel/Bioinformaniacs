@@ -37,15 +37,15 @@ public class Analysis {
 
 	public static void main(String[] args) throws IOException {
 		if (args[1].equals("FPKM"))
-			FPKM(args[0], args[2]);
+			FPKM(args[0], args[2], args[3]);
 		else if (args[1].equals("DEP")) {
-			DEP(args[0], args[2]);
-		}else if (args[1].equals("DES")) {
-			DES(args[0], args[2]);
+			DEP(args[0], args[2], args[3]);
+		} else if (args[1].equals("DES")) {
+			DES(args[0], args[2], args[3]);
 		}
 	}
 
-	public static void FPKM(String phase, String filter) throws IOException {
+	public static void FPKM(String phase, String filter, String bool) throws IOException {
 		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> fpkm_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
@@ -94,11 +94,11 @@ public class Analysis {
 			}
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (phase.equals("phasetwo")) {
-			phase_two(fpkm_samples, filter, "FPKM");
+			phase_two(fpkm_samples, filter, "FPKM", bool);
 		}
 	}
 
-	public static void DEP(String phase, String filter) throws IOException {
+	public static void DEP(String phase, String filter, String bool) throws IOException {
 		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> dep_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
@@ -139,25 +139,23 @@ public class Analysis {
 			}
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (phase.equals("phasetwo")) {
-			phase_two(dep_samples, filter, "DEP");
+			phase_two(dep_samples, filter, "DEP", bool);
 		}
 	}
 
-	public static void DES(String phase, String filter) throws IOException {
+	public static void DES(String phase, String filter, String bool) throws IOException {
 		start = System.currentTimeMillis();
 		ArrayList<Sample_Data> des_samples = new ArrayList<>();
 		System.out.println(systemInfoString() + "Starting Utility Manager");
 		new UtilityManager("/home/a/adamowicz/git/Bioinformaniacs/GOBI_Block/ressources/config.txt", false, false,
 				false);
-		String data_path = UtilityManager.getConfig("enrichment_output");
+		String data_path = UtilityManager.getConfig("output_directory");
 		System.out.println(systemInfoString() + "Starting to save gene count infos");
 		for (Iterator<Species> it_org = UtilityManager.speciesIterator(); it_org.hasNext();) {
 			Species organism = it_org.next();
 			for (Iterator<Tissue> it_tis = UtilityManager.tissueIterator(organism); it_tis.hasNext();) {
 				Tissue tissue = it_tis.next();
-				String map = "star";
-				String path = data_path + organism.getId() + "/" + tissue.getName() + "/" + map + "/"
-						+ tissue.toString() + ".DESeq";
+				String path = data_path + organism.getId() + "/" + tissue.getName() + "/vsTissuemix.DESeq";
 				DE_Single fs = new DE_Single(organism, tissue, path, filter);
 				des_samples.add(fs);
 			}
@@ -184,10 +182,12 @@ public class Analysis {
 			}
 			System.out.println(systemInfoString() + "Terminated");
 		} else if (phase.equals("phasetwo")) {
-			phase_two(des_samples, filter, "DES");
+			phase_two(des_samples, filter, "DES", bool);
 		}
 	}
-	private static void phase_two(ArrayList<Sample_Data> samples, String filter, String type) throws IOException {
+
+	private static void phase_two(ArrayList<Sample_Data> samples, String filter, String type, String bool)
+			throws IOException {
 		System.out.println(systemInfoString() + "Starting phase two!");
 		int max = samples.size();
 		BufferedWriter bw = new BufferedWriter(new FileWriter(path + "plot/plot_vals_" + filter + "_" + type + ".txt"));
@@ -215,7 +215,7 @@ public class Analysis {
 				if (type.equals("FPKM")) {
 					if (val > 0 && val < lowest.getMaximumIdentityScore())
 						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
-				} else if (type.equals("DEP")||type.equals("DES"))
+				} else if (type.equals("DEP") || type.equals("DES"))
 					if (Math.abs(val) < lowest.getMaximumIdentityScore())
 						lowest = new SimilarityObject(val, (i + 1) + "", (j + 1) + "");
 			}
@@ -227,7 +227,7 @@ public class Analysis {
 		write_correlation(comp.get("#tt"), comp.get("#tat"), bw, "tissue");
 		write_correlation(comp_spe.get("#oo"), comp_spe.get("#oao"), bw, "species");
 		bw.close();
-		if (filter.equals("all")) {
+		if (bool.equals("true")) {
 			bw = new BufferedWriter(new FileWriter(path + "plot/go_vals_" + filter + "_" + type + ".txt"));
 			bw.write("#Amount\tGo Terms");
 			Map<String, Double> sorted_go = sortByValue(gos);
@@ -237,7 +237,8 @@ public class Analysis {
 			bw.write(go_sb.toString());
 			bw.close();
 
-			HeatMap hm = new HeatMap(type, samples, samples, matrix);
+			HeatMap hm = new HeatMap(type + ", tissue-sorted, filter: " + filter, samples, samples, matrix);
+			hm.set_margin(50, 200, 200, 50, 4);
 			hm.plot(path + "plot/json_" + filter + "_" + type + ".txt");
 
 			ArrayList<Sample_Data> spe = new ArrayList<>();
@@ -247,7 +248,8 @@ public class Analysis {
 			for (int i = 0; i < matrix.length; i++)
 				for (int j = 0; j < matrix[i].length; j++)
 					matrix_spe[i][j] = matrix[samples.indexOf(spe.get(i))][samples.indexOf(spe.get(j))];
-			HeatMap hm_spe = new HeatMap("FPKM", spe, spe, matrix_spe);
+			HeatMap hm_spe = new HeatMap(type + ", species-sorted, filter: " + filter, spe, spe, matrix_spe);
+			hm_spe.set_margin(50, 200, 200, 50, 4);
 			hm_spe.plot(path + "plot/json_" + filter + "_spe_" + type + ".txt");
 
 			SpecialLineplot sl = new SpecialLineplot("Correlation curve for same and different tissue pairs",
@@ -260,7 +262,7 @@ public class Analysis {
 					"Correlation Number", "Number of spots");
 			sl1.set_values(comp_spe.get("#oo"), comp_spe.get("#oao"));
 			sl1.setLegend("same species", "diff species");
-			sl1.plot(path + "plot/oo_vs_oao_" + filter + type + ".png");
+			sl1.plot(path + "plot/oo_vs_oao_" + filter + "_" + type + ".png");
 
 			new Point_Analysis(lowest.getQuery_geneId(), lowest.getTarget_geneId() + "", type, filter, true);
 			File_Preparer.read_file("files/" + lowest.getQuery_geneId() + "-" + lowest.getTarget_geneId() + "-" + filter
