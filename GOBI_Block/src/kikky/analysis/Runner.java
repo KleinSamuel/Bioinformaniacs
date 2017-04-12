@@ -42,7 +42,7 @@ public class Runner {
 						check_in_grid();
 						Analysis.DEP("phasetwo", split[1], "false");
 						Thread.sleep(15000);
-					}else if (type.equals("DES")) {
+					} else if (type.equals("DES")) {
 						Analysis.DES("phaseone", split[1], "false");
 						Thread.sleep(10000);
 						check_in_grid();
@@ -71,6 +71,7 @@ public class Runner {
 				String line;
 				while ((line = br.readLine()) != null) {
 					String header = line;
+					header = header.replaceAll("#", "");
 					double tissue = Double.parseDouble(br.readLine().split("\t")[1]);
 					for (int i = 0; i < 4; i++)
 						br.readLine();
@@ -81,8 +82,38 @@ public class Runner {
 				}
 				br.close();
 				Map<String, Double> sorted = sortByValue(vals);
-				for (String key : sorted.keySet())
-					System.out.println(key + "\t" + sorted.get(key));
+				HashMap<String, Double> values = new HashMap<>();
+				for (String key : sorted.keySet()) {
+					double val = Double.parseDouble(key.split("\t")[0]);
+					String go = key.split("\t")[1];
+					if (sorted.get(key) <= 0.0)
+						values.put(go, val);
+				}
+				sorted = sortByValueRev(values);
+				int index = 0;
+				for (String key : sorted.keySet()) {
+					if (index++ < 2) {
+						if (type.equals("FPKM")) {
+							Analysis.FPKM("phaseone", key, "true");
+							Thread.sleep(10000);
+							check_in_grid();
+							Analysis.FPKM("phasetwo", key, "true");
+							Thread.sleep(15000);
+						} else if (type.equals("DEP")) {
+							Analysis.DEP("phaseone", key, "true");
+							Thread.sleep(10000);
+							check_in_grid();
+							Analysis.DEP("phasetwo", key, "true");
+							Thread.sleep(15000);
+						} else if (type.equals("DES")) {
+							Analysis.DES("phaseone", key, "true");
+							Thread.sleep(10000);
+							check_in_grid();
+							Analysis.DES("phasetwo", key, "true");
+							Thread.sleep(15000);
+						}
+					}
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -125,6 +156,21 @@ public class Runner {
 		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
 			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
 				return (o1.getValue()).compareTo(o2.getValue());
+			}
+		});
+
+		Map<K, V> result = new LinkedHashMap<K, V>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put(entry.getKey(), entry.getValue());
+		}
+		return result;
+	}
+
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValueRev(Map<K, V> map) {
+		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
+				return (o2.getValue()).compareTo(o1.getValue());
 			}
 		});
 
