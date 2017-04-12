@@ -3,6 +3,7 @@ package dennis.similarities;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import dennis.utility_manager.Species;
 
@@ -37,6 +38,10 @@ public class GeneSimilarities {
 			sims.put(gene1, s);
 		}
 		s.put(gene2, sim);
+	}
+
+	public TreeSet<String> getGenesWithPartnerSorted() {
+		return new TreeSet<String>(getGenesWithPartner());
 	}
 
 	/**
@@ -88,7 +93,7 @@ public class GeneSimilarities {
 	/**
 	 * 
 	 * @param query_gene_id
-	 * @return targte_gene_id with highest identity null if no gene is similar
+	 * @return target_gene_id with highest identity null if no gene is similar
 	 */
 	public String getGeneWithHighestIdentity(String query_gene_id) {
 		String highestGene = null;

@@ -13,7 +13,7 @@ public class BipartiteMatching {
 	private NxMmapping input;
 	private double score;
 	private TreeMap<GenePair, ScoringObject> matches;
-	private TreeSet<String> unmatched;
+	private TreeSet<String> unmatched_query, unmatched_target;
 	private String[] geneIds1, geneIds2;
 	private double[][] costMatrix;
 
@@ -21,7 +21,8 @@ public class BipartiteMatching {
 		input = in;
 		score = 0;
 		matches = new TreeMap<>();
-		unmatched = new TreeSet<>();
+		unmatched_query = new TreeSet<>();
+		unmatched_target = new TreeSet<>();
 		this.geneIds1 = in.getGenesFromSpecies(true).toArray(new String[in.getGenesFromSpecies(true).size()]);
 		this.geneIds2 = in.getGenesFromSpecies(false).toArray(new String[in.getGenesFromSpecies(false).size()]);
 		this.costMatrix = costMatrix;
@@ -29,31 +30,33 @@ public class BipartiteMatching {
 	}
 
 	public BipartiteMatching(NxMmapping inputCluster, double score, TreeMap<GenePair, ScoringObject> matches,
-			TreeSet<String> unmatched, TreeSet<String> matchedGeneIds1, TreeSet<String> matchedGeneIds2) {
+			TreeSet<String> unmatched_query, TreeSet<String> unmatched_target, TreeSet<String> matchedGeneIds1,
+			TreeSet<String> matchedGeneIds2) {
 		input = inputCluster;
 		this.score = score;
 		this.matches = matches;
-		this.unmatched = unmatched;
+		this.unmatched_query = unmatched_query;
+		this.unmatched_target = unmatched_target;
 		this.geneIds1 = matchedGeneIds1.toArray(new String[matchedGeneIds1.size()]);
 		this.geneIds2 = matchedGeneIds2.toArray(new String[matchedGeneIds2.size()]);
 	}
 
 	private void parseHungarian(int[] hungarianOut, double[][] costMatrix) {
 
-		System.out.println("hungarian: ");
-		for (int i : hungarianOut)
-			System.out.print(i + "\t");
-		System.out.println();
-
-		if (hungarianOut.length != geneIds1.length) {
-			System.out.println("unequal length of hungarian output");
-			System.exit(1);
-		}
+		// System.out.println("hungarian: ");
+		// for (int i : hungarianOut)
+		// System.out.print(i + "\t");
+		// System.out.println();
+		//
+		// if (hungarianOut.length != geneIds1.length) {
+		// System.out.println("unequal length of hungarian output");
+		// System.exit(1);
+		// }
 
 		TreeSet<String> matchedGeneIds1 = new TreeSet<>(), matchedGeneIds2 = new TreeSet<>();
 		for (int i = 0; i < hungarianOut.length; i++) {
 			if (hungarianOut[i] == -1) {
-				unmatched.add(geneIds1[i]);
+				unmatched_query.add(geneIds1[i]);
 			} else {
 				double genePairScore = costMatrix[i][hungarianOut[i]] * -1;
 				if (!InputDataPreparator.IGNORE_NEGATIVE_SCORES || genePairScore > 0d) {
@@ -64,14 +67,14 @@ public class BipartiteMatching {
 					matchedGeneIds1.add(geneIds1[i]);
 					matchedGeneIds2.add(geneIds2[hungarianOut[i]]);
 				} else {
-					unmatched.add(geneIds1[i]);
-					unmatched.add(geneIds2[hungarianOut[i]]);
+					unmatched_query.add(geneIds1[i]);
+					unmatched_target.add(geneIds2[hungarianOut[i]]);
 				}
 			}
 		}
 		for (String s : geneIds2) {
 			if (!matchedGeneIds2.contains(s)) {
-				unmatched.add(s);
+				unmatched_target.add(s);
 			}
 		}
 		geneIds1 = matchedGeneIds1.toArray(new String[matchedGeneIds1.size()]);
@@ -90,8 +93,12 @@ public class BipartiteMatching {
 		return matches;
 	}
 
-	public TreeSet<String> getUnmatched() {
-		return unmatched;
+	public TreeSet<String> getUnmatchedQuery() {
+		return unmatched_query;
+	}
+
+	public TreeSet<String> getUnmatchedTarget() {
+		return unmatched_target;
 	}
 
 	public String[] getGeneIds1() {
@@ -131,8 +138,15 @@ public class BipartiteMatching {
 
 		sb.deleteCharAt(sb.length() - 1);
 
-		sb.append("\t" + unmatched.size() + "\t");
-		for (String s : unmatched) {
+		sb.append("\tunmatched_query:" + unmatched_query.size() + "\t");
+		for (String s : unmatched_query) {
+			sb.append(s + ",");
+		}
+
+		sb.deleteCharAt(sb.length() - 1);
+
+		sb.append("\tunmatched_target:" + unmatched_target.size() + "\t");
+		for (String s : unmatched_target) {
 			sb.append(s + ",");
 		}
 

@@ -45,8 +45,9 @@ public class GeneIdReader {
 
 		String geneIdFilePath = UtilityManager.getConfig("gene_id_files") + s.getId() + ".genes";
 
-		File geneFile = new File(geneIdFilePath);
+		File geneFile = new File(UtilityManager.getConfig("gene_id_files"));
 		geneFile.mkdirs();
+		geneFile = new File(geneIdFilePath);
 
 		LinkedList<String> genes = new LinkedList<>();
 
