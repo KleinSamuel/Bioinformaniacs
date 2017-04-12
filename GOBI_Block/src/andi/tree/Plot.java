@@ -148,8 +148,12 @@ public class Plot {
 	}
 
 	public static File get_heatmap(ArrayList<Tree> trees) {
+		return get_heatmap(trees,"heatmap");
+	}
+	
+	public static File get_heatmap(ArrayList<Tree> trees, String plot_name) {
 		File heatmap_data = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.txt");
-		File heatmap = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/heatmap.pdf");
+		File heatmap = new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi/"+plot_name + (!plot_name.endsWith(".pdf") ? ".pdf" : ""));
 		try {
 			double[][] heatmap_dists = new double[trees.size()][trees.size()];
 			for (int x = 0; x < trees.size(); x++)
@@ -160,7 +164,7 @@ public class Plot {
 			String header = "";
 			for (Tree t : trees)
 				header += ((Organism_Data) t.get_node_data())
-						.get_description(t.get_distance_measurement(), t.get_gene_focus()).replaceAll(" ", "_") + "\t";
+						.get_description(t.get_distance_measurement() , t.get_gene_focus()) + "\t";
 			header = header.substring(0, header.length() - 1);
 			bw_data.write(header);
 			bw_data.newLine();
@@ -172,21 +176,23 @@ public class Plot {
 				bw_data.newLine();
 			}
 			bw_data.close();
-
+			double marg = 25.0/*+((double)trees.size()/90)*/;
+			double size = trees.size()<10 ? 7.0 : 27.0-(200.0/(double)trees.size());
 			File heatmap_R = File.createTempFile("heatmap", ".R",
 					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
-//			heatmap_R.deleteOnExit();
+			heatmap_R.deleteOnExit();
 			BufferedWriter bw_R = new BufferedWriter(new FileWriter(heatmap_R));
 			bw_R.write("library(gplots)");
 			bw_R.newLine();
-			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width=" + (trees.size()*2/5) + ",height="
-					+ (trees.size() *3/5) + ")");
+			bw_R.write("pdf(file=\"" + heatmap.getAbsolutePath() + "\",width="+size+",height="+size+")");
 			bw_R.newLine();
-			bw_R.write("mycolors <- colorRampPalette(c(\"black\",\"blue\",\"white\"))(n=300)");
+			bw_R.write("mycolors <- colorRampPalette(c(\"black\",\"blue\",\"white\"))(n=150)");
 			bw_R.newLine();
-			bw_R.write("tab <- read.table(file=\"" + heatmap_data.getAbsolutePath() + "\",header=T, sep=\"\\t\")");
+			bw_R.write("tab <- read.table(file=\"" + heatmap_data.getAbsolutePath() + "\",header=T, sep=\"\\t\", check.names=F)");
 			bw_R.newLine();
-			bw_R.write("heatmap.2(data.matrix(tab,rownames.force=NA),dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c(35,5))");
+			bw_R.write("rownames(tab) <- colnames(tab)");
+			bw_R.newLine();
+			bw_R.write("heatmap.2(data.matrix(tab),Rowv=F, Colv=F,dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"))");
 			bw_R.newLine();
 			bw_R.write("dev.off()");
 			bw_R.close();

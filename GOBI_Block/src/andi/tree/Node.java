@@ -15,32 +15,34 @@ public class Node implements Node_Data {
 	private TreeMap<Node, Node_Data> leaves;
 	private Vector<Boolean> shared;
 	private Tree t;
+	private static boolean dist = true;
 
 	public Node(int id, Node p, Tree t) {
 		this.id = id;
 		childs = new TreeMap<>();
 		this.parent = p;
-		this.t= t;
+		this.t = t;
 	}
-	
-	public Node(int id, TreeMap<Node,Double> childs, Node parent, double total_dist, Node_Data data, TreeMap<Node,Node_Data> leaves, Vector<Boolean> shared, Tree t) {
+
+	public Node(int id, TreeMap<Node, Double> childs, Node parent, double total_dist, Node_Data data,
+			TreeMap<Node, Node_Data> leaves, Vector<Boolean> shared, Tree t) {
 		this.id = id;
-		this.childs = (TreeMap<Node,Double>)childs.clone();
-		if(parent!=null)
-		this.parent = parent.clone();
+		this.childs = (TreeMap<Node, Double>) childs.clone();
+		if (parent != null)
+			this.parent = parent.clone();
 		this.total_dist = total_dist;
 		this.data = data;
-		if(leaves!=null)
-		this.leaves = (TreeMap<Node,Node_Data>)leaves.clone();
+		if (leaves != null)
+			this.leaves = (TreeMap<Node, Node_Data>) leaves.clone();
 		this.shared = shared;
-		this.t= t;
-		
+		this.t = t;
+
 	}
 
 	public Node(int id, Tree t) {
 		this.id = id;
 		childs = new TreeMap<>();
-		this.t= t;
+		this.t = t;
 	}
 
 	public int compareTo(Node_Data o) {
@@ -64,9 +66,9 @@ public class Node implements Node_Data {
 		else
 			childs.put(c, dist - c.get_total_dist());
 	}
-	
+
 	public Node clone() {
-		return new Node(id,childs,parent,total_dist,data,leaves,shared,t);
+		return new Node(id, childs, parent, total_dist, data, leaves, shared, t);
 	}
 
 	public void set_parent(Node p) {
@@ -112,10 +114,10 @@ public class Node implements Node_Data {
 	}
 
 	public void round_to(int decimals) {
-		total_dist = round(decimals,total_dist);
-		for(Node c:childs.keySet())
+		total_dist = round(decimals, total_dist);
+		for (Node c : childs.keySet())
 			childs.put(c, round(decimals, childs.get(c)));
-			
+
 	}
 
 	public double round(int decimals, double val) {
@@ -247,83 +249,87 @@ public class Node implements Node_Data {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	public ArrayList<Node> get_path(Node other) {
 		ArrayList<Node> path = new ArrayList<>();
-		
+
 		ArrayList<Node> p1 = new ArrayList<>();
 		p1.add(this);
-		while(!p1.get(p1.size()-1).is_root())
-			p1.add(p1.get(p1.size()-1).get_Parent());
-		
+		while (!p1.get(p1.size() - 1).is_root())
+			p1.add(p1.get(p1.size() - 1).get_Parent());
+
 		ArrayList<Node> p2 = new ArrayList<>();
 		p2.add(other);
-		while(!p2.get(p2.size()-1).is_root())
-			p2.add(p2.get(p2.size()-1).get_Parent());
-//		System.out.println("\t\tP1:\t"+p1);
-//		System.out.println("\t\tP2:\t"+p2);
-//		System.out.print("\t\t");
-		for(Node n:p1) {
+		while (!p2.get(p2.size() - 1).is_root())
+			p2.add(p2.get(p2.size() - 1).get_Parent());
+		// System.out.println("\t\tP1:\t"+p1);
+		// System.out.println("\t\tP2:\t"+p2);
+		// System.out.print("\t\t");
+		for (Node n : p1) {
 			path.add(n);
-			if(!p2.contains(n)) {
-//				System.out.print(n+"-(p)->");
+			if (!p2.contains(n)) {
+				// System.out.print(n+"-(p)->");
 				continue;
 			}
-//			System.out.print(n+"-(tp)->");
-			for(int i = p2.indexOf(n)-1; i>=0;i--) {
-//				if(i>0)
-//				System.out.print(p2.get(i)+"-(c)->");
-//				else
-//					System.out.println(p2.get(i));
+			// System.out.print(n+"-(tp)->");
+			for (int i = p2.indexOf(n) - 1; i >= 0; i--) {
+				// if(i>0)
+				// System.out.print(p2.get(i)+"-(c)->");
+				// else
+				// System.out.println(p2.get(i));
 				path.add(p2.get(i));
 			}
 			break;
 		}
 		return path;
 	}
-	
-	public double get_dist(Node other) {
-		ArrayList<Node> path = get_path(other);
-//		double dist = 0;
-//		for(int i = 0; i<path.size()-1;i++)
-//			dist+=path.get(i).get_simple_dist(path.get(i+1));
-//		return dist;
-			return path.size()-1;
-	}
-	
-	public double get_simple_dist(Node other) {
-		return Math.abs(other.total_dist-this.total_dist);
+
+	public static void set_node_dist(boolean dist) {
+		Node.dist = dist;
 	}
 
-	
+	public double get_dist(Node other) {
+		ArrayList<Node> path = get_path(other);
+		if (!Node.dist)
+			return path.size() - 1;
+		double dist = 0;
+		for (int i = 0; i < path.size() - 1; i++)
+			dist += path.get(i).get_simple_dist(path.get(i + 1));
+		return dist;
+	}
+
+	public double get_simple_dist(Node other) {
+		return Math.abs(other.total_dist - this.total_dist);
+	}
+
 	public Node get_first_child() {
-		if(is_leaf())
+		if (is_leaf())
 			return null;
 		Iterator<Node> nodes = childs.keySet().iterator();
 		Node c1 = nodes.next();
 		Node c2 = nodes.next();
-		
-		Node first = c1.get_id()<c2.get_id() ? c1 : c2;
-		Node second = c1.get_id()>c2.get_id() ? c1 : c2;
-		if(first.is_leaf()&&second.is_leaf())
+
+		Node first = c1.get_id() < c2.get_id() ? c1 : c2;
+		Node second = c1.get_id() > c2.get_id() ? c1 : c2;
+		if (first.is_leaf() && second.is_leaf())
 			return first;
-		if(first.is_leaf()|second.is_leaf())
+		if (first.is_leaf() | second.is_leaf())
 			return first.is_leaf() ? first : second;
 		return first;
 	}
-	
+
 	public Node get_second_child() {
-		if(is_leaf())
+		if (is_leaf())
 			return null;
 		Iterator<Node> nodes = childs.keySet().iterator();
 		Node c1 = nodes.next();
 		Node c2 = nodes.next();
-		
-		Node first = c1.get_id()<c2.get_id() ? c1 : c2;
-		Node second = c1.get_id()>c2.get_id() ? c1 : c2;
-		if(first.is_leaf()&&second.is_leaf())
+
+		Node first = c1.get_id() < c2.get_id() ? c1 : c2;
+		Node second = c1.get_id() > c2.get_id() ? c1 : c2;
+		if (first.is_leaf() && second.is_leaf())
 			return second;
-		if(first.is_leaf()|second.is_leaf())
+		if (first.is_leaf() | second.is_leaf())
 			return first.is_leaf() ? second : first;
 		return second;
 	}
