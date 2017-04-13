@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.plaf.synth.SynthSpinnerUI;
+
 public class Runner {
 	private static long start;
 
@@ -66,54 +68,42 @@ public class Runner {
 			try {
 				String path = "/home/proj/biocluster/praktikum/genprakt-ws16/bioinformaniacs/Kikky/";
 				String type = args[0];
-				HashMap<String, Double> vals = new HashMap<>();
-				BufferedReader br = new BufferedReader(new FileReader(path + "plot/vals_" + type + ".txt"));
-				String line;
-				while ((line = br.readLine()) != null) {
-					String header = line;
-					header = header.replaceAll("#", "");
-					double tissue = Double.parseDouble(br.readLine().split("\t")[1]);
-					for (int i = 0; i < 4; i++)
-						br.readLine();
-					double spec = Double.parseDouble(br.readLine().split("\t")[1]);
-					for (int i = 0; i < 4; i++)
-						br.readLine();
-					vals.put(header, tissue - spec);
+				// HashMap<String, Double> vals = new HashMap<>();
+				BufferedReader br = new BufferedReader(new FileReader(path + "plot/go_vals_all_" + type + ".txt"));
+				String line = br.readLine();
+				int index = 0;
+				while ((line = br.readLine()) != null && index < 200) {
+					String[] split = line.split("\t");
+					if (type.equals("FPKM")) {
+						Analysis.FPKM("phaseone", split[1], "true");
+						Thread.sleep(10000);
+						check_in_grid();
+						Analysis.FPKM("phasetwo", split[1], "true");
+						Thread.sleep(15000);
+					} else if (type.equals("DEP")) {
+						Analysis.DEP("phaseone", split[1], "true");
+						Thread.sleep(10000);
+						check_in_grid();
+						Analysis.DEP("phasetwo", split[1], "true");
+						Thread.sleep(15000);
+					} else if (type.equals("DES")) {
+						Analysis.DES("phaseone", split[1], "true");
+						Thread.sleep(10000);
+						check_in_grid();
+						Analysis.DES("phasetwo", split[1], "true");
+						Thread.sleep(15000);
+					}
+					index++;
+					Process plotting;
+					plotting = Runtime.getRuntime().exec("bash /home/a/adamowicz/GoBi/Block/results/Delete.sh " + path
+							+ "plot/plot_vals_" + split[1] + "_" + type + ".txt");
+					plotting.waitFor();
 				}
 				br.close();
-				Map<String, Double> sorted = sortByValue(vals);
-				HashMap<String, Double> values = new HashMap<>();
-				for (String key : sorted.keySet()) {
-					double val = Double.parseDouble(key.split("\t")[0]);
-					String go = key.split("\t")[1];
-					if (sorted.get(key) <= 0.0)
-						values.put(go, val);
-				}
-				sorted = sortByValueRev(values);
-				int index = 0;
-				for (String key : sorted.keySet()) {
-					if (index++ < 2) {
-						if (type.equals("FPKM")) {
-							Analysis.FPKM("phaseone", key, "true");
-							Thread.sleep(10000);
-							check_in_grid();
-							Analysis.FPKM("phasetwo", key, "true");
-							Thread.sleep(15000);
-						} else if (type.equals("DEP")) {
-							Analysis.DEP("phaseone", key, "true");
-							Thread.sleep(10000);
-							check_in_grid();
-							Analysis.DEP("phasetwo", key, "true");
-							Thread.sleep(15000);
-						} else if (type.equals("DES")) {
-							Analysis.DES("phaseone", key, "true");
-							Thread.sleep(10000);
-							check_in_grid();
-							Analysis.DES("phasetwo", key, "true");
-							Thread.sleep(15000);
-						}
-					}
-				}
+				System.out.println("mv " + path + "plot/*GO* " + path + "plot/Go/" + type + "/");
+				Process plotting;
+				plotting = Runtime.getRuntime().exec("mv " + path + "plot/*GO* " + path + "plot/Go/" + type + "/");
+				plotting.waitFor();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -141,6 +131,56 @@ public class Runner {
 			}
 		}
 		br.close();
+	}
+
+	private void tmp(String path, String type, HashMap<String, Double> vals) throws IOException, InterruptedException {
+		BufferedReader br = new BufferedReader(new FileReader(path + "plot/vals_" + type + ".txt"));
+		String line;
+		while ((line = br.readLine()) != null) {
+			String header = line;
+			header = header.replaceAll("#", "");
+			double tissue = Double.parseDouble(br.readLine().split("\t")[1]);
+			for (int i = 0; i < 4; i++)
+				br.readLine();
+			double spec = Double.parseDouble(br.readLine().split("\t")[1]);
+			for (int i = 0; i < 4; i++)
+				br.readLine();
+			vals.put(header, tissue - spec);
+		}
+		br.close();
+		Map<String, Double> sorted = sortByValue(vals);
+		HashMap<String, Double> values = new HashMap<>();
+		for (String key : sorted.keySet()) {
+			double val = Double.parseDouble(key.split("\t")[0]);
+			String go = key.split("\t")[1];
+			if (sorted.get(key) <= 0.0)
+				values.put(go, val);
+		}
+		sorted = sortByValueRev(values);
+		int index = 0;
+		for (String key : sorted.keySet()) {
+			if (index++ < 5) {
+				if (type.equals("FPKM")) {
+					Analysis.FPKM("phaseone", key, "true");
+					Thread.sleep(10000);
+					check_in_grid();
+					Analysis.FPKM("phasetwo", key, "true");
+					Thread.sleep(15000);
+				} else if (type.equals("DEP")) {
+					Analysis.DEP("phaseone", key, "true");
+					Thread.sleep(10000);
+					check_in_grid();
+					Analysis.DEP("phasetwo", key, "true");
+					Thread.sleep(15000);
+				} else if (type.equals("DES")) {
+					Analysis.DES("phaseone", key, "true");
+					Thread.sleep(10000);
+					check_in_grid();
+					Analysis.DES("phasetwo", key, "true");
+					Thread.sleep(15000);
+				}
+			}
+		}
 	}
 
 	public static String systemInfoString() {

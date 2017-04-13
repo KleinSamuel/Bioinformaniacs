@@ -274,7 +274,7 @@ public class Analysis {
 						+ filter + type + ".txt", samples, comp, comp_spe, type, gos);
 				System.out.println(highest.getQuery_geneId() + " " + highest.getTarget_geneId() + " "
 						+ highest.getMaximumIdentityScore());
-			}
+			} 
 		}
 		System.out.println(systemInfoString() + "Total Terminated");
 	}
