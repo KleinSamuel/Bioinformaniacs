@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import dennis.analysis.BipartiteMatching;
+import dennis.analysis.InputDataPreparator;
 import dennis.similarities.NxMmapping;
 import dennis.similarities.SimilarityObject;
 import dennis.util.GenePair;
@@ -19,25 +20,25 @@ public class GreedyScoring extends ScoringFunction {
 
 	public static final String NAME = "greedy";
 
-	public BipartiteMatching getGreedyMapping(NxMmapping inputCluster) {
-		System.out.println("greedy scoring");
+	public BipartiteMatching getGreedyMapping(NxMmapping inputCluster, ScoringFunction scoringFunction) {
+		System.out.println("greedy scoring after " + scoringFunction.getScoringFunctionName());
 		TreeMap<GenePair, ScoringObject> ret = new TreeMap<>();
 
 		TreeSet<SimilarityObject> objects = new TreeSet<>(new Comparator<SimilarityObject>() {
 
 			@Override
 			public int compare(SimilarityObject o1, SimilarityObject o2) {
-				double comp = o1.getMaximumIdentityScore() - o2.getMaximumIdentityScore();
-				if (comp < 0)
-					return -1;
-				if (comp > 0)
-					return 1;
-				return 0;
+				return -Double.compare(o1.getMaximumIdentityScore(), o2.getMaximumIdentityScore());
 			}
 		});
 		for (String s : inputCluster.getSims().keySet()) {
 			for (SimilarityObject so : inputCluster.getSims().get(s).values()) {
-				objects.add(so);
+				if (scoringFunction.getScoringFunctionName().equals("fuzzy")) {
+					double score = scoringFunction.score(new GenePair(so.getQuery_geneId(), so.getTarget_geneId()));
+					objects.add(new SimilarityObject(score, so.getQuery_geneId(), so.getTarget_geneId()));
+				} else {
+					objects.add(so);
+				}
 			}
 		}
 
@@ -50,6 +51,9 @@ public class GreedyScoring extends ScoringFunction {
 		boolean goOn = objects.size() > 0;
 		while (goOn) {
 			SimilarityObject highest = objects.first();
+			if (InputDataPreparator.IGNORE_NEGATIVE_SCORES && highest.getScore() < 0) {
+				break;
+			}
 			objects.remove(highest);
 			goOn = objects.size() > 0;
 			TreeMap<String, SimilarityObject> tree = copySims.get(highest.getQuery_geneId());
@@ -69,19 +73,19 @@ public class GreedyScoring extends ScoringFunction {
 			}
 		}
 
-		TreeSet<String> unmatched = new TreeSet<>();
+		TreeSet<String> unmatched_query = new TreeSet<>(), unmatched_target = new TreeSet<>();
 		for (String s : inputCluster.getGenesFromSpecies(true)) {
 			if (!geneIds1.contains(s)) {
-				unmatched.add(s);
+				unmatched_query.add(s);
 			}
 		}
 		for (String s : inputCluster.getGenesFromSpecies(false)) {
 			if (!geneIds2.contains(s)) {
-				unmatched.add(s);
+				unmatched_target.add(s);
 			}
 		}
 
-		return new BipartiteMatching(inputCluster, score, ret, unmatched, geneIds1, geneIds2);
+		return new BipartiteMatching(inputCluster, score, ret, unmatched_query, unmatched_target, geneIds1, geneIds2);
 
 	}
 
@@ -96,6 +100,11 @@ public class GreedyScoring extends ScoringFunction {
 			sims.put(s, sim);
 		}
 		return sims;
+	}
+
+	@Override
+	public String getScoringFunctionName() {
+		return NAME;
 	}
 
 }

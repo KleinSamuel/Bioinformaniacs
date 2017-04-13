@@ -1,9 +1,5 @@
 package dennis.utility_manager;
 
-import java.util.Iterator;
-
-import dennis.analysis.CheckGeneOccurences;
-
 public class Runner {
 
 	public static void main(String[] args) {
@@ -14,10 +10,11 @@ public class Runner {
 		// new InputDataPreparator(query_species, target_species, "star",
 		// "limma", null, 1d);
 
-		for (Iterator<Species> spIt = UtilityManager.speciesIterator(); spIt.hasNext();) {
-			Species sp = spIt.next();
-			new CheckGeneOccurences(sp, "star", "limma");
-		}
+		// for (Iterator<Species> spIt = UtilityManager.speciesIterator();
+		// spIt.hasNext();) {
+		// Species sp = spIt.next();
+		// new CheckGeneOccurences(sp, "star", "limma");
+		// }
 
 		// Species query_species = UtilityManager.getSpecies(10090),
 		// target_species = UtilityManager.getSpecies(10116);

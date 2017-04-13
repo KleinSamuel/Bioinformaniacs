@@ -50,4 +50,8 @@ public class GenePair implements Comparable<GenePair> {
 		return (this.geneKey + "_" + this.geneValue).hashCode();
 	}
 
+	public GenePair switchGenes() {
+		return new GenePair(geneValue, geneKey);
+	}
+
 }

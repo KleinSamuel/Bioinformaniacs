@@ -3,15 +3,14 @@ package dennis.analysis;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import dennis.enrichment.EnrichmentAnalysisUtils;
 import dennis.enrichment.GeneObject;
-import dennis.genomeAnnotation.Gene;
 import dennis.tissues.TissueHandler;
+import dennis.util.GeneIdReader;
 import dennis.utility_manager.Species;
 import dennis.utility_manager.UtilityManager;
 import javafx.util.Pair;
@@ -37,8 +36,7 @@ public class CheckGeneOccurences {
 			TreeMap<Integer, Integer> tpsPerGene = new TreeMap<>();
 
 			int numberOfGenes = 0;
-			for (Iterator<Gene> geneIt = sp.getGenomeAnnotation().iterator(); geneIt.hasNext();) {
-				String gene = geneIt.next().getId();
+			for (String gene : GeneIdReader.get_gene_ids_in_GTF_order(sp)) {
 				if (UtilityManager.getSimilarityHandler().getAllSimilarities(sp, gene).isEmpty()) {
 					continue;
 				}
@@ -88,8 +86,7 @@ public class CheckGeneOccurences {
 			TreeMap<Integer, Integer> tpsPerGene = new TreeMap<>();
 
 			int numberOfGenes = 0;
-			for (Iterator<Gene> geneIt = sp.getGenomeAnnotation().iterator(); geneIt.hasNext();) {
-				String gene = geneIt.next().getId();
+			for (String gene : GeneIdReader.get_gene_ids_in_GTF_order(sp)) {
 				Integer count = 0;
 				for (Entry<String, TreeSet<String>> e : genes.entrySet()) {
 					if (e.getValue() != null && !e.getValue().isEmpty() && e.getValue().contains(gene)) {

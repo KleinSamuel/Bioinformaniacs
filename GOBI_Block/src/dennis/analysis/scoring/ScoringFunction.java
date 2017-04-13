@@ -23,4 +23,8 @@ public class ScoringFunction {
 	public double score(GenePair genePair) {
 		return 0;
 	}
+
+	public String getScoringFunctionName() {
+		return "default";
+	}
 }

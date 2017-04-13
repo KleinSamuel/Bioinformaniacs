@@ -10,7 +10,6 @@ import dennis.analysis.BipartiteMatching;
 import dennis.analysis.HungarianAlgorithm;
 import dennis.enrichment.GeneObject;
 import dennis.similarities.NxMmapping;
-import dennis.tissues.TissueHandler;
 import dennis.tissues.TissuePair;
 import dennis.util.GenePair;
 import dennis.utility_manager.Species;
@@ -28,11 +27,10 @@ public class FuzzyCorrelation extends ScoringFunction {
 
 	public FuzzyCorrelation(Species query_species, Species target_species,
 			TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesQuerySpecies,
-			TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesTargetSpecies) {
+			TreeMap<TissuePair, TreeMap<String, GeneObject>> deFilesTargetSpecies, TreeSet<TissuePair> tissuePairs) {
 		super(query_species, target_species);
 		fuzzyCalculator = new Fuzzy();
-		tissuePairs = new TreeSet<>(TissueHandler.tissuePairIterator(query_species));
-		tissuePairs.retainAll(TissueHandler.tissuePairIterator(target_species));
+		this.tissuePairs = tissuePairs;
 		deFilesSpecies1 = deFilesQuerySpecies;
 		deFilesSpecies2 = deFilesTargetSpecies;
 		ps = new PearsonsCorrelation();
@@ -62,6 +60,12 @@ public class FuzzyCorrelation extends ScoringFunction {
 	public double[] getFuzzyArr(TreeMap<TissuePair, TreeMap<String, GeneObject>> deFiles, TissuePair tp,
 			String geneId) {
 		GeneObject ob = deFiles.get(tp).get(geneId);
+		if (ob.getAdj_pval() < 0) {
+			double[] fuzzyArr = new double[tissuePairs.size()];
+			for (int i = 0; i < fuzzyArr.length; i++) {
+				fuzzyArr[i] = 1d / (double) fuzzyArr.length;
+			}
+		}
 		return fuzzyCalculator.getFuzzyArray(ob.getLog2fc(), ob.getAdj_pval());
 	}
 
@@ -108,6 +112,11 @@ public class FuzzyCorrelation extends ScoringFunction {
 			return -2d;
 		}
 		return correlation(genePair);
+	}
+
+	@Override
+	public String getScoringFunctionName() {
+		return NAME;
 	}
 
 }
