@@ -177,7 +177,7 @@ public class Plot {
 			}
 			bw_data.close();
 			double marg = 25.0/*+((double)trees.size()/90)*/;
-			double size = trees.size()<10 ? 7.0 : 27.0-(200.0/(double)trees.size());
+			double size = 27.0-(200.0/(double)trees.size());
 			File heatmap_R = File.createTempFile("heatmap", ".R",
 					new File("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/Andi"));
 			heatmap_R.deleteOnExit();
@@ -192,7 +192,7 @@ public class Plot {
 			bw_R.newLine();
 			bw_R.write("rownames(tab) <- colnames(tab)");
 			bw_R.newLine();
-			bw_R.write("heatmap.2(data.matrix(tab),Rowv=F, Colv=F,dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"))");
+			bw_R.write("heatmap.2(data.matrix(tab),Rowv=F, Colv=F,dendrogram=\"none\",trace=\"none\",col=mycolors,margins=c("+marg+","+marg+"),key.title=\""+plot_name+"\")");
 			bw_R.newLine();
 			bw_R.write("dev.off()");
 			bw_R.close();
