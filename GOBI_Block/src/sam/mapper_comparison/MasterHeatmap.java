@@ -1,8 +1,11 @@
 package sam.mapper_comparison;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.TreeMap;
+
+import sam.utils.ExternalWriter;
 
 public class MasterHeatmap implements Serializable{
 
@@ -34,6 +37,27 @@ public class MasterHeatmap implements Serializable{
 
 	public void setTissuePairs(ArrayList<String> tissuePairs) {
 		this.tissuePairs = tissuePairs;
+	}
+	
+	public void writeToFile(File outputContent){
+		
+		ExternalWriter extW = new ExternalWriter(outputContent, false);
+		extW.openWriter();
+		
+		for (int i = 0; i < matrix.length; i++) {
+			
+			for (int j = 0; j < matrix[i].length; j++) {
+				
+				MasterHeatmapCell tmpCell = matrix[i][j];
+				
+				extW.write((j==0 ? "" : "\t")+tmpCell.getScore());
+				
+			}
+			extW.write("\n");
+		}
+		
+		extW.closeWriter();
+		
 	}
 	
 }

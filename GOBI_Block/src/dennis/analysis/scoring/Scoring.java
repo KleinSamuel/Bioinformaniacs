@@ -1,7 +1,6 @@
 package dennis.analysis.scoring;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.TreeSet;
 
 import dennis.analysis.BipartiteMatching;
@@ -21,29 +20,25 @@ public class Scoring {
 		targetSpecies = dataPrep.getTargetSpecies();
 		seqIdScoring = new SequenceIdentityScoring(querySpecies, targetSpecies);
 		fuzzyScoring = new FuzzyCorrelation(querySpecies, targetSpecies, dataPrep.getDEfilesSpecies1(),
-				dataPrep.getDEfilesSpecies2());
+				dataPrep.getDEfilesSpecies2(), dataPrep.getTissuePairs());
 		greedy = new GreedyScoring(querySpecies, targetSpecies);
 	}
 
-	public BipartiteMatching getBestBipartiteMatching(String scoringFunctionName, NxMmapping cluster) {
+	public BipartiteMatching getBestBipartiteMatching(String scoringFunctionName, NxMmapping cluster, boolean greedy) {
 		switch (scoringFunctionName) {
 
-		case "greedy":
-			return greedy.getGreedyMapping(cluster);
 		case "seqId":
+			if (greedy) {
+				return this.greedy.getGreedyMapping(cluster, seqIdScoring);
+			}
 			return seqIdScoring.calculateBestBipartiteMatching(cluster);
 		case "fuzzy":
+			if (greedy) {
+				return this.greedy.getGreedyMapping(cluster, fuzzyScoring);
+			}
 			return fuzzyScoring.calculateBestBipartiteMatching(cluster);
 		}
 		return null;
-	}
-
-	public HashMap<String, BipartiteMatching> getBipartiteMatchingsForAllScoringFunctions(NxMmapping mapping) {
-		HashMap<String, BipartiteMatching> matchings = new HashMap<>();
-		matchings.put("greedy", getBestBipartiteMatching("greedy", mapping));
-		matchings.put("seqId", getBestBipartiteMatching("seqId", mapping));
-		matchings.put("fuzzy", getBestBipartiteMatching("fuzzy", mapping));
-		return matchings;
 	}
 
 	public Species getQuerySpecies() {
@@ -74,6 +69,14 @@ public class Scoring {
 		String tmp = arr[a];
 		arr[a] = arr[b];
 		arr[b] = tmp;
+	}
+
+	public FuzzyCorrelation getFuzzyScoring() {
+		return fuzzyScoring;
+	}
+
+	public SequenceIdentityScoring getSeqIdScoring() {
+		return seqIdScoring;
 	}
 
 }

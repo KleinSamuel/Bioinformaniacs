@@ -56,4 +56,9 @@ public class SequenceIdentityScoring extends ScoringFunction {
 		return sim.getScore();
 	}
 
+	@Override
+	public String getScoringFunctionName() {
+		return NAME;
+	}
+
 }

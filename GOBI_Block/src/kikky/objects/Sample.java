@@ -36,7 +36,10 @@ public class Sample {
 	private HashMap<String, Double> generate_vals(HashMap<String, Double> values, String filter) {
 		HashMap<String, Double> vals = new HashMap<>();
 		for (String key : values.keySet()) {
-			TreeSet<String> gos = GOHandler.getMappedGOterms(null, key);
+			HashMap<String, LinkedList<String>> all_gos = GOHandler.getAllMappedGOs(null, key);
+			TreeSet<String> gos = new TreeSet<>();
+			for (String key2 : all_gos.keySet())
+				gos.addAll(all_gos.get(key2));
 			if (gos != null && gos.contains(filter))
 				vals.put(key, values.get(key));
 		}
@@ -72,7 +75,7 @@ public class Sample {
 			return "";
 		StringBuilder sb = new StringBuilder();
 		for (String go : goterms.keySet())
-			sb.append(",").append(go).append("\t").append(goterms.get(go) / matessize);
+			sb.append(",").append(go).append("\t").append(goterms.get(go));
 		return sb.substring(1);
 	}
 
@@ -89,29 +92,26 @@ public class Sample {
 				y_genes = new StringBuilder();
 		matessize = mates.size();
 		if (mates.size() > 0) {
+			HashMap<String, Double> tmp = new HashMap<>();
 			for (String gene_id_x : mates.keySet()) {
 				x[index] = this.gene_data.get(gene_id_x);
 				y[index] = partner.get(mates.get(gene_id_x));
 				if (filter.equals("all")) {
 					HashMap<String, LinkedList<String>> all = GOHandler.getAllMappedGOs(null, gene_id_x);
-					// TreeSet<String> cur_gos =
-					// GOHandler.getMappedGOterms(null, gene_id_x);
 					if (all != null)
 						for (String key : all.keySet())
 							for (String g : all.get(key)) {
-								if (!goterms.containsKey(g))
-									goterms.put(g, 0.0);
-								goterms.put(g, goterms.get(g) + 1);
+								if (!tmp.containsKey(g))
+									tmp.put(g, 0.0);
+								tmp.put(g, tmp.get(g) + 1);
 							}
 					all = GOHandler.getAllMappedGOs(null, mates.get(gene_id_x));
-					// cur_gos = GOHandler.getMappedGOterms(null,
-					// mates.get(gene_id_x));
 					if (all != null)
 						for (String key : all.keySet())
 							for (String g : all.get(key)) {
-								if (!goterms.containsKey(g))
-									goterms.put(g, 0.0);
-								goterms.put(g, goterms.get(g) + 1);
+								if (!tmp.containsKey(g))
+									tmp.put(g, 0.0);
+								tmp.put(g, tmp.get(g) + 1);
 							}
 				}
 				if (all_info) {
@@ -121,6 +121,11 @@ public class Sample {
 					y_genes.append(",").append(mates.get(gene_id_x));
 				}
 				index++;
+			}
+			if (filter.equals("all")) {
+				for (String go : tmp.keySet())
+					if (tmp.get(go) < (mates.size() / 2))
+						goterms.put(go, tmp.get(go));
 			}
 			pi = new Point_Info(mates, x, y);
 			if (all_info) {
