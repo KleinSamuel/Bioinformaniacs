@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import debugStuff.DebugMessageFactory;
 import sam.mapper_comparison.DEmethods;
 import sam.mapper_comparison.Heatmap;
 import sam.mapper_comparison.HeatmapFactory;
@@ -81,6 +82,8 @@ public class HeatmapFromFileReader {
 		
 		String mapper = heatmap.getName().split("_")[0];
 		String method = heatmap.getName().split("_")[1];
+		
+		DebugMessageFactory.printInfoDebugMessage(true, "Reading in heatmap for ["+mapper+"-"+method+"]");
 		
 		ArrayList<String> tissuePairs = new ArrayList<>();
 		

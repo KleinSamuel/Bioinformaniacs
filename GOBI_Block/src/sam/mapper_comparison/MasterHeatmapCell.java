@@ -13,7 +13,7 @@ public class MasterHeatmapCell implements Serializable{
 	
 	public MasterHeatmapCell(TreeMap<String, Double> map){
 		this.mapperPairsWithScore = map;
-		this.score = computeScore(map.values());		
+		this.score = computeScore(map.values());
 	}
 	
 	public Double computeScore(Collection<Double> scores){

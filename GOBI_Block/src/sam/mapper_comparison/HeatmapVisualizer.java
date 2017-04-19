@@ -44,4 +44,15 @@ public class HeatmapVisualizer {
 		}
 	}
 	
+	public static void main(String[] args) {
+		HeatmapVisualizer hmv = new HeatmapVisualizer();
+		
+		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
+		File heatmapCSV = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_limma_fc/CONTEXTMAP_LIMMA_heatmap.csv");
+		
+		String outputDir = HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"test2.png";
+		
+		hmv.createHeatmapWithR(script, heatmapCSV, outputDir);
+	}
+	
 }
