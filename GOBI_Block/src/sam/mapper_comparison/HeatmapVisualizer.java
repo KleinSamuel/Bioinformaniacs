@@ -48,9 +48,9 @@ public class HeatmapVisualizer {
 		HeatmapVisualizer hmv = new HeatmapVisualizer();
 		
 		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
-		File heatmapCSV = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_limma_fc/CONTEXTMAP_LIMMA_heatmap.csv");
+		File heatmapCSV = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_edger_fc/CONTEXTMAP_EDGER_heatmap.csv");
 		
-		String outputDir = HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"test2.png";
+		String outputDir = HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"cm_edger.png";
 		
 		hmv.createHeatmapWithR(script, heatmapCSV, outputDir);
 	}

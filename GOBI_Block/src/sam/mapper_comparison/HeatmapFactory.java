@@ -39,6 +39,7 @@ public class HeatmapFactory {
 	public static String PATH_TO_HEATMAP_OUTPUT = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/sam/";
 	public static String PATH_TO_FINAL_HEATMAPS = "/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/sam/finalHeatmaps/";
 	public static final Double THRESHOLD_PVAL = 0.05;
+	public static final int VECTOR_SIZE = 100;
 	
 	private ExternalWriter extBW_heatmapsInfo;
 	private ExternalWriter extBW_heatmapsContent;
@@ -247,6 +248,9 @@ public class HeatmapFactory {
 
 			List<Double> valueList_tissue_a = new LinkedList<>();
 			List<Double> valueList_tissue_b = new LinkedList<>();
+			
+			ArrayList<Double> valueMap_tissue_a = new ArrayList<>();
+			ArrayList<Double> valueMap_tissue_b = new ArrayList<>();
 
 			/* get orthologe genes for tissue pair a */
 			for (GeneObject go : geneSet_a) {
@@ -265,14 +269,23 @@ public class HeatmapFactory {
 						}
 					}else{
 						if(tmp != null && go.getAdj_pval() <= THRESHOLD_PVAL && tmp.getAdj_pval() <= THRESHOLD_PVAL){
-							valueList_tissue_a.add(go.getLog2fc());
-							valueList_tissue_b.add(tmp.getLog2fc());
+//							valueList_tissue_a.add(go.getLog2fc());
+//							valueList_tissue_b.add(tmp.getLog2fc());
+							
+							valueMap_tissue_a.add(go.getLog2fc());
+							valueMap_tissue_b.add(tmp.getLog2fc());
+							
 							geneSet_b.remove(tmp);
 						}
 					}
 				}
 			}
-
+			
+			Pair<LinkedList<Double>, LinkedList<Double>> tmp = getBestValues(valueMap_tissue_a, valueMap_tissue_b);
+			
+			valueList_tissue_a = tmp.getFirst();
+			valueList_tissue_b = tmp.getSecond();
+			
 			double[] tmp_a = new double[valueList_tissue_a.size()];
 			double[] tmp_b = new double[valueList_tissue_b.size()];
 
@@ -311,6 +324,72 @@ public class HeatmapFactory {
 
 		Heatmap out = new Heatmap(mapper, method, tissuePairs, scores);
 		return out;
+	}
+	
+	public Pair<LinkedList<Double>,LinkedList<Double>> getBestValues(ArrayList<Double> list_a, ArrayList<Double> list_b){
+		
+		System.out.println("SIZE INPUT:\t"+list_a.size());
+		
+		ComparablePairTMP[] array_a = new ComparablePairTMP[list_a.size()];
+		ComparablePairTMP[] array_b = new ComparablePairTMP[list_b.size()];
+		
+		for (int i = 0; i < list_a.size(); i++) {
+			array_a[i] = new ComparablePairTMP(i, list_a.get(i));
+			array_b[i] = new ComparablePairTMP(i, list_b.get(i));
+		}
+		
+		Arrays.sort(array_a);
+		Arrays.sort(array_b);
+		
+		LinkedList<Double> out_a = new LinkedList<>();
+		LinkedList<Double> out_b = new LinkedList<>();
+		
+		int index_a = 0;
+		int index_b = 0;
+		
+		// TODO possible out of bounds exception catch with check if list a smaller than VECTOR_SIZE
+		while(out_a.size() < VECTOR_SIZE){
+			
+			if(array_a[index_a].value == array_b[index_b].value){
+				out_a.add(list_a.get(array_a[index_a].index));
+				out_b.add(list_b.get(array_a[index_a].index));
+				
+				index_a++;
+				index_b++;
+			}else if(array_a[index_a].value > array_b[index_b].value){
+				out_a.add(list_a.get(array_a[index_a].index));
+				out_b.add(list_b.get(array_a[index_a].index));
+				
+				index_a++;
+			}else{
+				out_a.add(list_a.get(array_b[index_b].index));
+				out_b.add(list_b.get(array_b[index_b].index));
+				
+				index_b++;
+			}
+			
+		}
+		
+		System.out.println("SIZE OUPUT:\t"+out_a.size());
+		
+		return new Pair<>(out_a, out_b);
+	}
+	
+	public class ComparablePairTMP implements Comparable<ComparablePairTMP> {
+
+		public final int index;
+		public final double value;
+		
+		public ComparablePairTMP(int index, double value) {
+			this.index = index;
+			this.value = value;
+		}
+		
+		@Override
+		public int compareTo(ComparablePairTMP other) {
+			return -1 * Double.valueOf(this.value).compareTo(other.value);
+		}
+		
 	}
 
 	public GeneObject getGeneObjectFromList(String id, TreeSet<GeneObject> set) {
@@ -706,35 +785,35 @@ public class HeatmapFactory {
 		
 		Mapper mapper = Mapper.STAR.getMapperForString(args[0]);
 		DEmethods method = DEmethods.DESEQ.getMethodForString(args[1]);
-//		int todo_line = Integer.parseInt(args[2])-1;
-//		boolean pval = Boolean.parseBoolean(args[3]);
-//		
-//		if(args.length >= 5){
-//			String outputPath = args[4];
-//			HeatmapFactory.PATH_TO_HEATMAP_OUTPUT = outputPath;
-//		}
-//		if(mapper == null || method == null){
-//			System.err.println("WRONG ARGUMENTS! (mapper method)");
-//			System.exit(1);
-//		}
+		int todo_line = Integer.parseInt(args[2])-1;
+		boolean pval = Boolean.parseBoolean(args[3]);
+		
+		if(args.length >= 5){
+			String outputPath = args[4];
+			HeatmapFactory.PATH_TO_HEATMAP_OUTPUT = outputPath;
+		}
+		if(mapper == null || method == null){
+			System.err.println("WRONG ARGUMENTS! (mapper method)");
+			System.exit(1);
+		}
 		
 		UtilityManager um = new UtilityManager("/home/proj/biocluster/praktikum/genprakt/bioinformaniacs/config.txt", false, false, false);
 		
-//		MapperxMethodPair pair = new MapperxMethodPair(mapper, method);
-//		DebugMessageFactory.printInfoDebugMessage(true, "Creating heatmap for: "+mapper.toString()+"-"+method.toString());
+		MapperxMethodPair pair = new MapperxMethodPair(mapper, method);
+		DebugMessageFactory.printInfoDebugMessage(true, "Creating heatmap for: "+mapper.toString()+"-"+method.toString());
 //
-		HeatmapFactory hmf = new HeatmapFactory(false);
+		HeatmapFactory hmf = new HeatmapFactory();
 //		
-//		hmf.createHeatmapForMapperPair(pair, todo_line, pval);
+		hmf.createHeatmapForMapperPair(pair, todo_line, pval);
 		
 //		hmf.readAllHeatmapFiles();
 		
 //		hmf.compareEachMapper();
 		
-		Mapper mapper2 = Mapper.STAR.getMapperForString(args[2]);
-		DEmethods method2 = DEmethods.DESEQ.getMethodForString(args[3]);
+//		Mapper mapper2 = Mapper.STAR.getMapperForString(args[2]);
+//		DEmethods method2 = DEmethods.DESEQ.getMethodForString(args[3]);
 //		
-		hmf.compareMMPair(mapper, method, mapper2, method2);
+//		hmf.compareMMPair(mapper, method, mapper2, method2);
 		
 	}
 

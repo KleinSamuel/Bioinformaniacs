@@ -79,7 +79,7 @@ public class MapperMethodCompare {
 		
 		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example_cor.R");
 		
-		String outputDir = input.getAbsolutePath().substring(0, input.getAbsolutePath().lastIndexOf("/"))+"/correlation_method_1.png";
+		String outputDir = input.getAbsolutePath().substring(0, input.getAbsolutePath().lastIndexOf("/"))+"/correlation_method_2.png";
 		
 		hmv.createHeatmapWithR(script, output, outputDir);
 		
