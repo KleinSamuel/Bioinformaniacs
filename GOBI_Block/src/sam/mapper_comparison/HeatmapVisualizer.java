@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import debugStuff.DebugMessageFactory;
+import sam.utils.HeatmapFromFileReader;
 
 public class HeatmapVisualizer {
 
@@ -47,10 +48,22 @@ public class HeatmapVisualizer {
 	public static void main(String[] args) {
 		HeatmapVisualizer hmv = new HeatmapVisualizer();
 		
-		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
-		File heatmapCSV = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output/contextmap_edger_fc/CONTEXTMAP_EDGER_heatmap.csv");
+		String ma = "contextmap";
+		String me = "edger";
 		
-		String outputDir = HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"cm_edger.png";
+		Mapper mapper = Mapper.STAR.getMapperForString(ma);
+		DEmethods method = DEmethods.DESEQ.getMethodForString(me);
+		
+		File script = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"heatmap_example.R");
+		
+		File heatmap = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output_new/"+ma+"_"+me+"_fc/"+ma.toUpperCase()+"_"+me.toUpperCase()+"_heatmap.content");
+		File heatmapInfo = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output_new/"+ma+"_"+me+"_fc/"+ma.toUpperCase()+"_"+me.toUpperCase()+"_heatmap.info");
+		File heatmapCSV = new File(HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+"output_new/"+ma+"_"+me+"_fc/"+ma.toUpperCase()+"_"+me.toUpperCase()+"_heatmap.csv");
+		
+		HeatmapFromFileReader hmf = new HeatmapFromFileReader();
+		hmf.readHeatmapIntoCSV(heatmap, heatmapInfo, heatmapCSV);
+		
+		String outputDir = HeatmapFactory.PATH_TO_HEATMAP_OUTPUT+ma+"_"+me+".png";
 		
 		hmv.createHeatmapWithR(script, heatmapCSV, outputDir);
 	}
