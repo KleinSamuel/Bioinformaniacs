@@ -706,14 +706,14 @@ public class TreeBuilder {
 									continue;
 								ArrayList<Gene_focus> gfs = new ArrayList<Gene_focus>(
 										Arrays.asList(new Gene_focus[] { gf }));
-								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(
-										Arrays.asList(new Distance_measurement[] {Distance_measurement.Avg_seq_id_max, dm, dm2 }));
+								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(Arrays.asList(
+										new Distance_measurement[] { Distance_measurement.Avg_seq_id_max, dm, dm2 }));
 								trees = this.get_trees(gfs,
 										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
 								System.out.println(
 										"Done with computation of " + this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees,this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -727,14 +727,14 @@ public class TreeBuilder {
 									continue;
 								ArrayList<Gene_focus> gfs = new ArrayList<Gene_focus>(
 										Arrays.asList(new Gene_focus[] { gf, gf2 }));
-								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(
-										Arrays.asList(new Distance_measurement[] {Distance_measurement.Avg_seq_id_max, dm }));
+								ArrayList<Distance_measurement> dms = new ArrayList<Distance_measurement>(Arrays.asList(
+										new Distance_measurement[] { Distance_measurement.Avg_seq_id_max, dm }));
 								trees = this.get_trees(gfs,
 										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
 								System.out.println("Done with with computation of "
 										+ this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees,this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -776,8 +776,26 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
+			System.out.print("Plotting");
 			b = new TreeBuilder(null, null, false);
-			b.compute_all_interesting_heatmaps(false);
+//			b.compute_all_interesting_heatmaps(false);
+			ArrayList<Gene_focus> gf_filter = new ArrayList<>(
+					Arrays.asList(new Gene_focus[] { Gene_focus.All_genes, Gene_focus.de_only, Gene_focus.nonde_only,
+							Gene_focus.nonorthologues_only, Gene_focus.orthologues_only }));
+			ArrayList<Cluster_method> cm_filter = new ArrayList<>(
+					Arrays.asList(new Cluster_method[] { Cluster_method.UPGMA }));
+			ArrayList<Distance_measurement> dm_filter = new ArrayList<>(Arrays.asList(
+					new Distance_measurement[] { Distance_measurement.GO_tissue_basic, Distance_measurement.DE_count }));
+			ArrayList<Tree> trees = b.get_trees(gf_filter,cm_filter, dm_filter);
+			Tree.set_dist_avg(false);
+			Node.set_node_dist(false);
+			File map = Plot.get_heatmap(trees, "UPGMA_all_tot_count");
+			Node.set_node_dist(true);
+			map = Plot.get_heatmap(trees, "UPGMA_all_tot_dist");
+			Tree.set_dist_avg(true);
+			map = Plot.get_heatmap(trees, "UPGMA_all_avg_dist");
+			Node.set_node_dist(false);
+			map = Plot.get_heatmap(trees, "UPGMA_all_avg_count");
 		}
 	}
 
