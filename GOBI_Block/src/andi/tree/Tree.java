@@ -28,6 +28,7 @@ public class Tree /*
 	private Cluster_method cm = Cluster_method.UPGMA;
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
 	private Gene_focus gf = Gene_focus.All_genes;
+	private int top_go_term_count = 50;
 	private int round_val = 2;
 	private boolean go_terms_to_root = false;
 	private TreeSet<String> node_data_u_names;
@@ -102,7 +103,7 @@ public class Tree /*
 		return this;
 	}
 
-	public void construct(Distance_measurement dm, Gene_focus gf, boolean go_terms) {
+	public void construct(Distance_measurement dm, Gene_focus gf, boolean go_terms, int top_go_term_count) {
 		boolean printed = false;
 		for (Node_Data nd : nds) {
 			if (nd instanceof Organism_Data) {
@@ -115,12 +116,13 @@ public class Tree /*
 				org.set_gene_focus(gf);
 				org.set_distance_measurement(dm);
 				org.set_all_go_terms(go_terms);
+				org.set_top_go_term_count(top_go_term_count);
 			}
 		}
 	}
 	
 	public void reconstruct() {
-		construct(dm,gf,go_terms_to_root);
+		construct(dm,gf,go_terms_to_root, top_go_term_count);
 	}
 
 	public void set_cluster_method(Cluster_method cm) {
@@ -129,6 +131,17 @@ public class Tree /*
 
 	public void set_go_to_root(boolean b) {
 		this.go_terms_to_root = b;
+	}
+	public void set_top_go_term_count(int count) {
+		this.top_go_term_count = count;
+	}
+	
+	public Tree change_top_go_term_count(int count) {
+		if(top_go_term_count == count)
+			return this;
+		set_top_go_term_count(count);
+		this.rebuild();
+		return this;
 	}
 
 	public Tree change_go_to_root(boolean b) {
@@ -193,7 +206,16 @@ public class Tree /*
 			return dm;
 		return null;
 	}
-
+	
+public boolean is_go_terms_to_root() {
+	return go_terms_to_root;
+}
+	public String get_distance_measurement_as_string() {
+		if ((get_node_data() instanceof Organism_Data))
+			return dm+ (dm==Distance_measurement.GO_tissue_basic ? "_to_root_"+go_terms_to_root :"");
+		return "";
+	}
+	
 	public Gene_focus get_gene_focus() {
 		if ((get_node_data() instanceof Organism_Data))
 			return gf;
@@ -249,7 +271,7 @@ public class Tree /*
 		if (nds.size() < 1)
 			return this;
 		if (this.nds.first() instanceof Organism_Data)
-			construct(dm, gf, go_terms_to_root);
+			construct(dm, gf, go_terms_to_root, top_go_term_count);
 		switch (cm) {
 		case WPGMA:
 			build_wpgma();

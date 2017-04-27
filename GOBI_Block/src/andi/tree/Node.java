@@ -140,7 +140,7 @@ public class Node implements Node_Data {
 	@Override
 	public String toString() {
 		String out = "";
-		out += "(" + id + ")";
+		out += "(" + id + ")["+total_dist+"]";
 		if (this.is_leaf())
 			out += " Data: " + this.data.toString();
 		// else

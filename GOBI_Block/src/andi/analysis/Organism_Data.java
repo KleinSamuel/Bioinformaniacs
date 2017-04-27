@@ -10,6 +10,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 
 import andi.analysis.Organism_Data.Distance_measurement;
+import andi.analysis.Organism_Data.Gene_focus;
 import andi.tree.Node_Data;
 import dennis.GO.GOHandler;
 import dennis.counter.CounterUtils;
@@ -40,7 +41,7 @@ public class Organism_Data implements Node_Data {
 	private TreeMap<String, Integer> go_counts;
 	private Distance_measurement dm = Distance_measurement.Avg_seq_id_max;
 	private Gene_focus gf = Gene_focus.All_genes;
-	private int go_comparison_top = 20;
+	private int go_comparison_top = 50;
 	private boolean all_gos_to_root = false;
 
 	public Organism_Data(int id, String name, Species org) {
@@ -218,6 +219,38 @@ public class Organism_Data implements Node_Data {
 	public TreeMap<String, Integer> get_go_counts() {
 		return go_counts;
 	}
+	
+	public double get_avg_seq_id_all(Organism_Data other) {
+		double sim_score=0;
+		double count=0;
+		for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+				other.get_Species())) {
+			HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
+					.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
+			for (SimilarityObject so : sims.values()) {
+				sim_score += so.getMaximumIdentityScore();
+				count++;
+			}
+		}
+		return 1 - (sim_score / count);
+		
+	}
+	
+	public double get_avg_seq_id_max(Organism_Data other) {
+		double sim_score=0;
+		double count=0;
+		for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
+				other.get_Species())) {
+			HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
+					.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
+			for (SimilarityObject so : sims.values()) {
+				sim_score += so.getMaximumIdentityScore();
+				count++;
+				break;
+			}
+		}
+		return 1 - (sim_score / count);
+	}
 
 	@Override
 	public double compute_distance(Node_Data nd) {
@@ -228,16 +261,10 @@ public class Organism_Data implements Node_Data {
 		double count = 0;
 		switch (dm) {
 		case Avg_seq_id_all:
-			for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
-					other.get_Species())) {
-				HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
-						.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
-				for (SimilarityObject so : sims.values()) {
-					sim_score += so.getMaximumIdentityScore();
-					count++;
-				}
-			}
-			return 1 - (sim_score / count);
+			return (this.get_avg_seq_id_all(other)+other.get_avg_seq_id_all(this))/2;
+			
+		case Avg_seq_id_max:
+			return (this.get_avg_seq_id_max(other)+other.get_avg_seq_id_max(this))/2;
 		case GO_tissue_basic:
 
 			return evaluate(this.get_top_x_gos(go_comparison_top,other), other.get_top_x_gos(go_comparison_top,this), other);
@@ -247,18 +274,21 @@ public class Organism_Data implements Node_Data {
 		case DE_count:
 			return evaluate(this.get_counts(), other.get_counts(), other);
 		default:
-			for (String gene : UtilityManager.getSimilarityHandler().getAllGenesWithAnOrtholog(this.get_Species(),
-					other.get_Species())) {
-				HashMap<String, SimilarityObject> sims = UtilityManager.getSimilarityHandler()
-						.getSimilarities(this.get_Species(), other.get_Species()).getSimilarities(gene);
-				for (SimilarityObject so : sims.values()) {
-					sim_score += so.getMaximumIdentityScore();
-					count++;
-					break;
-				}
-			}
-			return 1 - (sim_score / count);
+			return (this.get_avg_seq_id_max(other)+other.get_avg_seq_id_max(this))/2;
+			
 		}
+	}
+	
+	private TreeSet<String> get_orthologues_self(){
+		return orthologues_self;
+	}
+	
+	private TreeSet<String> get_orthologues(Organism_Data other){
+		TreeSet<String> orthos = new TreeSet<>();
+		for(String o1:this.orthologues_self)
+			if(other.orthologues_self.contains(o1))
+				orthos.add(o1);
+		return orthos;
 	}
 
 	private double evaluate(HashMap<String, Double> counts_this, HashMap<String, Double> counts_other,
@@ -306,6 +336,10 @@ public class Organism_Data implements Node_Data {
 
 	public Species get_Species() {
 		return org;
+	}
+	
+	public void set_top_go_term_count(int count) {
+		go_comparison_top=count;
 	}
 
 	@Override
@@ -394,10 +428,10 @@ public class Organism_Data implements Node_Data {
 		case Avg_seq_id_all:
 			return "1 - Average Sequence Identity";
 		case GO_tissue_basic:
-			return "GSE-Difference Top " + go_comparison_top + " of " + (all_gos_to_root ? "all" : "most specific")
+			return "GSE-Difference in Top " + go_comparison_top + " of " + (all_gos_to_root ? "all" : "most specific")
 					+ " GO-Terms";
 		case GO_tissue_xgsa:
-			return "GSE_Difference using XGSA Top " + go_comparison_top + " terms";
+			return "GSE-Difference using XGSA Top " + go_comparison_top + " terms";
 		case DE_count:
 			return "Count of Pairwise DE-Genes / All Expressed Genes";
 		default:
@@ -412,7 +446,7 @@ public class Organism_Data implements Node_Data {
 			gene_foc+= "All possible Orthologue Pairs";
 			break;
 		case GO_tissue_basic:
-			gene_foc+= "GO similarity in " + tissue;
+			gene_foc+= "GO (Top "+go_comparison_top+") similarity in " + tissue;
 			break;
 		case GO_tissue_xgsa:
 			gene_foc+= "GO similarity in " + tissue;
@@ -450,6 +484,49 @@ public class Organism_Data implements Node_Data {
 	@Override
 	public String unique_name() {
 		return get_Species().getName();
+	}
+
+	public String get_description(Distance_measurement get_distance_measurement, Gene_focus get_gene_focus,
+			boolean is_go_terms_to_root) {
+		String gene_foc = "";
+		switch (dm) {
+		case Avg_seq_id_all:
+			gene_foc+= "All possible Orthologue Pairs";
+			break;
+		case GO_tissue_basic:
+			gene_foc+= "GO (Top "+go_comparison_top+") similarity in " + tissue;
+			break;
+		case GO_tissue_xgsa:
+			gene_foc+= "GO similarity"+(is_go_terms_to_root ? " to root " : "")+" in " + tissue;
+			break;
+		case DE_count:
+			gene_foc+= "DE-Difference in " + tissue;
+			break;
+		default:
+			gene_foc+= "Highest identity Othologue Pairs";
+			break;
+		}
+		gene_foc+=" | Filter=only ";
+		switch (gf) {
+		case nonorthologues_only:
+			gene_foc += "Non-Orthologues";
+			break;
+		case orthologues_only:
+			gene_foc += "Orthologues";
+			break;
+		case de_only:
+			gene_foc += "pairwise-DE-Genes";
+			break;
+		case nonde_only:
+			gene_foc += "pairwise-NonDE-Genes";
+			break;
+		default:
+			gene_foc = gene_foc.substring(0, gene_foc.length()-5)+"all";
+			break;
+		}
+		
+		
+		return gene_foc;
 	}
 	
 

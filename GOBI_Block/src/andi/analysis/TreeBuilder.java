@@ -43,6 +43,7 @@ public class TreeBuilder {
 	private TreeSet<String> t_filter;
 	private TreeSet<String> s_filter;
 	private Tree orthologue_tree;
+	private int top_count  = 50;
 	private Distance_measurement orthologue_dm = Distance_measurement.Avg_seq_id_max;
 	private Distance_measurement de_dm = Distance_measurement.DE_count;
 	private Distance_measurement go_dm = Distance_measurement.GO_tissue_basic;
@@ -520,8 +521,8 @@ public class TreeBuilder {
 		// }
 		if (dms == null) {
 			dms = new ArrayList<>();
-			dms.add(Distance_measurement.Avg_seq_id_all);
-			dms.add(Distance_measurement.Avg_seq_id_max);
+//			dms.add(Distance_measurement.Avg_seq_id_all);
+//			dms.add(Distance_measurement.Avg_seq_id_max);
 			dms.add(Distance_measurement.DE_count);
 			dms.add(Distance_measurement.GO_tissue_basic);
 		}
@@ -531,10 +532,10 @@ public class TreeBuilder {
 		if (dms.contains(Distance_measurement.Avg_seq_id_max))
 			trees.add(build_avg_sequence_id_of_orthologues_tree()
 					.change_distance_measurement(Distance_measurement.Avg_seq_id_max).clone());
-		for (Gene_focus gf : gfs) {
-			set_gene_focus(gf);
-			for (Distance_measurement dm : dms) {
-				change_distance_measurement(dm);
+		for (Distance_measurement dm : dms) {
+			change_distance_measurement(dm);
+			for (Gene_focus gf : gfs) {
+				set_gene_focus(gf);
 				trees.addAll(get_trees(gf, dm));
 			}
 		}
@@ -593,9 +594,23 @@ public class TreeBuilder {
 				t.set_distance_measurement(dm);
 			}
 	}
+	
+	private void change_go_top_count(int top_x) {
+		if(top_x==top_count)
+			return;
+		top_count=top_x;
+		if (go_tree_status == Tree_status.None)
+			prepare_go_trees();
+		for (Tree t : get_go_trees())
+			if (go_tree_status == Tree_status.Built)
+				t.change_top_go_term_count(top_x);
+			else if (go_tree_status == Tree_status.Prepared) {
+				t.set_top_go_term_count(top_x);
+			}
+	}
 
 	public String get_heatmap_name(Cluster_method cm, ArrayList<Gene_focus> gf_filter,
-			ArrayList<Distance_measurement> dm_filter, boolean avg, boolean dist) {
+			ArrayList<Distance_measurement> dm_filter, boolean avg, boolean dist, int top_count) {
 		String out = cm.name() + "_";
 		if (dm_filter.contains(Distance_measurement.Avg_seq_id_all))
 			dm_filter.remove(Distance_measurement.Avg_seq_id_all);
@@ -629,7 +644,7 @@ public class TreeBuilder {
 				out += "DE";
 				break;
 			case GO_tissue_basic:
-				out += "GO";
+				out += "GO("+top_count+")";
 				break;
 			case GO_tissue_xgsa:
 				out += "XGSA";
@@ -681,6 +696,10 @@ public class TreeBuilder {
 	public void compute_all_interesting_heatmaps() {
 		compute_all_interesting_heatmaps(false);
 	}
+	
+	public int get_top_count() {
+		return top_count;
+	}
 
 	public void compute_all_interesting_heatmaps(boolean show_when_plotted) {
 		ArrayList<Gene_focus> gf_filter = new ArrayList<>(
@@ -711,9 +730,9 @@ public class TreeBuilder {
 								trees = this.get_trees(gfs,
 										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
 								System.out.println(
-										"Done with computation of " + this.get_heatmap_name(cm, gfs, dms, avg, dist));
+										"Done with computation of " + this.get_heatmap_name(cm, gfs, dms, avg, dist,20));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist,20));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -732,9 +751,9 @@ public class TreeBuilder {
 								trees = this.get_trees(gfs,
 										new ArrayList<Cluster_method>(Arrays.asList(new Cluster_method[] { cm })), dms);
 								System.out.println("Done with with computation of "
-										+ this.get_heatmap_name(cm, gfs, dms, avg, dist));
+										+ this.get_heatmap_name(cm, gfs, dms, avg, dist,20));
 								System.out.print("Plotting");
-								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist));
+								File map = Plot.get_heatmap(trees, this.get_heatmap_name(cm, gfs, dms, avg, dist,20));
 								System.out.println(" finshed:\n" + map.getAbsolutePath());
 								if (show_when_plotted)
 									try {
@@ -776,26 +795,98 @@ public class TreeBuilder {
 			b.de_pair_view(Gene_focus.orthologues_only, Gene_focus.nonorthologues_only);
 			b.de_pair_view(Gene_focus.de_only, Gene_focus.nonde_only);
 		} else {
-			System.out.print("Plotting");
 			b = new TreeBuilder(null, null, false);
 //			b.compute_all_interesting_heatmaps(false);
 			ArrayList<Gene_focus> gf_filter = new ArrayList<>(
-					Arrays.asList(new Gene_focus[] { Gene_focus.All_genes, Gene_focus.de_only, Gene_focus.nonde_only,
+					Arrays.asList(new Gene_focus[] {Gene_focus.All_genes, Gene_focus.de_only, Gene_focus.nonde_only,
 							Gene_focus.nonorthologues_only, Gene_focus.orthologues_only }));
 			ArrayList<Cluster_method> cm_filter = new ArrayList<>(
 					Arrays.asList(new Cluster_method[] { Cluster_method.UPGMA }));
 			ArrayList<Distance_measurement> dm_filter = new ArrayList<>(Arrays.asList(
 					new Distance_measurement[] { Distance_measurement.GO_tissue_basic, Distance_measurement.DE_count }));
-			ArrayList<Tree> trees = b.get_trees(gf_filter,cm_filter, dm_filter);
+			System.out.println("Generating Trees");
+			ArrayList<Tree> trees = new ArrayList<>();
+			b.set_go_tree_use_all_go_terms(true);
+			b.change_go_top_count(100);
+			trees.addAll(b.get_trees(gf_filter,cm_filter, dm_filter));
+			trees.add(b.build_avg_sequence_id_of_orthologues_tree());
+//			trees.addAll(b.get_trees(null,null,null));
+			try {
+				Runtime.getRuntime().exec("display "+Plot.get_plot(b.build_avg_sequence_id_of_orthologues_tree()));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+//			for(Tree t:b.get_trees(gf_filter, cm_filter, dm_filter)) {
+//				try {
+//					Process p1 = Runtime.getRuntime().exec("display "+Plot.get_plot(t));
+//					Process p2 = Runtime.getRuntime().exec("display "+Plot.get_plot(t.change_go_to_root(true).change_top_go_term_count(100)));
+//					p1.waitFor();
+//					p2.waitFor();
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				} catch (InterruptedException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//			}
 			Tree.set_dist_avg(false);
 			Node.set_node_dist(false);
-			File map = Plot.get_heatmap(trees, "UPGMA_all_tot_count");
+			System.out.println("Plotting UPGMA_go_all_100_tot_count:");
+			System.out.println(Plot.get_heatmap(trees, "UPGMA_go_all_100_tot_count"));
+//			System.out.println("Orthologues tree:\n" + Plot.get_plot(b.build_avg_sequence_id_of_orthologues_tree()));
+			int count = 0;
+			for (Tree other : trees) {
+				if (other.hashCode()!=b.build_avg_sequence_id_of_orthologues_tree().hashCode()&&other.compare_to(b.build_avg_sequence_id_of_orthologues_tree()) < 7)
+//					System.out.println(other.data_tile() + ":\n" + Plot.get_plot(other));
+					count++;
+			}
+			System.out.println("count = "+count);
+			count=0;
+			
 			Node.set_node_dist(true);
-			map = Plot.get_heatmap(trees, "UPGMA_all_tot_dist");
+			System.out.println("Plotting UPGMA_go_all_100_tot_dist:");
+			System.out.println(Plot.get_heatmap(trees, "UPGMA_go_all_100_tot_dist"));
+			
+			for (Tree other : trees) {
+				if (other.hashCode()!=b.build_avg_sequence_id_of_orthologues_tree().hashCode()&&other.compare_to(b.build_avg_sequence_id_of_orthologues_tree()) < 0.75)
+//					System.out.println(other.data_tile() + ":\n" + Plot.get_plot(other));
+					count++;
+			}
+			System.out.println("count = "+count);
+			count=0;
+			
+			
+			
+			
+			
 			Tree.set_dist_avg(true);
-			map = Plot.get_heatmap(trees, "UPGMA_all_avg_dist");
+			System.out.println("Plotting UPGMA_go_all_100_avg_dist:");
+			System.out.println(Plot.get_heatmap(trees, "UPGMA_go_all_100_avg_dist"));
+			
+			
+			for (Tree other : trees) {
+				if (other.hashCode()!=b.build_avg_sequence_id_of_orthologues_tree().hashCode()&&other.compare_to(b.build_avg_sequence_id_of_orthologues_tree()) < 0.045)
+//					System.out.println(other.data_tile() + ":\n" + Plot.get_plot(other));
+					count++;
+			}
+			System.out.println("count = "+count);
+			count=0;
+			
+			
+			
 			Node.set_node_dist(false);
-			map = Plot.get_heatmap(trees, "UPGMA_all_avg_count");
+			System.out.println("Plotting UPGMA_go_all_100_avg_count:");
+			System.out.println(Plot.get_heatmap(trees, "UPGMA_go_all_100_avg_count"));
+			
+			for (Tree other : trees) {
+				if (other.hashCode()!=b.build_avg_sequence_id_of_orthologues_tree().hashCode()&&other.compare_to(b.build_avg_sequence_id_of_orthologues_tree()) < 0.9)
+//					System.out.println(other.data_tile() + ":\n" + Plot.get_plot(other));
+					count++;
+			}
+			System.out.println("count = "+count);
+			
+//			Tree.set_dist_avg(true);
+//			Node.set_node_dist(false);
 		}
 	}
 
